@@ -52,6 +52,8 @@ hextory/
 │   ├── maturity/
 │   │   ├── ASPECTS.md                 # 0–100 maturity aspects
 │   │   └── SCORECARD.md               # Current baseline scores
+│   ├── contracts/
+│   │   └── digital-traveler-0.1.md    # Published traveler schema id @0.1
 │   └── architecture/
 │       └── factory-engine-intent.md   # Intent input (non-gating; see DES-0002)
 ├── src/                               # PURE core (no adapters imports)

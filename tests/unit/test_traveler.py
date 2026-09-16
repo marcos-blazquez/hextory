@@ -1,4 +1,4 @@
-"""TEST-0013 — DigitalTraveler Draft fields + append-only routing_history."""
+"""TEST-0013 — DigitalTraveler §3.1 fields + append-only routing_history."""
 
 from __future__ import annotations
 

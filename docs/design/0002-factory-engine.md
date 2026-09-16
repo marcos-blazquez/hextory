@@ -9,7 +9,7 @@
 | **Reviewers (human)** | Marcos Blazquez (2026-09-15 — “looks good; start dual review”) |
 | **Reviewers (agent)** | Clark Bot (2026-09-15 — checklist pass; see review record) |
 | **Created** | 2026-09-15 |
-| **Last updated** | 2026-09-15 (Approved after dual review) |
+| **Last updated** | 2026-09-16 (Approved body hygiene — remove residual Draft-era wording) |
 | **Related REQs** | REQ-0001, REQ-0002, REQ-0003, REQ-0004, REQ-0010, REQ-0011, REQ-0012, REQ-0013, REQ-0014, REQ-0015, REQ-0016, REQ-0017 |
 | **Supersedes** | none (consumes [factory-engine-intent.md](../architecture/factory-engine-intent.md) as input; intent is historical — **this Approved SDD** is the implementation gate) |
 | **Parent vision** | [DES-0001](0001-hextory-vision.md) (**Approved**) |
@@ -28,7 +28,7 @@ DES-0001 established the dark-factory vision and design-doc gate. Before this SD
 
 - **G1 (REQ-0010):** Specify a hexagonal factory engine: pure `src/` core + ports; adapters for local, on-prem, and AWS with identical traveler/workflow semantics.
 - **G2 (REQ-0011):** Support open-ended workflows via graph/registry—starter assembly→quality→packaging is not a closed catalog (DES-0001-C).
-- **G3 (REQ-0012):** Freeze a Draft DigitalTraveler schema (including append-only `routing_history`) suitable for review and first-slice implementation.
+- **G3 (REQ-0012):** Freeze the DigitalTraveler schema (including append-only `routing_history`) for first-slice implementation and published-contract consumers.
 - **G4 (REQ-0013):** Define RequestGateway, interceptors, and Gatekeeper refusal of runs lacking an Approved SDD id.
 - **G5 (REQ-0014):** Specify Quality FAIL → rework with default max attempts **3**, then human escalation.
 - **G6 (REQ-0015):** Decide the testing-layer home and TDD + BDD-style (Given/When/Then in ordinary tests, not Cucumber) conventions.
@@ -37,19 +37,19 @@ DES-0001 established the dark-factory vision and design-doc gate. Before this SD
 
 ### 1.3 Success definition
 
-- Dual review can Approve or request changes against this SDD without re-litigating DES-0001.
-- After **Approved**, agents can implement the local vertical slice against acceptance criteria and TEST IDs without inventing architecture.
+- Dual review Approves or requests changes against this SDD without re-litigating DES-0001.
+- Agents implement the local vertical slice against acceptance criteria and TEST IDs without inventing architecture.
 - Gatekeeper, traveler schema, rework policy, and package layout are unambiguous enough for unit and behavior tests to fail first (TDD).
-- Intent doc remains non-gating; this SDD (when Approved) becomes the sole implementation gate for the engine.
+- Intent doc remains non-gating; this **Approved** SDD is the sole implementation gate for the engine.
 
 ### 1.4 Scope
 
 **In scope:**
 
 - Engine architecture, package layout, ports, starter departments, graph/registry model.
-- DigitalTraveler Draft field freeze; Gateway + interceptors; Gatekeeper policy.
+- DigitalTraveler field freeze (DES-0002-G); Gateway + interceptors; Gatekeeper policy.
 - Quality rework defaults; failure modes; adapter designs (local detailed; on-prem/AWS sketched).
-- Testing-layer home; TEST ID plan; acceptance and gate criteria (gates unchecked while Draft).
+- Testing-layer home; TEST ID plan; acceptance and gate criteria (§13 green under **Approved**).
 - Code-style expectations for walk-through-friendly core.
 
 **Out of scope:** see Explicit non-goals (§8). On-prem/AWS production deployables and full CI automation remain deferred; **first-slice** local core+CLI+tests are authorized only while Status is **Approved** and §13 is green.
@@ -123,9 +123,9 @@ Orchestration stack (**DES-0002-B**, directional): **LangGraph** for graphs; **P
 | **DES-0002-B** | LangGraph + Pydantic v2 as directional stack | Custom FSM; dataclasses; alternate orchestrators | Aligns with intent + DES-0001 A3; schemas at boundaries; amendable with rationale |
 | **DES-0002-C** | Open-ended graph/registry; starter assembly→quality→packaging is not a closed catalog | Hard-coded three-node graph only | Consumes DES-0001-C; unbounded node/edge combos via SDD + config/registry |
 | **DES-0002-D** | Code-review avoidance is one capability; human merge = design-doc readiness | Require PR walkthrough; fully lights-out merge | Reinforces DES-0001-B / REQ-0004 |
-| **DES-0002-E** | Testing layer home: `tests/` with `tests/unit/`, `tests/behavior/`, `tests/adapters/`; TDD + BDD-style Given/When/Then in ordinary tests (**not Cucumber**); enforcement via conventions + future CI | Cucumber/Gherkin; tests inside `src/`; only adapter smokes | Decides DES-0001 Q6 / DES-0001-D; keeps hexagonal purity (tests import `src/`; no adapter I/O into core). **Marcos may change in review.** |
+| **DES-0002-E** | Testing layer home: `tests/` with `tests/unit/`, `tests/behavior/`, `tests/adapters/`; TDD + BDD-style Given/When/Then in ordinary tests (**not Cucumber**); enforcement via conventions + future CI | Cucumber/Gherkin; tests inside `src/`; only adapter smokes | Decides DES-0001 Q6 / DES-0001-D; keeps hexagonal purity (tests import `src/`; no adapter I/O into core). |
 | **DES-0002-F** | Readable, walk-through-friendly code style in core (explicit names, shallow modules, prefer clarity over cleverness) | Ultra-dense / highly abstract style | Agents and humans must audit against SDD without heroic archaeology |
-| **DES-0002-G** | DigitalTraveler schema freeze (Draft fields in §3.1) including append-only `routing_history` | Keep sketch-only forever; over-normalize early | Enables TDD and adapter DTOs; still Draft for dual review |
+| **DES-0002-G** | DigitalTraveler schema freeze (§3.1 fields) including append-only `routing_history` | Keep sketch-only forever; over-normalize early | Enables TDD and adapter DTOs; frozen under this Approved SDD (additive fields via amendment) |
 | **DES-0002-H** | Gateway + interceptors; Quality FAIL → rework; **max_rework default = 3** then escalate | Unlimited rework; fail-fast with no loop; default 1 or 5 | Predictable cost/latency; per-workflow override allowed with justification in that SDD |
 | **DES-0002-I** | Gatekeeper refuses runs without Approved SDD id (and Approved status) | Soft warn; gate only at merge | Runtime + CI both enforce design-doc gate (REQ-0001) |
 | **DES-0002-J** | First implementation slice after Approval: `src/` core + `adapters/local` only (CLI + MemorySaver); on-prem/AWS under same SDD or thin amendments | Implement all three targets at once | Smallest verifiable vertical slice; parity later without redesigning core |
@@ -136,9 +136,9 @@ Orchestration stack (**DES-0002-B**, directional): **LangGraph** for graphs; **P
 
 ### 3.1 Entities / state
 
-#### DigitalTraveler (Draft freeze — **DES-0002-G**)
+#### DigitalTraveler (schema freeze — **DES-0002-G**)
 
-Mutable state object that moves through factory nodes. Field set below is **proposed for review**; IDs and semantics should stay stable once this SDD is Approved (additive fields via amendment).
+Mutable state object that moves through factory nodes. Field set below is **frozen** under this Approved SDD; IDs and semantics stay stable (additive fields via amendment). Published contract id: `hextory.digital_traveler@0.1` — see [`docs/contracts/digital-traveler-0.1.md`](../contracts/digital-traveler-0.1.md).
 
 | Field | Type (intent) | Required | Purpose |
 |---|---|---|---|
@@ -208,7 +208,7 @@ RunRequest
 
 ### 3.3 Persistence & retention
 
-| Target | Traveler / checkpoint store | Retention (Draft) | PII |
+| Target | Traveler / checkpoint store | Retention (intent) | PII |
 |---|---|---|---|
 | Local | MemorySaver + optional local files under workspace | Session / explicit export; no cloud TTL | Avoid secrets in `payload`; redact in logs |
 | On-prem | Postgres (traveler rows + checkpoint blob) | Per customer policy; default soft-delete after configurable TTL | Same; encryption at rest = ops concern |
@@ -358,7 +358,7 @@ Graphical dashboards: **N/A** for this SDD (future product SDD).
 - **NG4:** Requiring human line-by-line code review as a merge prerequisite (DES-0001-B / DES-0002-D).
 - **NG5:** Allowing main-line merge or production run without Approved SDD citation.
 - **NG6:** Hard-coding a permanent closed catalog of only assembly/quality/packaging.
-- **NG7:** Choosing a single mandatory LLM vendor or locking exact AWS resource names in this Draft.
+- **NG7:** Choosing a single mandatory LLM vendor or locking exact AWS resource names in this SDD.
 - **NG8:** Building a full web UI / operator console.
 - **NG9:** Treating [factory-engine-intent.md](../architecture/factory-engine-intent.md) as an implementation gate.
 
@@ -372,7 +372,7 @@ Concrete, testable criteria. Agents may implement only after gate criteria (§13
 |---|---|---|
 | AC-01 | `src/` has no imports from `adapters/` | TEST-0010 (static/import check) |
 | AC-02 | Gatekeeper denies run when `sdd_id` missing or not Approved; no assembly routing_history entry | TEST-0011, TEST-0012 |
-| AC-03 | DigitalTraveler includes Draft fields in §3.1; `routing_history` is append-only across node visits | TEST-0013 |
+| AC-03 | DigitalTraveler includes §3.1 fields; `routing_history` is append-only across node visits | TEST-0013 |
 | AC-04 | Starter graph: assembly → quality → packaging on PASS | TEST-0014 |
 | AC-05 | Quality FAIL routes to rework; increments `rework_count`; after 3 FAILs status=`escalated` (default) | TEST-0015, TEST-0016 |
 | AC-06 | Packaging never runs on FAIL; Shipped unreachable while FAIL | TEST-0017 |
@@ -423,7 +423,7 @@ Reviewers must check each item. Architecture-critical items require **human** si
 | 9 | Visuals / diagrams present or explicitly deferred | ☑ | ☑ | No |
 | 10 | No implementation leakage that bypasses this SDD | ☑ | ☑ | Yes |
 | 11 | Testing-layer home (DES-0002-E) acceptable | ☑ | ☑ | Yes |
-| 12 | DigitalTraveler Draft fields (DES-0002-G) acceptable | ☑ | ☑ | Yes |
+| 12 | DigitalTraveler fields (DES-0002-G) acceptable | ☑ | ☑ | Yes |
 | 13 | First-slice bound to local adapters (DES-0002-J) acceptable | ☑ | ☑ | Yes |
 
 **Sign-off**
@@ -505,9 +505,9 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 | Q-ID-1 | UUID vs ULID for `traveler_id`? | Dual review | Before Approved | Soft — string opaque to core |
 | Q-CHK-1 | File-backed local checkpoint in first slice or MemorySaver only? | Marcos | First-slice impl | Soft — MemorySaver minimum (DES-0002-J) |
 
-**Decided in this Draft (not open):** testing-layer home (**DES-0002-E**); traveler core fields (**DES-0002-G**); max_rework default **3** (**DES-0002-H**); first slice local-only (**DES-0002-J**).
+**Decided in this SDD (not open):** testing-layer home (**DES-0002-E**); traveler core fields (**DES-0002-G**); max_rework default **3** (**DES-0002-H**); first slice local-only (**DES-0002-J**).
 
-None of Q-* above are blocking for dual review of architecture; Q-GATE-1 should have an interim decision before claiming AC-02 done in CI.
+None of Q-* above blocked Approval; Q-GATE-1 interim is recorded; AC-02 is implementable in CI.
 
 ---
 
@@ -517,6 +517,7 @@ None of Q-* above are blocking for dual review of architecture; Q-GATE-1 should 
 |---|---|---|
 | 2026-09-15 | Marcos Blazquez + Clark Bot | Initial Draft from TEMPLATE + factory-engine-intent + DES-0001; decisions DES-0002-A…J |
 | 2026-09-15 | Marcos Blazquez + Clark Bot | Dual review → **Approved**; Q-GATE-1 interim; first-slice implementation now gated-green |
+| 2026-09-16 | Cloud Agent | Hygiene scrub: remove residual Draft-era / “may change in review” wording from Approved body; Status unchanged; link published DigitalTraveler 0.1 contract |
 
 ## Dual-review record
 
@@ -544,11 +545,11 @@ None of Q-* above are blocking for dual review of architecture; Q-GATE-1 should 
 
 ---
 
-## Package layout (proposed)
+## Package layout (first-slice)
 
 ```
 hextory/
-├── docs/                          # existing design, workflows, maturity, architecture
+├── docs/                          # design, workflows, maturity, architecture, contracts
 ├── src/                           # PURE core only
 │   ├── domain/                    # entities, DigitalTraveler, value objects
 │   ├── ports/                     # Gatekeeper, LLM, Checkpointer, …
@@ -564,7 +565,7 @@ hextory/
 │   ├── behavior/                  # BDD-style Given/When/Then scenarios
 │   └── adapters/                  # optional per-target smokes
 ├── config/                        # optional workflow manifests / registry files
-├── pyproject.toml                 # (future, post-Approval)
+├── pyproject.toml
 └── README.md
 ```
 
@@ -576,7 +577,7 @@ hextory/
 |---|---|
 | **TDD** | Failing test before production code for core behavior |
 | **BDD-style** | Readable Given/When/Then (or equivalent) in normal test modules — **not Cucumber** unless a future SDD explicitly adopts it |
-| **Testing layer** | **`tests/`** — DES-0002-E: `tests/unit/` (core, no I/O), `tests/behavior/` (scenario specs), `tests/adapters/` (optional smokes). Enforcement: conventions now; CI import-linter + path checks later. Marcos may change in review. |
+| **Testing layer** | **`tests/`** — DES-0002-E: `tests/unit/` (core, no I/O), `tests/behavior/` (scenario specs), `tests/adapters/` (optional smokes). Enforcement: conventions now; CI import-linter + path checks later. |
 | **Traceability** | Link TEST-* IDs to REQ-* / DES-* |
 
 | TEST ID | Intent | Layer | Maps to |
