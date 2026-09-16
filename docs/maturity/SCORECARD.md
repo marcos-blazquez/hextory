@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| **Date** | 2026-09-16 16:26 America/Santiago |
-| **Stage** | Building foundations — public git + live CI + interceptors/LLM |
-| **Latest pulse** | [R-0010](reports/R-0010-20260916-1626.md) |
+| **Date** | 2026-09-16 17:31 America/Santiago |
+| **Stage** | Building foundations — ruleset + v0.1.0 + traveler@0.1; approaching operational candidate |
+| **Latest pulse** | [R-0011](reports/R-0011-20260916-1731.md) |
 | **Scorers** | Clark Bot (maturity pulse); prior: Marcos Blazquez + New Bot |
 | **Method** | Per [ASPECTS.md](ASPECTS.md); each aspect 0–100; overall = mean |
 
@@ -12,35 +12,35 @@
 
 | # | Aspect | Score (0–100) | Rationale |
 |---|---|---|---|
-| 1 | Vision clarity | **65** | DES-0001/0002 **Approved**; public README; DES-0003 bare Draft; leftover Draft wording in Approved DES-0002 body. |
-| 2 | Design-doc coverage | **60** | TEMPLATE + Approved vision + Approved engine + Draft Studio ideation; no other concrete workflow SDDs. |
-| 3 | Review rigor (dual human+agent) | **50** | Two dual Approvals with agent review records; DES-0003 reviewers TBD. |
-| 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **74** | DES-0002 §12 + live IMPL + FileCheckpointer/GraphRunner + idempotency/LLM tests; pytest **72 passed**. |
-| 5 | Architecture purity (hexagonal isolation) | **80** | Pure `src/` + ports (GraphRunner, IdempotencyStore, LlmPort); LangGraph/Echo/OpenAI adapter-only; open GraphRegistry. |
+| 1 | Vision clarity | **70** | DES-0001/0002 **Approved**; DES-0002 Approved-body hygiene + published traveler contract; DES-0003 bare Draft ideation. |
+| 2 | Design-doc coverage | **60** | TEMPLATE + Approved vision + Approved engine + Draft Studio ideation; no new Approved workflow SDDs. |
+| 3 | Review rigor (dual human+agent) | **55** | Two dual Approvals; PR merge-via-doc practiced (#1/#2); `required_approving_review_count: 0` caps further lift. |
+| 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **76** | DES-0002 §12 + live IMPL + published `hextory.digital_traveler@0.1`; pytest **72 passed**. |
+| 5 | Architecture purity (hexagonal isolation) | **80** | Pure `src/` + ports; LangGraph/Echo/OpenAI adapter-only; open GraphRegistry; only `adapters/local`. |
 | 6 | Determinism, testability & readable core | **84** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; 72 tests passed. |
-| 7 | Automation of design gates (CI/process) | **70** | Runtime Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + hosted Actions **Success** on main (`03b2ebf`); **no branch protection** yet. |
-| 8 | Factory observability (traces, quality loops) | **52** | FileCheckpointer persists travelers + quality FAIL under `.hextory/`; FileIdempotency; CLI status from disk; no dashboards. |
+| 7 | Automation of design gates (CI/process) | **84** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; approvals=0 and not strict up-to-date. |
+| 8 | Factory observability (traces, quality loops) | **52** | FileCheckpointer persists travelers + quality FAIL under `.hextory/`; FileIdempotency; no dashboards. |
 | 9 | Multi-target deploy readiness | **40** | Local CLI + File/Memory checkpointers; dual runtime ≠ second target; only `adapters/local`. |
-| 10 | Public project readiness | **73** | Public GitHub + MIT + README + CONTRIBUTING; CI passing; git deferral lifted; no issue/PR templates. |
+| 10 | Public project readiness | **82** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PR habit; no issue/PR templates. |
 
 ### Overall maturity
 
 | Metric | Value |
 |---|---|
-| Sum of aspect scores | 65+60+50+74+80+84+70+52+40+73 = **648** |
-| **Overall maturity** | **64.8** |
-| Band | **40–69 — Building foundations** (public git + live CI + interceptors/LLM) |
+| Sum of aspect scores | 70+60+55+76+80+84+84+52+40+82 = **683** |
+| **Overall maturity** | **68.3** |
+| Band | **40–69 — Building foundations** (approaching operational candidate) |
 | Meets ≥90? | **NO** |
-| Δ vs R-0009 | **+5.4** (59.4 → 64.8) — public repo + Actions Success + interceptors/LLM + 72 tests |
+| Δ vs R-0010 | **+3.5** (64.8 → 68.3) — ruleset required checks + v0.1.0 + traveler@0.1 + PR habit + DES-0002 hygiene |
 
 ## Next actions
 
-1. Branch protection on `main`: require design-gates (+ pytest) before merge (aspects 7, 10).
-2. Scrub leftover Draft / “may change in review” wording in Approved DES-0002; keep Status cells bare for Q-GATE-1.
-3. Add issue/PR templates for SDD contribution path.
-4. Keep DES-0003 Draft ideation only — no React/xyflow/`adapters/web` until a later Approved build SDD.
-5. Observability next: dashboards / gate-denial metrics beyond file artifacts.
-6. Sync maturity artifacts to Mac SoT when reachable.
+1. Second deploy adapter beyond `adapters/local` with traveler/Gatekeeper parity (aspect 9) — dual runtime ≠ multi-target.
+2. Observability: dashboards / gate-denial metrics beyond file artifacts (aspect 8).
+3. Add issue/PR templates for SDD contribution path (aspect 10).
+4. More Approved workflow SDDs under dual review (aspects 2, 3).
+5. When a second reviewer exists: re-enable ≥1 required approving review; consider strict up-to-date (aspects 3, 7).
+6. Keep DES-0003 Draft ideation only — no product UI during pulse; out-of-tree consumers stay out of public kernel score.
 7. Continue weekday hourly pulses until overall ≥ 90; do not invent score lifts without new evidence.
 
 ## Revision history
@@ -60,3 +60,4 @@
 | 2026-09-16 10:50 | Clark Bot | Pulse R-0008: CONTRIBUTING + CI gates + DES-0003 hygiene → overall **56.9** (+3.9) |
 | 2026-09-16 11:45 | Clark Bot | Pulse R-0009: FileCheckpointer + GraphRunner/LangGraph → overall **59.4** (+2.5) |
 | 2026-09-16 16:26 | Clark Bot | Pulse R-0010: public git + Actions Success + interceptors/LLM → overall **64.8** (+5.4) |
+| 2026-09-16 17:31 | Clark Bot | Pulse R-0011: ruleset + v0.1.0 + traveler@0.1 + PR habit → overall **68.3** (+3.5) |
