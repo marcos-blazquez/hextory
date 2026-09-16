@@ -1,0 +1,43 @@
+# Hextory CI — tests + design-gate automation (DES-0001 / DES-0002).
+# Applies once this tree is pushed to GitHub. No git init required to author this file.
+name: ci
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: pytest
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install
+        run: pip install -e ".[dev]"
+      - name: Run tests
+        run: python -m pytest
+
+  design-gates:
+    name: design-gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install (minimal — gates script is stdlib-only; install for import check consistency)
+        run: pip install -e ".[dev]"
+      - name: Design-gate checks
+        run: python scripts/ci_design_gates.py
+      - name: Re-run import / layout tests explicitly
+        run: python -m pytest tests/unit/test_imports_no_adapters.py tests/unit/test_layout_and_merge_docs.py -q
