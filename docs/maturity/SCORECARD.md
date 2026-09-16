@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| **Date** | 2026-09-16 11:45 America/Santiago |
-| **Stage** | Building foundations — FileCheckpointer + optional LangGraph behind GraphRunner |
-| **Latest pulse** | [R-0009](reports/R-0009-20260916-1145.md) |
+| **Date** | 2026-09-16 16:26 America/Santiago |
+| **Stage** | Building foundations — public git + live CI + interceptors/LLM |
+| **Latest pulse** | [R-0010](reports/R-0010-20260916-1626.md) |
 | **Scorers** | Clark Bot (maturity pulse); prior: Marcos Blazquez + New Bot |
 | **Method** | Per [ASPECTS.md](ASPECTS.md); each aspect 0–100; overall = mean |
 
@@ -12,35 +12,36 @@
 
 | # | Aspect | Score (0–100) | Rationale |
 |---|---|---|---|
-| 1 | Vision clarity | **65** | DES-0001/0002 **Approved**; README cites FileCheckpointer + dual runtime; DES-0003 bare Draft; leftover Draft wording in Approved DES-0002 body. |
+| 1 | Vision clarity | **65** | DES-0001/0002 **Approved**; public README; DES-0003 bare Draft; leftover Draft wording in Approved DES-0002 body. |
 | 2 | Design-doc coverage | **60** | TEMPLATE + Approved vision + Approved engine + Draft Studio ideation; no other concrete workflow SDDs. |
 | 3 | Review rigor (dual human+agent) | **50** | Two dual Approvals with agent review records; DES-0003 reviewers TBD. |
-| 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **68** | DES-0002 §12 + live IMPL + FileCheckpointer/GraphRunner tests; pytest 42 passed / 3 skipped. |
-| 5 | Architecture purity (hexagonal isolation) | **76** | Pure `src/` + ports incl. GraphRunner; LangGraph adapter-only; open GraphRegistry; FileCheckpointer in adapters/local. |
-| 6 | Determinism, testability & readable core | **78** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber deps; 42 tests passed. |
-| 7 | Automation of design gates (CI/process) | **50** | Runtime Gatekeeper + Q-GATE-1 + `ci_design_gates.py` (local OK) + `.github/workflows/ci.yml`; still no `.git`/branch protection/Actions. |
-| 8 | Factory observability (traces, quality loops) | **52** | FileCheckpointer persists travelers + quality FAIL under `.hextory/`; CLI status from disk; no dashboards. |
+| 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **74** | DES-0002 §12 + live IMPL + FileCheckpointer/GraphRunner + idempotency/LLM tests; pytest **72 passed**. |
+| 5 | Architecture purity (hexagonal isolation) | **80** | Pure `src/` + ports (GraphRunner, IdempotencyStore, LlmPort); LangGraph/Echo/OpenAI adapter-only; open GraphRegistry. |
+| 6 | Determinism, testability & readable core | **84** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; 72 tests passed. |
+| 7 | Automation of design gates (CI/process) | **70** | Runtime Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + hosted Actions **Success** on main (`03b2ebf`); **no branch protection** yet. |
+| 8 | Factory observability (traces, quality loops) | **52** | FileCheckpointer persists travelers + quality FAIL under `.hextory/`; FileIdempotency; CLI status from disk; no dashboards. |
 | 9 | Multi-target deploy readiness | **40** | Local CLI + File/Memory checkpointers; dual runtime ≠ second target; only `adapters/local`. |
-| 10 | Public project readiness | **55** | MIT + README + CONTRIBUTING.md; CI authored; `.git` still deferred by Marcos; no issue/PR templates. |
+| 10 | Public project readiness | **73** | Public GitHub + MIT + README + CONTRIBUTING; CI passing; git deferral lifted; no issue/PR templates. |
 
 ### Overall maturity
 
 | Metric | Value |
 |---|---|
-| Sum of aspect scores | 65+60+50+68+76+78+50+52+40+55 = **594** |
-| **Overall maturity** | **59.4** |
-| Band | **40–69 — Building foundations** (FileCheckpointer + optional LangGraph) |
+| Sum of aspect scores | 65+60+50+74+80+84+70+52+40+73 = **648** |
+| **Overall maturity** | **64.8** |
+| Band | **40–69 — Building foundations** (public git + live CI + interceptors/LLM) |
 | Meets ≥90? | **NO** |
-| Δ vs R-0008 | **+2.5** (56.9 → 59.4) — FileCheckpointer observability + GraphRunner/LangGraph hexagonal evidence + more tests |
+| Δ vs R-0009 | **+5.4** (59.4 → 64.8) — public repo + Actions Success + interceptors/LLM + 72 tests |
 
 ## Next actions
 
-1. When Marcos lifts deferral: init/connect public git so Actions can run; branch protection on design-gate job (aspects 7, 10).
+1. Branch protection on `main`: require design-gates (+ pytest) before merge (aspects 7, 10).
 2. Scrub leftover Draft / “may change in review” wording in Approved DES-0002; keep Status cells bare for Q-GATE-1.
-3. Product track: harden idempotency + quota/timeout interceptors; then LLM beyond NullLlm.
+3. Add issue/PR templates for SDD contribution path.
 4. Keep DES-0003 Draft ideation only — no React/xyflow/`adapters/web` until a later Approved build SDD.
 5. Observability next: dashboards / gate-denial metrics beyond file artifacts.
-6. Continue weekday hourly pulses until overall ≥ 90; do not invent score lifts without new evidence.
+6. Sync maturity artifacts to Mac SoT when reachable.
+7. Continue weekday hourly pulses until overall ≥ 90; do not invent score lifts without new evidence.
 
 ## Revision history
 
@@ -58,3 +59,4 @@
 | 2026-09-16 09:38 | Clark Bot | Pulse R-0007: flat **53.0** (Δ0); reconfirm + edge-case deepening |
 | 2026-09-16 10:50 | Clark Bot | Pulse R-0008: CONTRIBUTING + CI gates + DES-0003 hygiene → overall **56.9** (+3.9) |
 | 2026-09-16 11:45 | Clark Bot | Pulse R-0009: FileCheckpointer + GraphRunner/LangGraph → overall **59.4** (+2.5) |
+| 2026-09-16 16:26 | Clark Bot | Pulse R-0010: public git + Actions Success + interceptors/LLM → overall **64.8** (+5.4) |

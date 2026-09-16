@@ -4,7 +4,7 @@ Hextory is a **design-gated dark factory**: Approved Software Design Documents (
 
 This guide is the contributor on-ramp. Process detail lives in [`docs/workflows/design-doc-review.md`](docs/workflows/design-doc-review.md).
 
-> **Repo note:** Git remote / `git init` may still be pending. Treat this tree as the source of truth; CI workflows under `.github/` apply once the project is hosted on GitHub (or an Actions-compatible forge).
+> **Repo note:** Public GitHub + Actions CI + branch ruleset (PR + required checks + 1 review) are live. DigitalTraveler published contract: [`docs/contracts/digital-traveler-0.1.md`](docs/contracts/digital-traveler-0.1.md) (`hextory.digital_traveler@0.1`).
 
 ---
 
