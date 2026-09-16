@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| **Date** | 2026-09-16 19:28 America/Santiago |
+| **Date** | 2026-09-16 19:45 America/Santiago |
 | **Stage** | Building foundations — ruleset + v0.1.0 + traveler@0.1; approaching operational candidate |
-| **Latest pulse** | [R-0014](reports/R-0014-20260916-1928.md) |
+| **Latest pulse** | [R-0015](reports/R-0015-20260916-1945.md) |
 | **Scorers** | Clark Bot (maturity pulse); prior: Marcos Blazquez + New Bot |
 | **Method** | Per [ASPECTS.md](ASPECTS.md); each aspect 0–100; overall = mean |
 
@@ -14,14 +14,14 @@
 |---|---|---|---|
 | 1 | Vision clarity | **70** | DES-0001/0002 **Approved**; DES-0002 Approved-body hygiene + published traveler contract; DES-0003 bare Draft ideation. |
 | 2 | Design-doc coverage | **60** | TEMPLATE + Approved vision + Approved engine + Draft Studio ideation; no new Approved workflow SDDs. |
-| 3 | Review rigor (dual human+agent) | **55** | Two dual Approvals; PR merge-via-doc practiced (#1–#5); `required_approving_review_count: 0` caps further lift. |
+| 3 | Review rigor (dual human+agent) | **55** | Two dual Approvals; PR merge-via-doc practiced (#1–#6); `required_approving_review_count: 0` caps further lift. |
 | 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **76** | DES-0002 §12 + live IMPL + published `hextory.digital_traveler@0.1`; pytest **72 passed**. |
 | 5 | Architecture purity (hexagonal isolation) | **80** | Pure `src/` + ports; LangGraph/Echo/OpenAI adapter-only; open GraphRegistry; only `adapters/local`. |
 | 6 | Determinism, testability & readable core | **84** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; 72 tests passed. |
-| 7 | Automation of design gates (CI/process) | **84** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; ci #11 completed Success on `7efb2bd`; approvals=0 and not strict up-to-date. |
+| 7 | Automation of design gates (CI/process) | **84** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; ci #13 Success on `187dda7`; approvals=0 and not strict up-to-date. |
 | 8 | Factory observability (traces, quality loops) | **52** | FileCheckpointer persists travelers + quality FAIL under `.hextory/`; FileIdempotency; no dashboards. |
 | 9 | Multi-target deploy readiness | **40** | Local CLI + File/Memory checkpointers; dual runtime ≠ second target; only `adapters/local`. |
-| 10 | Public project readiness | **82** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PR habit (#1–#5); no issue/PR templates. |
+| 10 | Public project readiness | **82** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PR habit (#1–#6); no issue/PR templates. |
 
 ### Overall maturity
 
@@ -31,7 +31,7 @@
 | **Overall maturity** | **68.3** |
 | Band | **40–69 — Building foundations** (approaching operational candidate) |
 | Meets ≥90? | **NO** |
-| Δ vs R-0013 | **0.0** (68.3 → 68.3) — flat reconfirm after PR #5 / ci #11; no new product evidence |
+| Δ vs R-0014 | **0.0** (68.3 → 68.3) — flat reconfirm after PR #6 / ci #13 / main `187dda7`; no new product evidence |
 
 ## Next actions
 
@@ -64,3 +64,4 @@
 | 2026-09-16 17:41 | Clark Bot | Pulse R-0012: flat reconfirm **68.3** (Δ0) after PR #3 / ci #7 |
 | 2026-09-16 18:26 | Clark Bot | Pulse R-0013: flat reconfirm **68.3** (Δ0) after PR #4 / ci #9 |
 | 2026-09-16 19:28 | Clark Bot | Pulse R-0014: flat reconfirm **68.3** (Δ0) after PR #5 / ci #11 |
+| 2026-09-16 19:45 | Clark Bot | Pulse R-0015: flat reconfirm **68.3** (Δ0) after PR #6 / ci #13 / main `187dda7` |
