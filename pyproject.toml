@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hextory"
+version = "0.1.0"
+description = "Hextory factory engine — hexagonal multi-agent orchestration (DES-0002 first slice)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Marcos Blazquez" }]
+dependencies = [
+  "pydantic>=2.0,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+# Optional LangGraph runner (adapters/local/langgraph_runtime.py). Core stays pure.
+# Install for parity tests / CLI --runtime langgraph:
+#   pip install -e ".[dev,langgraph]"
+langgraph = [
+  "langgraph>=0.2",
+]
+
+[project.scripts]
+hextory = "adapters.local.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "adapters*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+  "behavior: BDD-style Given/When/Then scenarios",
+]
