@@ -4,7 +4,7 @@
 
 Instead of humans line-reading every pull request, **every workflow requires a Software Design Document (SDD)** that humans *and* agents review and approve. Code generation and implementation are **gated** on that approved design. Agents implement; design docs carry the shared contract.
 
-> Status: **First-slice scaffold**. Vision [DES-0001](docs/design/0001-hextory-vision.md) and factory engine [DES-0002](docs/design/0002-factory-engine.md) are **Approved**. Local vertical slice (`src/` + `adapters/local` + `tests/`) is in tree; on-prem/AWS still deferred. [DES-0003](docs/design/0003-workflow-studio.md) (Hextory Studio UI) is **Draft ideation only** — not authorized to build. See the [maturity scorecard](docs/maturity/SCORECARD.md).
+> Status: **First-slice scaffold**. Vision [DES-0001](docs/design/0001-hextory-vision.md) and factory engine [DES-0002](docs/design/0002-factory-engine.md) are **Approved**. Local vertical slice (`src/` + `adapters/local` + `tests/`) is in tree; AWS still deferred. [DES-0003](docs/design/0003-workflow-studio.md) (Hextory Studio UI) is **Draft ideation only** — not authorized to build. [DES-0004](docs/design/0004-onprem-adapter.md) (on-prem adapter) is **Draft** — docs only, no FastAPI/Postgres impl yet. See the [maturity scorecard](docs/maturity/SCORECARD.md).
 
 ## Dark-factory thesis
 
@@ -46,7 +46,9 @@ hextory/
 │   ├── design/
 │   │   ├── TEMPLATE.md                # SDD template for any workflow
 │   │   ├── 0001-hextory-vision.md     # Meta-system vision (Approved)
-│   │   └── 0002-factory-engine.md     # Factory engine SDD (Approved)
+│   │   ├── 0002-factory-engine.md     # Factory engine SDD (Approved)
+│   │   ├── 0003-workflow-studio.md    # Studio UI (Draft ideation)
+│   │   └── 0004-onprem-adapter.md     # On-prem adapter (Draft)
 │   ├── workflows/
 │   │   └── design-doc-review.md       # Ideation → Approved → Shipped
 │   ├── maturity/
@@ -71,7 +73,7 @@ hextory/
     └── adapters/
 ```
 
-First-slice engine (`DES-0002-J`) is present: pure `src/` + `adapters/local` + `tests/`. On-prem/AWS adapters remain deferred.
+First-slice engine (`DES-0002-J`) is present: pure `src/` + `adapters/local` + `tests/`. On-prem is Draft-only ([DES-0004](docs/design/0004-onprem-adapter.md)); AWS remains deferred.
 
 ## Run tests and local CLI (DES-0002 first slice)
 
@@ -204,6 +206,7 @@ Code-only contributions that bypass an Approved SDD will be rejected once public
 | [Vision SDD (0001)](docs/design/0001-hextory-vision.md) | Meta-system design (**Approved**) |
 | [Factory engine SDD (0002)](docs/design/0002-factory-engine.md) | Hexagonal multi-agent engine (**Approved**) |
 | [Hextory Studio SDD (0003)](docs/design/0003-workflow-studio.md) | Managed workflow canvas — Twilio Studio–like (**Draft**, ideation only) |
+| [On-prem adapter SDD (0004)](docs/design/0004-onprem-adapter.md) | FastAPI + Postgres + Docker — second deploy target (**Draft**, no impl yet) |
 | [Factory engine intent](docs/architecture/factory-engine-intent.md) | Historical intent; gate is DES-0002 **Approved** |
 | [CONTRIBUTING](CONTRIBUTING.md) | Design-doc gate, tests, CI on-ramp |
 | [SDD template](docs/design/TEMPLATE.md) | Start here for new workflows |

@@ -35,6 +35,7 @@ Python **3.11+**. See [`README.md`](README.md) for layout and CLI notes.
 | Bugfixes that stay in scope of an Approved SDD | New deploy targets (on-prem/AWS) without SDD coverage |
 | | Cucumber / Gherkin toolchains (BDD-*style* in ordinary pytest only) |
 | | Studio / React / xyflow / `adapters/web` until DES-0003 (or a build SDD) is **Approved** |
+| | On-prem FastAPI / Postgres / Compose product code until DES-0004 is **Approved** |
 
 ---
 
@@ -55,6 +56,7 @@ Python **3.11+**. See [`README.md`](README.md) for layout and CLI notes.
 | [DES-0001](docs/design/0001-hextory-vision.md) | Approved | Vision / operating model |
 | [DES-0002](docs/design/0002-factory-engine.md) | Approved | Factory engine; first slice authorized |
 | [DES-0003](docs/design/0003-workflow-studio.md) | Draft | Hextory Studio ideation — **no UI implementation** |
+| [DES-0004](docs/design/0004-onprem-adapter.md) | Draft | On-prem adapter (`adapters/onprem`) — **no FastAPI/Postgres implementation** |
 
 ---
 
@@ -91,7 +93,7 @@ pytest -m behavior -q
 1. Cite the **Approved** `sdd_id` (and workflow id) in the PR description.
 2. CI must be green (tests + design-gate checks).
 3. Human approve merge based on **design-doc readiness** (Approved SDD, in-scope change, gates green) — not a code walkthrough.
-4. Do not merge implementation for Draft-only SDDs (including DES-0003 Studio).
+4. Do not merge implementation for Draft-only SDDs (including DES-0003 Studio and DES-0004 on-prem).
 
 ---
 
