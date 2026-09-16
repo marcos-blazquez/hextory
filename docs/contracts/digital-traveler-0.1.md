@@ -7,11 +7,11 @@
 | **Status** | Published for public kernel consumers |
 | **Core package** | `src/domain/traveler.py` |
 
-This note is the short **published contract** for DigitalTraveler. Field semantics and requiredness live in DES-0002-G; this document names the schema id and the rules private (out-of-tree) consumers must follow.
+This note is the short **published contract** for DigitalTraveler. Field semantics and requiredness live in DES-0002-G; this document names the schema id and the rules **downstream adapters and out-of-tree applications** that depend on `hextory.digital_traveler@0.1` must follow.
 
 ## Core fields (DES-0002-G)
 
-Public consumers MUST honor the §3.1 field set, including:
+Consumers that depend on `hextory.digital_traveler@0.1` MUST honor the §3.1 field set, including:
 
 | Field | Contract rule |
 |---|---|
@@ -30,23 +30,23 @@ Public consumers MUST honor the §3.1 field set, including:
 - Prior entries are immutable for the life of the traveler instance used by Gatekeeper and graph runtime.
 - Adapters MAY serialize the full history; they MUST NOT collapse, rewrite timestamps, or reorder past events.
 
-## Extension bags (private consumers only)
+## Extension bags (downstream / out-of-tree consumers)
 
-Private products (Studio, Bruce, or other out-of-tree apps) MAY attach **additive extension bags** — namespaced maps alongside the core traveler (for example `extensions.<vendor>` or a sibling envelope field outside the public schema id).
+Downstream adapters and out-of-tree applications MAY attach **additive extension bags** — namespaced maps alongside the core traveler (for example `extensions.<vendor>` or a sibling envelope field outside the public schema id).
 
 Rules:
 
 1. Extension bags are **additive only**. They MUST NOT rename, remove, or change the type/semantics of DES-0002-G core fields.
 2. Public kernel Gatekeeper, departments, and graph runtime MUST ignore unknown extension bags (forward-compatible).
 3. Publishing a new **required** core field requires an Approved SDD amendment and a new schema id (e.g. `@0.2`).
-4. Private forks of the traveler **core** schema are forbidden (see below).
+4. Forks of the traveler **core** schema are forbidden (see below).
 
-## Private must not fork Gatekeeper / traveler core
+## Consumers must not fork Gatekeeper / traveler core
 
-Private consumers:
+Consumers that depend on `hextory.digital_traveler@0.1`:
 
 - **MUST** depend on the public kernel’s DigitalTraveler + Gatekeeper contracts (this schema id + DES-0002-I).
-- **MUST NOT** fork or re-implement Gatekeeper policy, traveler core fields, or append-only `routing_history` semantics in a divergent private copy.
+- **MUST NOT** fork or re-implement Gatekeeper policy, traveler core fields, or append-only `routing_history` semantics in a divergent copy.
 - **MAY** wrap the public types with adapter DTOs and extension bags for UI / persistence needs.
 - **MUST NOT** land Studio / React / `adapters/web` code in this public repo until an Approved build SDD authorizes it (DES-0003 remains Draft ideation).
 
