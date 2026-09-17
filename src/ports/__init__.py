@@ -7,20 +7,32 @@ from src.ports.graph_runner import GraphRunner
 from src.ports.id_generator import IdGenerator, UuidGenerator
 from src.ports.idempotency import IdempotencyStore, InMemoryIdempotencyStore
 from src.ports.llm import FakeLlm, LlmPort, NullLlm, ScriptedLlm
+from src.ports.metrics import (
+    FROZEN_METRIC_NAMES,
+    InMemoryMetrics,
+    MetricsPort,
+    NoOpMetrics,
+    SafeMetrics,
+)
 from src.ports.sdd_status import SddStatus, SddStatusReader
 
 __all__ = [
     "Checkpointer",
     "Clock",
+    "FROZEN_METRIC_NAMES",
+    "FakeLlm",
     "GateDecision",
     "Gatekeeper",
     "GraphRunner",
     "IdGenerator",
     "IdempotencyStore",
     "InMemoryIdempotencyStore",
-    "FakeLlm",
+    "InMemoryMetrics",
     "LlmPort",
+    "MetricsPort",
+    "NoOpMetrics",
     "NullLlm",
+    "SafeMetrics",
     "ScriptedLlm",
     "SddStatus",
     "SddStatusReader",

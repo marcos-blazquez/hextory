@@ -11,6 +11,9 @@ Runtime: ``--runtime pure`` (default, stable) or ``--runtime langgraph``
 LLM: ``HEXTORY_LLM_MODE=null|echo|openai`` (default null; no cloud keys required).
 Pass ``--llm-assist`` to set ``payload["llm_assist"]=True`` when a non-null LLM
 is wired.
+
+Metrics (DES-0006 / Q-OBS-3): after ``run``, dump counters to stdout (``--metrics-dump``)
+or a file (``--metrics-file PATH``). No HTTP ``/metrics`` on local first slice.
 """
 
 from __future__ import annotations
@@ -25,6 +28,7 @@ from adapters.local.echo_llm import llm_from_env
 from adapters.local.file_checkpointer import DEFAULT_STORE_DIRNAME, FileCheckpointer
 from adapters.local.file_idempotency import FileIdempotencyStore
 from adapters.local.memory_checkpointer import MemoryCheckpointer
+from adapters.local.metrics_dump import dump_metrics
 from adapters.local.sdd_status_reader import LocalSddStatusReader
 from src.gateway.request_gateway import RequestGateway
 from src.graphs.registry import GraphRegistry
@@ -35,6 +39,7 @@ from src.ports.checkpointer import Checkpointer
 from src.ports.graph_runner import GraphRunner
 from src.ports.idempotency import IdempotencyStore, InMemoryIdempotencyStore
 from src.ports.llm import LlmPort, NullLlm
+from src.ports.metrics import InMemoryMetrics, MetricsPort
 
 
 def _repo_root() -> Path:
@@ -73,6 +78,7 @@ def build_gateway(
     runner: Optional[GraphRunner] = None,
     llm: Optional[LlmPort] = None,
     idempotency_store: Optional[IdempotencyStore] = None,
+    metrics: Optional[MetricsPort] = None,
 ) -> tuple[RequestGateway, Checkpointer]:
     """Wire Gatekeeper + starter registry + checkpointer + optional GraphRunner/LLM.
 
@@ -118,6 +124,7 @@ def build_gateway(
         checkpointer=cp,
         runner=selected,
         idempotency_store=idem,
+        metrics=metrics,
     )
     return gateway, cp
 
@@ -169,14 +176,20 @@ def cmd_run(args: argparse.Namespace) -> int:
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
         return 2
+    metrics: Optional[MetricsPort] = None
+    if getattr(args, "metrics_dump", False) or getattr(args, "metrics_file", None):
+        metrics = InMemoryMetrics()
     if args.memory:
-        gateway, _ = build_gateway(root=root, use_memory=True, runtime=runtime, llm=llm)
+        gateway, _ = build_gateway(
+            root=root, use_memory=True, runtime=runtime, llm=llm, metrics=metrics
+        )
     else:
         gateway, _ = build_gateway(
             root=root,
             store_dir=_store_dir_from_args(args, root),
             runtime=runtime,
             llm=llm,
+            metrics=metrics,
         )
     payload: dict[str, Any] = {}
     if args.payload:
@@ -197,6 +210,8 @@ def cmd_run(args: argparse.Namespace) -> int:
         idempotency_key=args.idempotency_key,
     )
     _print_traveler_summary(result.traveler, denied=result.denied, reason=result.reason)
+    if metrics is not None:
+        dump_metrics(metrics, dest=getattr(args, "metrics_file", None) or None)
     return 1 if result.denied else 0
 
 
@@ -272,6 +287,16 @@ def build_parser() -> argparse.ArgumentParser:
         choices=["pure", "langgraph"],
         default="pure",
         help="Graph runner: pure (default, stable) or langgraph (optional extra)",
+    )
+    run_p.add_argument(
+        "--metrics-dump",
+        action="store_true",
+        help="After run, dump DES-0006 metric counters to stdout (Q-OBS-3)",
+    )
+    run_p.add_argument(
+        "--metrics-file",
+        default=None,
+        help="After run, write metric dump to this file path (Q-OBS-3)",
     )
     run_p.set_defaults(func=cmd_run)
 

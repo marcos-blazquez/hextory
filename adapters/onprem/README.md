@@ -8,6 +8,7 @@ HTTP binding of the same Hextory factory core used by `adapters/local`:
 - `GET /runs/{id}` — traveler status (JWT required)
 - `POST /runs/{id}/resume` — resume / reload from checkpointer (JWT required)
 - `GET /health` — liveness (no JWT)
+- `GET /metrics` — Prometheus scrape (no JWT; DES-0006)
 
 Gatekeeper + `SddStatusReader` semantics match the local CLI. Non-Approved or
 missing `sdd_id` → structured **403** denial (no assembly). Missing/invalid JWT
@@ -65,3 +66,17 @@ python -m adapters.onprem
 
 Postgres major version in Compose is **16** (Q-ONP-2 pin at first scaffold).
 """
+
+## Observability (DES-0006)
+
+`GET /metrics` exposes frozen counters:
+
+- `hextory_gate_denials_total`
+- `hextory_runs_accepted_total`
+- `hextory_runs_terminal_total{status=…}`
+- `hextory_quality_fail_total`
+- `hextory_rework_total`
+
+Grafana dashboard-as-code: `adapters/onprem/observability/grafana-factory-observability.json`
+(also mirrored under `docs/ops/grafana/`). Labels allow `workflow_id` + `status`;
+`traveler_id` / PII labels are forbidden.
