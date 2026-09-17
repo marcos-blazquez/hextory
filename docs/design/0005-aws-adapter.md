@@ -4,22 +4,22 @@
 |---|---|
 | **Doc ID** | DES-0005 |
 | **Title** | AWS adapter (API Gateway + Lambda + DynamoDB; LocalStack/moto first) |
-| **Status** | **Draft** |
+| **Status** | **Approved** |
 | **Authors** | Marcos Blazquez (direction) + Clark Bot |
-| **Reviewers (human)** | pending |
-| **Reviewers (agent)** | pending |
+| **Reviewers (human)** | Marcos Blazquez (2026-09-17 — Approve in chat) |
+| **Reviewers (agent)** | Clark Bot (2026-09-17 — checklist pass; see review record) |
 | **Created** | 2026-09-17 |
-| **Last updated** | 2026-09-17 |
+| **Last updated** | 2026-09-17 (dual Approve) |
 | **Related REQs** | REQ-0010, REQ-0016 (from DES-0002); also REQ-0003, REQ-0013, REQ-0015 |
 | **Supersedes** | none (refines DES-0002 §5.2 `adapters/aws` sketch; supersedes soft Q-AWS-1 resource-name deferral with concrete first-slice choices below) |
 | **Depends on** | [DES-0001](0001-hextory-vision.md) (**Approved**), [DES-0002](0002-factory-engine.md) (**Approved**), [DES-0004](0004-onprem-adapter.md) (**Approved**) as the second-target parity reference |
-| **Implementation** | **Not authorized** — Draft only; dual review required before Approval; no `adapters/aws` code, no real AWS account deploy in this docs package |
+| **Implementation** | **Authorized** for the first AWS slice per §9 / §13 and the end-of-doc slice list — LocalStack/moto + API GW HTTP API + Lambda + DynamoDB checkpointer + parity tests; **no real AWS account deploy**; Studio remains non-goal |
 
 ---
 
 ## 0. Document posture
 
-This SDD is the design gate for the **third deploy target**: an AWS-shaped adapter under `adapters/aws`, as sketched in DES-0002 §5.2 and explicitly deferred by DES-0004 (NG1). Local CLI and on-prem HTTP are already in tree; aspect **9** remains capped near ~70 until a third target proves the same Gatekeeper / DigitalTraveler / GraphRunner ports.
+This SDD (now **Approved**) is the design gate for the **third deploy target**: an AWS-shaped adapter under `adapters/aws`, as sketched in DES-0002 §5.2 and explicitly deferred by DES-0004 (NG1). Local CLI and on-prem HTTP are already in tree; aspect **9** remains capped near ~70 until a third target proves the same Gatekeeper / DigitalTraveler / GraphRunner ports.
 
 **Hard rules (must survive into any future build):**
 
@@ -32,7 +32,7 @@ This SDD is the design gate for the **third deploy target**: an AWS-shaped adapt
 7. DES-0003 (Studio UI) remains Draft ideation and is **out of scope** here.
 8. First-slice proof is **LocalStack and/or moto** (+ Docker Compose or documented LocalStack compose). **Explicit NG: no deploy to a real AWS account** in the first slice.
 
-**Dual review required** before Status may move to Approved. Reviewers remain pending; §13 stays unchecked until dual Approve.
+**Dual review complete (2026-09-17).** Marcos Blazquez + Clark Bot **Approve**. §13 is green; first-slice implementation is authorized under the constraints below.
 
 ---
 
@@ -52,14 +52,14 @@ Aspect **9** (multi-target deploy readiness) is capped at roughly **~70** while 
 
 ### 1.3 Success definition
 
-- Dual review Approves this SDD without re-litigating DES-0002 core ports or DES-0004 on-prem parity baseline.
+- Dual review Approves this SDD without re-litigating DES-0002 core ports or DES-0004 on-prem parity baseline (**done 2026-09-17**).
 - Agents implement the AWS-shaped vertical slice against acceptance criteria and TEST IDs without inventing architecture.
 - Parity tests demonstrate that a run accepted/denied/shipped/escalated via the AWS adapter path matches local CLI traveler semantics for the same inputs (under LocalStack/moto).
 - Aspect-9 evidence path exists once implemented (adapter package + LocalStack/moto compose or harness + parity tests) **without** real-account deploy.
 
 ### 1.4 Scope
 
-**In scope (this Draft SDD — design only until Approved):**
+**In scope (this Approved SDD):**
 
 - AWS adapter architecture, inbound HTTP contract mapping, DynamoDB (primary) persistence role, LocalStack/moto proof path.
 - Auth default proposal (adapter-local API key / JWT via authorizer stub) and open questions for Marcos confirmation.
@@ -67,7 +67,7 @@ Aspect **9** (multi-target deploy readiness) is capped at roughly **~70** while 
 - Traceability to REQ-0010 / REQ-0016 (and related gateway/testing REQs).
 - Optional uneployed IaC stub posture (SAM/CDK/CloudFormation checked into repo but not applied).
 
-**Out of scope:** see Explicit non-goals (§8). First-slice AWS scaffold is authorized **only** after Status is **Approved** and §13 is green; Studio remains deferred; real AWS account deploy remains NG for first slice.
+**Out of scope:** see Explicit non-goals (§8). First-slice AWS scaffold is authorized while Status is **Approved** and §13 is green; Studio remains deferred; real AWS account deploy remains NG for first slice.
 
 ---
 
@@ -117,9 +117,9 @@ Hexagonal / ports & adapters (DES-0002-A). This SDD owns the **AWS adapter bound
 |---|---|---|---|
 | **DES-0005-A** | Third deploy target after on-prem is **AWS-shaped** (`adapters/aws`) | GCP/Azure first; “generic cloud” only; skip third target | Aligns with DES-0002 sketch; clears aspect-9 ceiling after local+onprem |
 | **DES-0005-B** | First-slice proof = **LocalStack and/or moto**; real AWS account deploy deferred (**NG**) | Real account day one; LocalStack-only forever | Verifiable in CI/public kernel without credentials or spend |
-| **DES-0005-C** | Persistence primary = **DynamoDB** via Checkpointer port (traveler + checkpoint items); S3 deferred for large artifacts | S3-primary blobs; S3+Dynamo dual-write day one; reuse Postgres remotely | Single managed KV matches serverless handlers; LocalStack/moto Dynamo coverage is mature; simpler first slice than dual stores (**Q-AWS-2** confirms vs S3-primary) |
+| **DES-0005-C** | Persistence primary = **DynamoDB** via Checkpointer port (traveler + checkpoint items); S3 deferred for large artifacts | S3-primary blobs; S3+Dynamo dual-write day one; reuse Postgres remotely | Single managed KV matches serverless handlers; LocalStack/moto Dynamo coverage is mature; **Q-AWS-2 accepted 2026-09-17** |
 | **DES-0005-D** | Inbound = **API Gateway HTTP API + Lambda handlers** mapped to same semantic ops as on-prem `POST /runs`, `GET /runs/{id}`, `POST /runs/{id}/resume` | Lambda Function URL only; ALB+ECS; API Gateway REST (v1) | Matches DES-0002 AWS sketch; multi-route HTTP semantics without Function URL’s thinner gateway features; HTTP API is lighter than REST v1 |
-| **DES-0005-E** | Auth is **adapter-local** (API keys and/or JWT via LocalStack authorizer stub); core stays agnostic | IAM-only SigV4 for all clients; no auth in first slice; copy on-prem JWT verbatim as mandatory | Keeps hexagonal purity; LocalStack can stub authorizers; exact scheme is **Q-AWS-1** for Marcos |
+| **DES-0005-E** | Auth is **adapter-local** (JWT bearer stub via LocalStack authorizer; API keys optional later); core stays agnostic | IAM-only SigV4 for all clients; no auth in first slice; API-keys-only | Keeps hexagonal purity; **Q-AWS-1 accepted 2026-09-17** — JWT bearer stub aligns with DES-0004-B |
 | **DES-0005-F** | Reuse core `RequestGateway` + interceptor stack; adapter only wires ports | Separate AWS gateway; fork Gatekeeper | Preserves REQ-0010 / REQ-0013; no second engine |
 
 ---
@@ -168,7 +168,7 @@ LocalStack/moto substitute DynamoDB + API Gateway/Lambda emulation for the same 
 
 | Interface | Protocol | Auth | Contract summary |
 |---|---|---|---|
-| `POST /runs` (API GW → Lambda) | HTTP JSON | Adapter-local (API key / JWT — Q-AWS-1) | Start run; body includes `sdd_id`, `workflow_id`, payload; optional idempotency key |
+| `POST /runs` (API GW → Lambda) | HTTP JSON | Adapter-local (JWT bearer stub — Q-AWS-1 accepted; API keys optional later) | Start run; body includes `sdd_id`, `workflow_id`, payload; optional idempotency key |
 | `GET /runs/{id}` | HTTP JSON | Same | Status / traveler summary by `traveler_id` |
 | `POST /runs/{id}/resume` | HTTP JSON | Same | Resume from DynamoDB checkpoint |
 | Health (optional) | HTTP | none or same | Liveness for LocalStack smoke — non-workflow |
@@ -212,12 +212,12 @@ Any new port method needed for DynamoDB binding must be justified in an amendmen
 | Piece | Design |
 |---|---|
 | Lambda handlers | Map API Gateway events ↔ run / status / resume; dependency-inject gateway with AWS ports |
-| Auth middleware / authorizer integration | Validate API key or JWT (stub authorizer under LocalStack); attach principal to request context (adapter-local) |
+| Auth middleware / authorizer integration | Validate JWT bearer (LocalStack authorizer stub; API keys optional later); attach principal to request context (adapter-local) |
 | DynamoDB checkpointer | Implement Checkpointer port against DynamoDB (moto/LocalStack in first slice) |
 | Traveler store | Persist/load traveler documents for status/resume |
 | SddStatusReader wiring | Reuse or share local reader semantics (manifest + markdown Status) |
 | LocalStack Compose (or documented compose) | Emulate API GW / Lambda / Dynamo for smoke |
-| moto unit harness | In-process Dynamo (and related) fakes for fast CI (**Q-AWS-3**) |
+| moto unit harness | In-process Dynamo (and related) fakes for fast CI (**Q-AWS-3** accepted: moto required) |
 | Optional IaC stub | SAM/CDK/CloudFormation templates checked in; **not applied** to a real account |
 | Entrypoint | Handler module names at impl — e.g. `adapters.aws.handlers…` |
 
@@ -268,8 +268,8 @@ Exact LocalStack URLs/ports are impl details; parity is semantic, not URL-string
 |---|---|---|---|
 | A-01 | DES-0002 remains Approved and local slice stays the semantic reference; DES-0004 on-prem is the HTTP parity peer | Parity undefined | Freeze traveler contract `@0.1`; parity tests vs local CLI |
 | A-02 | LocalStack and/or moto can emulate enough API GW + Dynamo for first-slice parity | Emulation gaps block CI | Prefer moto for unit Dynamo; optional LocalStack compose smoke (**Q-AWS-3**) |
-| A-03 | DynamoDB is acceptable primary store (DES-0005-C) | Late switch to S3-primary | **Q-AWS-2**; interim = Dynamo primary |
-| A-04 | Auth scheme can be stubbed in LocalStack before production IAM/JWT hardening | Auth rework | **Q-AWS-1** blocking for Approve unless interim accepted |
+| A-03 | DynamoDB is acceptable primary store (DES-0005-C) | Late switch to S3-primary | **Q-AWS-2 interim accepted 2026-09-17** — Dynamo primary; S3 deferred |
+| A-04 | Auth scheme can be stubbed in LocalStack before production IAM/JWT hardening | Auth rework | **Q-AWS-1 interim accepted 2026-09-17** — JWT bearer stub via LocalStack authorizer |
 | A-05 | No core schema change needed for Dynamo persistence | Forced traveler migration | Adapter maps existing fields only |
 | A-06 | Optional IaC stubs do not imply live deploy | Accidental `sam deploy` / CDK apply | NG1 + CI must not apply to real accounts |
 
@@ -299,7 +299,7 @@ Concrete, testable criteria. Agents may implement **only after** gate criteria (
 | AC-03 | Approved starter workflow run reaches same terminal statuses as local CLI for equivalent fixtures (under LocalStack and/or moto) | TEST-AWS-03 (parity) |
 | AC-04 | DynamoDB checkpointer supports process/handler restart + resume | TEST-AWS-04 |
 | AC-05 | LocalStack Compose (or documented LocalStack compose) **or** moto harness proves the path without a real AWS account | TEST-AWS-05 / manual smoke |
-| AC-06 | Auth required on workflow routes per Q-AWS-1 resolution; invalid/missing → 401 (distinct from Gatekeeper denial) | TEST-AWS-06 |
+| AC-06 | Auth required on workflow routes per Q-AWS-1 (JWT bearer stub); invalid/missing → 401 (distinct from Gatekeeper denial) | TEST-AWS-06 |
 | AC-07 | `src/` has zero AWS SDK / LocalStack / moto / `adapters` imports | TEST-0010 + TEST-AWS-07 |
 | AC-08 | Adapter tests live under `tests/adapters/` with BDD-style readability; no Cucumber | TEST-AWS-03 docstrings / layout |
 | AC-09 | Any IaC stubs in-repo are not applied to a real account in first-slice CI | TEST-AWS-08 / CI policy review |
@@ -327,26 +327,26 @@ Reviewers must check each item. Architecture-critical items require **human** si
 
 | # | Check | Human | Agent | Critical? |
 |---|---|---|---|---|
-| 1 | Goals and non-goals are clear and consistent | ☐ | ☐ | Yes |
-| 2 | Architecture fits hexagonal / factory rules (no core fork) | ☐ | ☐ | Yes |
-| 3 | Interfaces and failure modes are specified | ☐ | ☐ | Yes |
-| 4 | Acceptance criteria are testable | ☐ | ☐ | Yes |
-| 5 | Traceability IDs are complete and unique | ☐ | ☐ | Yes |
-| 6 | Gate criteria are unambiguous | ☐ | ☐ | Yes |
-| 7 | Security / privacy / compliance touched? (auth, secrets, no real-account deploy) | ☐ | ☐ | Yes |
-| 8 | Glossary terms used consistently | ☐ | ☐ | No |
-| 9 | Visuals / diagrams present or explicitly deferred | ☐ | ☐ | No |
-| 10 | No implementation leakage that bypasses this SDD | ☐ | ☐ | Yes |
-| 11 | Q-AWS-1 interim (auth) acceptable to Marcos or resolved | ☐ | ☐ | Yes |
-| 12 | Real AWS account deploy and Studio explicitly non-goals for first slice | ☐ | ☐ | Yes |
-| 13 | LocalStack/moto-first proof path is explicit | ☐ | ☐ | Yes |
+| 1 | Goals and non-goals are clear and consistent | ☑ | ☑ | Yes |
+| 2 | Architecture fits hexagonal / factory rules (no core fork) | ☑ | ☑ | Yes |
+| 3 | Interfaces and failure modes are specified | ☑ | ☑ | Yes |
+| 4 | Acceptance criteria are testable | ☑ | ☑ | Yes |
+| 5 | Traceability IDs are complete and unique | ☑ | ☑ | Yes |
+| 6 | Gate criteria are unambiguous | ☑ | ☑ | Yes |
+| 7 | Security / privacy / compliance touched? (auth, secrets, no real-account deploy) | ☑ | ☑ | Yes |
+| 8 | Glossary terms used consistently | ☑ | ☑ | No |
+| 9 | Visuals / diagrams present or explicitly deferred | ☑ | ☑ | No |
+| 10 | No implementation leakage that bypasses this SDD | ☑ | ☑ | Yes |
+| 11 | Q-AWS-1 interim (auth) acceptable to Marcos or resolved | ☑ | ☑ | Yes |
+| 12 | Real AWS account deploy and Studio explicitly non-goals for first slice | ☑ | ☑ | Yes |
+| 13 | LocalStack/moto-first proof path is explicit | ☑ | ☑ | Yes |
 
 **Sign-off**
 
 | Role | Name | Date | Decision |
 |---|---|---|---|
-| Human reviewer | | | Approve / Changes requested |
-| Agent reviewer | | | Approve / Changes requested |
+| Human reviewer | Marcos Blazquez | 2026-09-17 | **Approve** |
+| Agent reviewer | Clark Bot | 2026-09-17 | **Approve** |
 
 ---
 
@@ -368,17 +368,17 @@ IDs must remain stable once Approved. New work gets new IDs; do not reuse.
 
 All of the following must be true:
 
-- [ ] Status is **Approved** (both human and agent reviews recorded).
-- [ ] All **Critical** checklist items signed off by a human.
-- [ ] Every `REQ-*` maps to at least one `DES-*` and planned `TEST-*`.
-- [ ] Non-goals and failure/rework policy are non-empty and specific.
-- [ ] Acceptance criteria are binary/testable (no vague “should be good”).
-- [ ] No open blocking questions in §15 (or each has an approved interim decision).
-- [ ] Maturity / process owners acknowledge this SDD in the workflow tracker (when tooling exists).
+- [x] Status is **Approved** (both human and agent reviews recorded).
+- [x] All **Critical** checklist items signed off by a human.
+- [x] Every `REQ-*` maps to at least one `DES-*` and planned `TEST-*`.
+- [x] Non-goals and failure/rework policy are non-empty and specific.
+- [x] Acceptance criteria are binary/testable (no vague “should be good”).
+- [x] No open **blocking** questions in §15 (or each has an approved interim decision) — **Q-AWS-1/2/3 accepted as approved interims** (Marcos + Clark, 2026-09-17); soft Q-AWS-4…6 remain open.
+- [x] Maturity / process owners acknowledge this SDD in dual review (Marcos + Clark).
 
 **Only when every box is checked may agents generate implementation for this workflow.**
 
-**Draft note:** Gate criteria are **not** green. Do not scaffold `adapters/aws` or apply IaC until dual Approve.
+**Post-approval note:** Gate criteria are green. Implementation may proceed for the **first AWS slice only** (`adapters/aws` Lambda handlers + DynamoDB checkpointer + LocalStack/moto + `tests/adapters/` parity per §9 and end-of-doc slice list). **No real AWS account deploy** (NG1). Studio remains non-goal (NG2).
 
 ---
 
@@ -401,9 +401,9 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 
 | ID | Question | Owner | Due | Resolution |
 |---|---|---|---|---|
-| **Q-AWS-1** | Auth for first slice: API keys, JWT via LocalStack authorizer stub, both, or another scheme? | Marcos | Before Approval (blocking unless interim accepted) | **Proposed interim:** JWT bearer stub via LocalStack authorizer (aligns with on-prem DES-0004-B); API keys optional alternate — confirm |
-| **Q-AWS-2** | DynamoDB vs S3 as primary traveler/checkpoint store? | Marcos | Before Approval (or accept interim) | **Proposed interim (this SDD):** DynamoDB primary; S3 deferred for large artifacts only |
-| **Q-AWS-3** | LocalStack vs moto-only in CI? | Marcos + implementer | Before first CI merge post-Approval | **Proposed:** moto unit tests required; optional LocalStack Compose smoke (manual or nightly) |
+| **Q-AWS-1** | Auth for first slice: API keys, JWT via LocalStack authorizer stub, both, or another scheme? | Marcos | Before Approval (blocking unless interim accepted) | **Accepted 2026-09-17** — JWT bearer stub via LocalStack authorizer (align DES-0004-B); API keys optional later (Marcos + Clark dual Approve) |
+| **Q-AWS-2** | DynamoDB vs S3 as primary traveler/checkpoint store? | Marcos | Before Approval (or accept interim) | **Accepted 2026-09-17** — DynamoDB primary; S3 deferred for large artifacts only (Marcos + Clark dual Approve) |
+| **Q-AWS-3** | LocalStack vs moto-only in CI? | Marcos + implementer | Before first CI merge post-Approval | **Accepted 2026-09-17** — moto unit tests required; optional LocalStack Compose smoke (manual or nightly) (Marcos + Clark dual Approve) |
 | Q-AWS-4 | Exact Dynamo table key schema / GSI / TTL? | Implementer after Approval | During first impl slice | Soft — adapter-local |
 | Q-AWS-5 | Which IaC flavor for uneployed stubs (SAM vs CDK vs raw CFN)? | Dual review | Soft | Soft — pick one stub at impl |
 | Q-AWS-6 | When (if ever) is real-account deploy authorized (separate slice / amendment)? | Marcos | After first LocalStack/moto slice | Soft — requires explicit amendment; not first slice |
@@ -415,6 +415,7 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 | Date | Author | Change |
 |---|---|---|
 | 2026-09-17 | Marcos Blazquez (direction) + Clark Bot | Initial Draft: AWS third-target adapter; LocalStack/moto-first; DynamoDB primary; API GW HTTP API + Lambda; no real-account deploy; no implementation |
+| 2026-09-17 | Marcos Blazquez + Clark Bot | Dual review → **Approved**; Q-AWS-1/2/3 interims accepted; §13 green; first AWS slice authorized (impl follow-up; no real-account deploy) |
 
 ---
 
@@ -438,9 +439,9 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 | Testing layer | `tests/adapters/` (DES-0002-E); moto unit + optional LocalStack compose smoke |
 | Traceability | Link TEST-AWS-* to REQ-0010 / REQ-0016 / DES-0005-* |
 
-### First implementation slice (authorized **only after** Approval)
+### First implementation slice (authorized after Approval)
 
-§13 must be green. Follow-up implementation (separate from this Draft docs package) may:
+§13 is green. Follow-up implementation (separate from this Approval docs package) may:
 
 1. Scaffold `adapters/aws/` (Lambda handlers + auth wiring + DynamoDB checkpointer).
 2. Add LocalStack Docker Compose (or documented LocalStack compose) and/or moto parity harness.
@@ -452,4 +453,4 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 
 ## Review records
 
-Dual review **pending**. Human and agent reviewers empty until recorded. Status remains **Draft**.
+Dual Approval recorded: human Approve (Marcos Blazquez, chat 2026-09-17) + agent Approve ([DES-0005-agent-review-20260917.md](reviews/DES-0005-agent-review-20260917.md)).

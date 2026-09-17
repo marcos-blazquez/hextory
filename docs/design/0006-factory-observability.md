@@ -4,22 +4,22 @@
 |---|---|
 | **Doc ID** | DES-0006 |
 | **Title** | Factory observability — gate-denial metrics and run/quality signals |
-| **Status** | **Draft** |
+| **Status** | **Approved** |
 | **Authors** | Marcos Blazquez (direction) + Clark Bot |
-| **Reviewers (human)** | pending |
-| **Reviewers (agent)** | pending |
+| **Reviewers (human)** | Marcos Blazquez (2026-09-17 — Approve in chat) |
+| **Reviewers (agent)** | Clark Bot (2026-09-17 — checklist pass; see review record) |
 | **Created** | 2026-09-17 |
-| **Last updated** | 2026-09-17 |
+| **Last updated** | 2026-09-17 (dual Approve) |
 | **Related REQs** | REQ-0013 (gateway / gatekeeper signals); REQ-0010 (hexagonal ports); proposed **REQ-0018** (factory metrics / operator observability) |
 | **Supersedes** | none |
 | **Depends on** | [DES-0001](0001-hextory-vision.md) (**Approved**), [DES-0002](0002-factory-engine.md) (**Approved**), [DES-0004](0004-onprem-adapter.md) (**Approved**) as the first HTTP `/metrics` host |
-| **Implementation** | **Not authorized** — Draft only; dual review required before Approval; no Prometheus/OTel/metrics exporter code in this docs package |
+| **Implementation** | **Authorized** for the first observability slice per §9 / §13 and the end-of-doc slice list — MetricsPort + Prometheus `/metrics` on on-prem + local dump + Grafana-as-code + TEST-OBS-*; Studio / tracing SaaS remain non-goals |
 
 ---
 
 ## 0. Document posture
 
-This SDD is the design gate for **factory observability beyond traveler and checkpointer artifacts**. File and Postgres checkpointers already persist DigitalTraveler state (including quality FAIL history), and on-prem HTTP returns Gatekeeper denial as structured **HTTP 403** — but those are **not** metrics, counters, histograms, or operator dashboards. Aspect **8** sits near **~52** until structured metrics and a minimal operator view exist.
+This SDD (now **Approved**) is the design gate for **factory observability beyond traveler and checkpointer artifacts**. File and Postgres checkpointers already persist DigitalTraveler state (including quality FAIL history), and on-prem HTTP returns Gatekeeper denial as structured **HTTP 403** — but those are **not** metrics, counters, histograms, or operator dashboards. Aspect **8** sits near **~52** until structured metrics and a minimal operator view exist.
 
 **Hard rules (must survive into any future build):**
 
@@ -31,7 +31,7 @@ This SDD is the design gate for **factory observability beyond traveler and chec
 6. DES-0003 (Studio UI) remains Draft ideation and is **out of scope** here.
 7. No PII in metric labels (no payload snippets, emails, raw secrets).
 
-**Dual review required** before Status may move to Approved. Reviewers remain pending; §13 stays unchecked until dual Approve.
+**Dual review complete (2026-09-17).** Marcos Blazquez + Clark Bot **Approve**. §13 is green; first-slice implementation is authorized under the constraints below.
 
 ---
 
@@ -58,14 +58,14 @@ Missing: structured **metrics** for gate denials, run accepts, terminal statuses
 
 ### 1.3 Success definition
 
-- Dual review Approves this SDD without re-litigating DES-0002 core ports or claiming checkpointers already “are” observability.
+- Dual review Approves this SDD without re-litigating DES-0002 core ports or claiming checkpointers already “are” observability (**done 2026-09-17**).
 - Agents implement metrics exporters and a dashboard-as-code artifact against acceptance criteria and TEST IDs without inventing architecture.
 - Tests prove counters move on Gatekeeper denial and on successful shipped runs.
 - Aspect-8 evidence path exists once implemented (`/metrics` + Grafana JSON + TEST-OBS-*).
 
 ### 1.4 Scope
 
-**In scope (this Draft SDD — design only until Approved):**
+**In scope (this Approved SDD):**
 
 - Metrics vocabulary (names, meanings, label rules).
 - Metrics/Telemetry port shape (core protocol; adapter exporters).
@@ -74,7 +74,7 @@ Missing: structured **metrics** for gate denials, run accepts, terminal statuses
 - Design decisions DES-0006-A…; acceptance criteria; gate criteria; TEST ID plan.
 - Traceability to REQ-0010 / REQ-0013 / proposed REQ-0018.
 
-**Out of scope:** see Explicit non-goals (§8). Implementation authorized **only** after Status is **Approved** and §13 is green.
+**Out of scope:** see Explicit non-goals (§8). Implementation authorized while Status is **Approved** and §13 is green.
 
 ---
 
@@ -115,7 +115,7 @@ Hexagonal / ports & adapters (DES-0002-A). This SDD owns the **observability bou
 | Metrics / Telemetry port (`src/ports`) | Protocol for recording domain metric facts (increment/observe) without I/O libs | n/a |
 | No-op / in-memory meter (tests) | Fake implementation for unit/behavior tests | n/a |
 | Prometheus exporter (`adapters/onprem`) | `/metrics` scrape endpoint; register counters/histograms | n/a |
-| Local CLI metrics sink (`adapters/local`) | File/stdout dump or sidecar-friendly scrape of the same instruments (**Q-OBS-3**) | n/a |
+| Local CLI metrics sink (`adapters/local`) | File/stdout dump of the same instruments (**Q-OBS-3** accepted: dump, not HTTP `/metrics`) | n/a |
 | Grafana dashboard JSON | Minimal operator panels for gate denial + run outcomes | n/a |
 | TEST-OBS-* suite | Assert increments on denial and successful run | n/a |
 
@@ -125,10 +125,10 @@ Hexagonal / ports & adapters (DES-0002-A). This SDD owns the **observability bou
 |---|---|---|---|
 | **DES-0006-A** | Observability first slice = **structured metrics** (counters/histograms), not “more traveler files” | Rely on checkpointers only; logs-only | Aspect 8 explicitly needs metrics/dashboards beyond artifacts |
 | **DES-0006-B** | Core exposes a **Metrics/Telemetry port**; Prometheus (or OTel) libs live only in adapters | Import `prometheus_client` in `src/`; monkey-patch gateway | Preserves DES-0002-A / TEST-0010 purity |
-| **DES-0006-C** | Default export = **Prometheus-compatible `/metrics`** on `adapters/onprem` | OTel-first exporter; StatsD-only | Lowest friction for self-hosted scrape + Grafana; **Q-OBS-1** confirms |
+| **DES-0006-C** | Default export = **Prometheus-compatible `/metrics`** on `adapters/onprem` | OTel-first exporter; StatsD-only | Lowest friction for self-hosted scrape + Grafana; **Q-OBS-1 accepted 2026-09-17** |
 | **DES-0006-D** | Operator view = **Grafana dashboard-as-code** (JSON in repo) + `/metrics`; no hosted SaaS required | SaaS APM day one; HTML-only summary page | Reproducible, reviewable, CI-friendly; HTML page remains soft fallback |
 | **DES-0006-E** | Emit at gateway/interceptor boundaries: gate deny, run accept, terminal status, quality FAIL, rework | Instrument every department function deeply day one | Smallest verifiable vocabulary; enough for aspect-8 lift |
-| **DES-0006-F** | Label cardinality is **low by default**; no PII; `sdd_id` / `workflow_id` inclusion gated by **Q-OBS-2** | High-cardinality per-traveler labels | Protect scrape cost and privacy |
+| **DES-0006-F** | Label cardinality is **low by default**; no PII; allow `workflow_id` + terminal `status`; allow `sdd_id` only if cardinality stays small; forbid `traveler_id` / payload labels | High-cardinality per-traveler labels | Protect scrape cost and privacy; **Q-OBS-2 accepted 2026-09-17** |
 | **DES-0006-G** | Tests under `tests/adapters/` (and unit fakes) prove counter increments — TDD/BDD-style, not Cucumber | Manual scrape only | REQ-0015 alignment; TEST-OBS-* |
 
 ---
@@ -164,7 +164,7 @@ Adapters flush / expose registry → GET /metrics → Prometheus / Grafana
 
 - **Metrics series:** process-local registry (Prometheus default); retention owned by the scraper / Prometheus TSDB operator config — not by Hextory core.
 - **Dashboard JSON:** git-retained as code under e.g. `adapters/onprem/observability/` or `docs/ops/grafana/` (exact path at impl).
-- **PII:** forbidden in labels and metric help strings that echo payloads. Traveler ids must not be default labels (**Q-OBS-2**).
+- **PII:** forbidden in labels and metric help strings that echo payloads. Traveler ids must not be labels (**Q-OBS-2** accepted).
 
 ---
 
@@ -175,7 +175,7 @@ Adapters flush / expose registry → GET /metrics → Prometheus / Grafana
 | Interface | Protocol | Auth | Contract summary |
 |---|---|---|---|
 | `GET /metrics` (`adapters/onprem`) | Prometheus text exposition | none or scrape token (ops choice; default open on internal network for first slice) | Scrape counters/histograms |
-| Local metrics dump (`adapters/local`) | stdout / file / optional tiny scrape (**Q-OBS-3**) | local user | Same instruments for CLI runs without requiring FastAPI |
+| Local metrics dump (`adapters/local`) | stdout / file (**Q-OBS-3** accepted) | local user | Same instruments for CLI runs without requiring FastAPI |
 | Grafana import | JSON dashboard file | n/a (file) | Import into local Grafana pointing at on-prem scrape target |
 
 Workflow routes (`POST /runs`, etc.) remain DES-0004; this SDD adds scrape/dump surfaces only.
@@ -224,7 +224,7 @@ Forbidden in `src/`:
 | Piece | Design |
 |---|---|
 | `adapters/onprem` Prometheus exporter | Register instruments; expose `GET /metrics`; inject MetricsPort into gateway wiring |
-| `adapters/local` sink | Dump counters at end of CLI run and/or write a scrapeable file; exact shape **Q-OBS-3** |
+| `adapters/local` sink | Dump counters at end of CLI run and/or write a scrapeable file (stdout/file; no required HTTP `/metrics`) |
 | Grafana dashboard JSON | Panels: gate denials rate, accepts, terminal status breakdown, quality FAIL, rework |
 | Optional later: `adapters/aws` | Same MetricsPort; CloudWatch or Prometheus-on-Lambda — **out of first slice** unless DES-0005 also Approved and amended |
 
@@ -240,7 +240,7 @@ Forbidden in `src/`:
 | Policy | Rule |
 |---|---|
 | Best-effort metrics | Metric sink failures must not change Gatekeeper or traveler outcomes |
-| Label rules | Default low cardinality; follow Q-OBS-2 resolution |
+| Label rules | Default low cardinality; follow Q-OBS-2 accepted interim |
 | Denial vs auth | Auth 401 (DES-0004) is **not** a gate denial metric; only Gatekeeper denials increment `hextory_gate_denials_total` |
 | Rework counting | Increment rework when core schedules rework after Quality FAIL (not on every quality check PASS) |
 | Naming | Prefer `hextory_` prefix; keep stable once tests freeze names |
@@ -278,7 +278,7 @@ hextory_runs_accepted_total 0
 | ID | Assumption / dependency | Risk if wrong | Mitigation |
 |---|---|---|---|
 | A-01 | DES-0002/0004 remain Approved; on-prem FastAPI can host `/metrics` | Nowhere to scrape | Local sink still satisfies CLI path; on-prem is preferred host |
-| A-02 | Prometheus text format is acceptable default (**Q-OBS-1**) | Late OTel rewrite | Port abstracts recording; exporter is swappable |
+| A-02 | Prometheus text format is acceptable default (**Q-OBS-1** accepted) | Late OTel rewrite | Port abstracts recording; exporter is swappable |
 | A-03 | Operators can run Grafana locally or skip UI and use curl `/metrics` | Dashboard unused | Dashboard-as-code still reviewable; tests assert metrics not Grafana |
 | A-04 | MetricsPort can be injected without core schema change | Forced traveler fields | Keep metrics orthogonal to traveler |
 | A-05 | Checkpointer artifacts remain useful debug aids but are not the success metric for this SDD | Score confusion | Explicit NG + AC language |
@@ -310,7 +310,7 @@ Concrete, testable criteria. Agents may implement **only after** gate criteria (
 | AC-04 | Quality FAIL increments quality-fail counter; rework path increments rework counter | TEST-OBS-04 |
 | AC-05 | `adapters/onprem` exposes Prometheus-compatible `GET /metrics` including the above series | TEST-OBS-05 |
 | AC-06 | Grafana dashboard JSON as code exists and references the frozen metric names | TEST-OBS-06 / file review |
-| AC-07 | Local adapter provides a metrics dump or scrapeable sink per Q-OBS-3 resolution | TEST-OBS-07 |
+| AC-07 | Local adapter provides a stdout/file metrics dump per Q-OBS-3 | TEST-OBS-07 |
 | AC-08 | Metric labels obey cardinality/PII rules (no traveler payload; no emails) | TEST-OBS-08 |
 | AC-09 | Adapter tests live under `tests/adapters/` (plus unit fakes) with BDD-style readability; not Cucumber | layout / docstrings |
 
@@ -336,26 +336,26 @@ Reviewers must check each item. Architecture-critical items require **human** si
 
 | # | Check | Human | Agent | Critical? |
 |---|---|---|---|---|
-| 1 | Goals and non-goals are clear and consistent | ☐ | ☐ | Yes |
-| 2 | Architecture fits hexagonal / factory rules (no core pollution) | ☐ | ☐ | Yes |
-| 3 | Interfaces and failure modes are specified | ☐ | ☐ | Yes |
-| 4 | Acceptance criteria are testable | ☐ | ☐ | Yes |
-| 5 | Traceability IDs are complete and unique | ☐ | ☐ | Yes |
-| 6 | Gate criteria are unambiguous | ☐ | ☐ | Yes |
-| 7 | Security / privacy / compliance touched? (no PII labels) | ☐ | ☐ | Yes |
-| 8 | Glossary terms used consistently | ☐ | ☐ | No |
-| 9 | Visuals / diagrams present or explicitly deferred | ☐ | ☐ | No |
-| 10 | No implementation leakage that bypasses this SDD | ☐ | ☐ | Yes |
-| 11 | Checkpointers explicitly insufficient; counters required | ☐ | ☐ | Yes |
-| 12 | Q-OBS-1 interim (Prometheus default) acceptable to Marcos or resolved | ☐ | ☐ | Yes |
-| 13 | Studio / tracing SaaS explicitly non-goals for first slice | ☐ | ☐ | Yes |
+| 1 | Goals and non-goals are clear and consistent | ☑ | ☑ | Yes |
+| 2 | Architecture fits hexagonal / factory rules (no core pollution) | ☑ | ☑ | Yes |
+| 3 | Interfaces and failure modes are specified | ☑ | ☑ | Yes |
+| 4 | Acceptance criteria are testable | ☑ | ☑ | Yes |
+| 5 | Traceability IDs are complete and unique | ☑ | ☑ | Yes |
+| 6 | Gate criteria are unambiguous | ☑ | ☑ | Yes |
+| 7 | Security / privacy / compliance touched? (no PII labels) | ☑ | ☑ | Yes |
+| 8 | Glossary terms used consistently | ☑ | ☑ | No |
+| 9 | Visuals / diagrams present or explicitly deferred | ☑ | ☑ | No |
+| 10 | No implementation leakage that bypasses this SDD | ☑ | ☑ | Yes |
+| 11 | Checkpointers explicitly insufficient; counters required | ☑ | ☑ | Yes |
+| 12 | Q-OBS-1 interim (Prometheus default) acceptable to Marcos or resolved | ☑ | ☑ | Yes |
+| 13 | Studio / tracing SaaS explicitly non-goals for first slice | ☑ | ☑ | Yes |
 
 **Sign-off**
 
 | Role | Name | Date | Decision |
 |---|---|---|---|
-| Human reviewer | | | Approve / Changes requested |
-| Agent reviewer | | | Approve / Changes requested |
+| Human reviewer | Marcos Blazquez | 2026-09-17 | **Approve** |
+| Agent reviewer | Clark Bot | 2026-09-17 | **Approve** |
 
 ---
 
@@ -377,17 +377,17 @@ IDs must remain stable once Approved. New work gets new IDs; do not reuse.
 
 All of the following must be true:
 
-- [ ] Status is **Approved** (both human and agent reviews recorded).
-- [ ] All **Critical** checklist items signed off by a human.
-- [ ] Every `REQ-*` maps to at least one `DES-*` and planned `TEST-*`.
-- [ ] Non-goals and failure/rework policy are non-empty and specific.
-- [ ] Acceptance criteria are binary/testable (no vague “should be good”).
-- [ ] No open blocking questions in §15 (or each has an approved interim decision).
-- [ ] Maturity / process owners acknowledge this SDD in the workflow tracker (when tooling exists).
+- [x] Status is **Approved** (both human and agent reviews recorded).
+- [x] All **Critical** checklist items signed off by a human.
+- [x] Every `REQ-*` maps to at least one `DES-*` and planned `TEST-*`.
+- [x] Non-goals and failure/rework policy are non-empty and specific.
+- [x] Acceptance criteria are binary/testable (no vague “should be good”).
+- [x] No open **blocking** questions in §15 (or each has an approved interim decision) — **Q-OBS-1/2/3 accepted as approved interims** (Marcos + Clark, 2026-09-17); soft Q-OBS-4…6 remain open.
+- [x] Maturity / process owners acknowledge this SDD in dual review (Marcos + Clark).
 
 **Only when every box is checked may agents generate implementation for this workflow.**
 
-**Draft note:** Gate criteria are **not** green. Do not add `/metrics`, Prometheus deps, or Grafana JSON as “implementation complete” until dual Approve — drafting dashboard JSON after Approval is fine; shipping exporter code now is not.
+**Post-approval note:** Gate criteria are green. Implementation may proceed for the **first observability slice only** (MetricsPort + Prometheus `/metrics` on on-prem + local dump/sink + Grafana dashboard-as-code + TEST-OBS-* per §9 and end-of-doc slice list). Studio / tracing SaaS remain non-goals (NG2/NG3).
 
 ---
 
@@ -410,9 +410,9 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 
 | ID | Question | Owner | Due | Resolution |
 |---|---|---|---|---|
-| **Q-OBS-1** | Prometheus `/metrics` first vs OpenTelemetry metrics exporter first? | Marcos | Before Approval (blocking unless interim accepted) | **Proposed interim:** Prometheus `/metrics` on on-prem; OTel exporter later additive |
-| **Q-OBS-2** | Label cardinality rules — allow `sdd_id`? `workflow_id`? forbid `traveler_id`? | Marcos | Before Approval (or accept interim) | **Proposed interim:** allow `workflow_id` + terminal `status`; allow `sdd_id` only if cardinality stays small in practice; **forbid** `traveler_id` and any payload-derived labels |
-| **Q-OBS-3** | Must `adapters/local` expose `/metrics`, or is file/stdout dump enough for first slice? | Marcos | Before Approval (or accept interim) | **Proposed interim:** stdout/file metrics dump for CLI; HTTP `/metrics` required only on on-prem |
+| **Q-OBS-1** | Prometheus `/metrics` first vs OpenTelemetry metrics exporter first? | Marcos | Before Approval (blocking unless interim accepted) | **Accepted 2026-09-17** — Prometheus `/metrics` on on-prem first; OTel later additive (Marcos + Clark dual Approve) |
+| **Q-OBS-2** | Label cardinality rules — allow `sdd_id`? `workflow_id`? forbid `traveler_id`? | Marcos | Before Approval (or accept interim) | **Accepted 2026-09-17** — allow `workflow_id` + terminal `status`; allow `sdd_id` only if cardinality stays small; **forbid** `traveler_id` and payload-derived labels (Marcos + Clark dual Approve) |
+| **Q-OBS-3** | Must `adapters/local` expose `/metrics`, or is file/stdout dump enough for first slice? | Marcos | Before Approval (or accept interim) | **Accepted 2026-09-17** — stdout/file metrics dump for local CLI; HTTP `/metrics` required only on on-prem (Marcos + Clark dual Approve) |
 | Q-OBS-4 | Exact Prometheus metric name freeze + histogram buckets? | Implementer after Approval | During first impl slice | Soft — freeze in TEST-OBS |
 | Q-OBS-5 | Dashboard path (`adapters/onprem/observability/` vs `docs/ops/grafana/`)? | Dual review | Soft | Soft |
 | Q-OBS-6 | Scrape auth for `/metrics` (open internal vs bearer)? | Ops / Marcos | Before production-hardening | Soft — default open on Compose network for first slice |
@@ -424,6 +424,7 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 | Date | Author | Change |
 |---|---|---|
 | 2026-09-17 | Marcos Blazquez (direction) + Clark Bot | Initial Draft: MetricsPort + Prometheus `/metrics` + Grafana dashboard-as-code; gate-denial and run/quality counters; checkpointers insufficient; no implementation |
+| 2026-09-17 | Marcos Blazquez + Clark Bot | Dual review → **Approved**; Q-OBS-1/2/3 interims accepted; §13 green; first observability slice authorized (impl follow-up) |
 
 ---
 
@@ -447,9 +448,9 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 | Testing layer | `tests/adapters/` for `/metrics` + denial/run increments; `tests/unit/` for MetricsPort fakes |
 | Traceability | Link TEST-OBS-* to REQ-0018 / REQ-0010 / REQ-0013 / DES-0006-* |
 
-### First implementation slice (authorized **only after** Approval)
+### First implementation slice (authorized after Approval)
 
-§13 must be green. Follow-up implementation (separate from this Draft docs package) may:
+§13 is green. Follow-up implementation (separate from this Approval docs package) may:
 
 1. Add MetricsPort to `src/ports` + no-op/fake; wire gateway/interceptors to emit facts.
 2. Expose Prometheus `GET /metrics` on `adapters/onprem`; add local CLI metrics dump/sink.
@@ -461,4 +462,4 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 
 ## Review records
 
-Dual review **pending**. Human and agent reviewers empty until recorded. Status remains **Draft**.
+Dual Approval recorded: human Approve (Marcos Blazquez, chat 2026-09-17) + agent Approve ([DES-0006-agent-review-20260917.md](reviews/DES-0006-agent-review-20260917.md)).
