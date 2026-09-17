@@ -17,12 +17,22 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "pytest>=8.0",
+  "httpx>=0.27",
 ]
 # Optional LangGraph runner (adapters/local/langgraph_runtime.py). Core stays pure.
 # Install for parity tests / CLI --runtime langgraph:
 #   pip install -e ".[dev,langgraph]"
 langgraph = [
   "langgraph>=0.2",
+]
+# On-prem HTTP adapter (adapters/onprem) — DES-0004. Core stays pure.
+#   pip install -e ".[dev,onprem]"
+onprem = [
+  "fastapi>=0.110",
+  "uvicorn[standard]>=0.27",
+  "PyJWT>=2.8",
+  "psycopg[binary]>=3.1",
+  "httpx>=0.27",
 ]
 
 [project.scripts]
@@ -38,4 +48,5 @@ testpaths = ["tests"]
 addopts = "-q"
 markers = [
   "behavior: BDD-style Given/When/Then scenarios",
+  "integration: optional live-dependency tests (e.g. Postgres DSN)",
 ]

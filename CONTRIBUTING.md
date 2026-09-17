@@ -55,7 +55,7 @@ Python **3.11+**. See [`README.md`](README.md) for layout and CLI notes.
 | [DES-0001](docs/design/0001-hextory-vision.md) | Approved | Vision / operating model |
 | [DES-0002](docs/design/0002-factory-engine.md) | Approved | Factory engine; first slice authorized |
 | [DES-0003](docs/design/0003-workflow-studio.md) | Draft | Hextory Studio ideation — **no UI implementation** |
-| [DES-0004](docs/design/0004-onprem-adapter.md) | Approved | On-prem adapter (`adapters/onprem`) — first slice **authorized**; AWS/Studio still out of scope |
+| [DES-0004](docs/design/0004-onprem-adapter.md) | Approved | On-prem adapter (`adapters/onprem`) — first slice in tree; AWS/Studio still out of scope |
 
 ---
 
@@ -75,7 +75,7 @@ Python **3.11+**. See [`README.md`](README.md) for layout and CLI notes.
 |---|---|
 | `tests/unit/` | Pure core / policy |
 | `tests/behavior/` | Given/When/Then scenarios in ordinary pytest (**not** Cucumber) |
-| `tests/adapters/` | Local CLI / reader smokes |
+| `tests/adapters/` | Local CLI / reader smokes + on-prem HTTP parity (TEST-ONP-*) |
 
 TDD: prefer failing tests first for new behavior. Keep TEST-xxxx IDs in test docstrings when mapping to an SDD.
 

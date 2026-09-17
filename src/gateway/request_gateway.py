@@ -214,3 +214,53 @@ class RequestGateway:
 
     def status(self, traveler_id: str) -> Optional[DigitalTraveler]:
         return self._load_traveler(traveler_id)
+
+    def resume(self, traveler_id: str) -> Optional[RunResult]:
+        """Resume a prior run from checkpointer / in-process store.
+
+        First-slice semantics (DES-0002 / DES-0004):
+        - Missing traveler → None (adapter maps to HTTP 404).
+        - Terminal travelers (shipped / escalated / denied) → return as-is
+          (idempotent resume after process restart).
+        - Non-terminal → re-invoke GraphRunner with the loaded traveler and
+          persist the result.
+        """
+        traveler = self._load_traveler(traveler_id)
+        if traveler is None:
+            return None
+
+        terminal = {
+            TravelerStatus.SHIPPED,
+            TravelerStatus.ESCALATED,
+            TravelerStatus.DENIED,
+        }
+        if traveler.status in terminal:
+            denied = traveler.status == TravelerStatus.DENIED
+            reason = self._deny_reason_from(traveler) if denied else ""
+            return RunResult(traveler=traveler, denied=denied, reason=reason)
+
+        if not self._registry.has(traveler.workflow_id):
+            reason = f"unknown workflow_id={traveler.workflow_id}"
+            now = self._clock.now()
+            traveler.append_routing(
+                node_id="gateway",
+                decision=RoutingDecision.DENY,
+                notes=reason,
+                at=now,
+            )
+            traveler.status = TravelerStatus.DENIED
+            traveler.updated_at = now
+            self._persist(traveler)
+            return RunResult(traveler=traveler, denied=True, reason=reason)
+
+        definition = self._registry.get(traveler.workflow_id)
+        assert definition is not None
+        traveler = self._runner.run(
+            definition,
+            traveler,
+            checkpointer=self._checkpointer,
+        )
+        self._persist(traveler)
+        denied = traveler.status == TravelerStatus.DENIED
+        reason = self._deny_reason_from(traveler) if denied else ""
+        return RunResult(traveler=traveler, denied=denied, reason=reason)

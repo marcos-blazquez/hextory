@@ -4,7 +4,7 @@
 
 Instead of humans line-reading every pull request, **every workflow requires a Software Design Document (SDD)** that humans *and* agents review and approve. Code generation and implementation are **gated** on that approved design. Agents implement; design docs carry the shared contract.
 
-> Status: **First-slice scaffold**. Vision [DES-0001](docs/design/0001-hextory-vision.md), factory engine [DES-0002](docs/design/0002-factory-engine.md), and on-prem adapter [DES-0004](docs/design/0004-onprem-adapter.md) are **Approved**. Local vertical slice (`src/` + `adapters/local` + `tests/`) is in tree; on-prem scaffold is authorized (FastAPI/Postgres/Compose not yet in tree); AWS still deferred. [DES-0003](docs/design/0003-workflow-studio.md) (Hextory Studio UI) is **Draft ideation only** — not authorized to build. See the [maturity scorecard](docs/maturity/SCORECARD.md).
+> Status: **First-slice scaffold**. Vision [DES-0001](docs/design/0001-hextory-vision.md), factory engine [DES-0002](docs/design/0002-factory-engine.md), and on-prem adapter [DES-0004](docs/design/0004-onprem-adapter.md) are **Approved**. Local vertical slice (`src/` + `adapters/local` + `tests/`) is in tree; on-prem first slice (`adapters/onprem` FastAPI + Postgres checkpointer + Compose) is in tree; AWS still deferred. [DES-0003](docs/design/0003-workflow-studio.md) (Hextory Studio UI) is **Draft ideation only** — not authorized to build. See the [maturity scorecard](docs/maturity/SCORECARD.md).
 
 ## Dark-factory thesis
 
@@ -66,14 +66,16 @@ hextory/
 │   ├── policies/                      # gate, rework, interceptors
 │   └── gateway/                       # RequestGateway
 ├── adapters/
-│   └── local/                         # CLI + checkpointers + SddStatusReader + optional LangGraph runtime
+│   ├── local/                         # CLI + checkpointers + SddStatusReader + optional LangGraph runtime
+│   └── onprem/                        # FastAPI + JWT + Postgres checkpointer (DES-0004)
+├── docker-compose.yml                 # on-prem api + postgres:16
 └── tests/
     ├── unit/
     ├── behavior/                      # Given/When/Then in ordinary pytest (not Cucumber)
     └── adapters/
 ```
 
-First-slice engine (`DES-0002-J`) is present: pure `src/` + `adapters/local` + `tests/`. On-prem scaffold is **Authorized** under [DES-0004](docs/design/0004-onprem-adapter.md) (**Approved**; FastAPI/Postgres/Compose not yet in tree). AWS remains deferred. Studio UI ([DES-0003](docs/design/0003-workflow-studio.md)) stays Draft ideation.
+First-slice engine (`DES-0002-J`) is present: pure `src/` + `adapters/local` + `tests/`. On-prem first slice ([DES-0004](docs/design/0004-onprem-adapter.md)) is in tree: `adapters/onprem` + Compose. AWS remains deferred. Studio UI ([DES-0003](docs/design/0003-workflow-studio.md)) stays Draft ideation.
 
 ## Run tests and local CLI (DES-0002 first slice)
 
@@ -173,6 +175,22 @@ python -m adapters.local.cli run --sdd DES-0002 --force-quality PASS --runtime l
 
 Parity tests under `tests/adapters/test_langgraph_runtime.py` skip cleanly when `langgraph` is not installed. Traveler persistence always goes through the `Checkpointer` port (FileCheckpointer / MemoryCheckpointer), not LangGraph’s MemorySaver in core.
 
+## On-prem HTTP (DES-0004)
+
+Second deploy target: FastAPI + JWT bearer + Postgres checkpointer under `adapters/onprem`. Same Gatekeeper / traveler semantics as the local CLI. Operator notes: [`adapters/onprem/README.md`](adapters/onprem/README.md).
+
+```bash
+pip install -e ".[dev,onprem]"
+export HEXTORY_JWT_SECRET=dev-secret-change-me
+# Unit/parity tests use in-memory fakes (no Docker required):
+python -m pytest tests/adapters/test_onprem_api.py
+# Compose smoke (Docker required) — api + postgres:16:
+docker compose up --build
+curl -s http://localhost:8080/health
+```
+
+Workflow routes require `Authorization: Bearer <JWT>` (401 if missing/invalid). Gate denials are structured **403**. Optional live Postgres tests run only when `HEXTORY_DATABASE_URL` is set.
+
 ## Contributing and CI
 
 See **[CONTRIBUTING.md](CONTRIBUTING.md)** for the design-doc gate, hexagonal rules, and testing layout.
@@ -206,7 +224,8 @@ Code-only contributions that bypass an Approved SDD will be rejected once public
 | [Vision SDD (0001)](docs/design/0001-hextory-vision.md) | Meta-system design (**Approved**) |
 | [Factory engine SDD (0002)](docs/design/0002-factory-engine.md) | Hexagonal multi-agent engine (**Approved**) |
 | [Hextory Studio SDD (0003)](docs/design/0003-workflow-studio.md) | Managed workflow canvas — Twilio Studio–like (**Draft**, ideation only) |
-| [On-prem adapter SDD (0004)](docs/design/0004-onprem-adapter.md) | FastAPI + Postgres + Docker — second deploy target (**Approved**; scaffold authorized) |
+| [On-prem adapter SDD (0004)](docs/design/0004-onprem-adapter.md) | FastAPI + Postgres + Docker — second deploy target (**Approved**; first slice in tree) |
+| [On-prem operator notes](adapters/onprem/README.md) | Compose smoke, JWT/DSN env, curl examples |
 | [Factory engine intent](docs/architecture/factory-engine-intent.md) | Historical intent; gate is DES-0002 **Approved** |
 | [CONTRIBUTING](CONTRIBUTING.md) | Design-doc gate, tests, CI on-ramp |
 | [SDD template](docs/design/TEMPLATE.md) | Start here for new workflows |
