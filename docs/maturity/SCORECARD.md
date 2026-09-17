@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| **Date** | 2026-09-17 13:39 America/Santiago |
+| **Date** | 2026-09-17 14:32 America/Santiago |
 | **Stage** | Operational dark factory (candidate) — DES-0006 OBS + DES-0005 AWS first slices on main; flat reconfirm |
-| **Latest pulse** | [R-0023](reports/R-0023-20260917-1339.md) |
+| **Latest pulse** | [R-0024](reports/R-0024-20260917-1432.md) |
 | **Scorers** | Clark Bot (maturity pulse); prior: Marcos Blazquez + New Bot |
 | **Method** | Per [ASPECTS.md](ASPECTS.md); each aspect 0–100; overall = mean |
 
@@ -18,10 +18,10 @@
 | 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **86** | DES-0004/0005/0006 live IMPL + TEST-ONP/TEST-AWS/TEST-OBS; traveler@0.1; pytest **112 passed / 1 skipped**. |
 | 5 | Architecture purity (hexagonal isolation) | **88** | Pure `src/` + ports; LangGraph/Echo/OpenAI/Prometheus/boto adapter-only; open GraphRegistry; `adapters/{local,onprem,aws}`. |
 | 6 | Determinism, testability & readable core | **88** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; OBS+AWS parity; 112 passed / 1 skipped. |
-| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip ci #43 Success on `965c201` (docs); product ci #41 on `14c4521`; approvals=0 and not strict up-to-date. |
+| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip ci #45 Success on `bc4f16b` (docs); product ci #41 on `14c4521`; approvals=0 and not strict up-to-date. |
 | 8 | Factory observability (traces, quality loops) | **74** | MetricsPort + on-prem GET `/metrics` + local dump + Grafana JSON + TEST-OBS + gateway counters. First-slice only — not production-grade ops (85+). |
 | 9 | Multi-target deploy readiness | **78** | Local CLI + on-prem FastAPI/JWT/Postgres/Compose + **AWS** Lambda/DynamoDB/moto parity + LocalStack Compose + uneployed SAM; **no real account deploy**. |
-| 10 | Public project readiness | **84** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #18; no issue/PR templates. |
+| 10 | Public project readiness | **84** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #20; no issue/PR templates. |
 
 ### Overall maturity
 
@@ -31,7 +31,7 @@
 | **Overall maturity** | **80.5** |
 | Band | **70–89 — Operational dark factory (candidate)** |
 | Meets ≥90? | **NO** |
-| Δ vs R-0022 | **0.0** (80.5 → 80.5) — flat reconfirm; no new product evidence this hour |
+| Δ vs R-0023 | **0.0** (80.5 → 80.5) — flat reconfirm; no new product evidence this hour |
 
 ## Next actions
 
@@ -74,3 +74,4 @@
 | 2026-09-17 12:45 | Clark Bot | Pulse R-0021: DES-0005/0006 dual Approve on main @ `e5dd7d1` → overall **76.4** (+2.2); aspects 8/9 held |
 | 2026-09-17 13:27 | Clark Bot | Pulse R-0022: OBS PR #16 + AWS PR #18 → overall **80.5** (+4.1); aspects 8/9 primary lifts |
 | 2026-09-17 13:39 | Clark Bot | Pulse R-0023: flat reconfirm **80.5** (Δ0) after R-0022 docs @ `965c201` / tip ci #43; Mac SoT connected but stale |
+| 2026-09-17 14:32 | Clark Bot | Pulse R-0024: flat reconfirm **80.5** (Δ0) after R-0023 docs @ `bc4f16b` / tip ci #45; Mac SoT connected but stale |
