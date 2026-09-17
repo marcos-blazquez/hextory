@@ -1,0 +1,78 @@
+# UNEPLOYED SAM stub — DES-0005 first slice (Q-AWS-5).
+# DO NOT apply to a real AWS account.
+# DO NOT add CI steps that run `sam deploy` / `aws cloudformation deploy`.
+#
+# This file documents the intended API Gateway HTTP API + Lambda + DynamoDB
+# shape for a later authorized live-deploy slice. First-slice verification uses
+# moto (+ optional LocalStack Compose), not this template.
+
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Hextory AWS adapter stub (DES-0005). Uneployed design artifact only.
+
+Parameters:
+  JwtSecret:
+    Type: String
+    NoEcho: true
+    Description: HS256 secret for bearer JWT (adapter-local)
+  TableName:
+    Type: String
+    Default: hextory
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.12
+    Environment:
+      Variables:
+        HEXTORY_JWT_SECRET: !Ref JwtSecret
+        HEXTORY_DYNAMODB_TABLE: !Ref TableName
+
+Resources:
+  HextoryTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref TableName
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+
+  HextoryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: adapters.aws.handlers.lambda_handler
+      CodeUri: ../../
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HextoryTable
+      Events:
+        Health:
+          Type: HttpApi
+          Properties:
+            Path: /health
+            Method: GET
+        CreateRun:
+          Type: HttpApi
+          Properties:
+            Path: /runs
+            Method: POST
+        GetRun:
+          Type: HttpApi
+          Properties:
+            Path: /runs/{id}
+            Method: GET
+        ResumeRun:
+          Type: HttpApi
+          Properties:
+            Path: /runs/{id}/resume
+            Method: POST
+
+Outputs:
+  Note:
+    Description: Uneployed stub — do not sam deploy in first slice
+    Value: "DES-0005 NG1 — LocalStack/moto only"

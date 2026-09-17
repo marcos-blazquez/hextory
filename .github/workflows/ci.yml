@@ -23,7 +23,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - name: Install
-        run: pip install -e ".[dev,onprem]"
+        run: pip install -e ".[dev,onprem,aws]"
       - name: Run tests
         run: python -m pytest
 
@@ -36,7 +36,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install (dev + onprem for import-boundary consistency with pytest job)
-        run: pip install -e ".[dev,onprem]"
+        run: pip install -e ".[dev,onprem,aws]"
       - name: Design-gate checks
         run: python scripts/ci_design_gates.py
       - name: Re-run import / layout tests explicitly

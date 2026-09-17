@@ -1,0 +1,25 @@
+# Optional LocalStack smoke for DES-0005 (NOT applied to a real AWS account).
+#   docker compose -f adapters/aws/docker-compose.localstack.yml up -d
+#
+# Services emulated: DynamoDB (+ enough AWS surface for handler smoke).
+# CI default path uses moto — this Compose file is operator/manual smoke only.
+
+services:
+  localstack:
+    image: localstack/localstack:4
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=dynamodb
+      - DEBUG=0
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - localstack_data:/var/lib/localstack
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  localstack_data:
