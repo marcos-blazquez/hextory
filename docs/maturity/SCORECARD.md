@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| **Date** | 2026-09-17 17:28 America/Santiago |
+| **Date** | 2026-09-17 19:26 America/Santiago |
 | **Stage** | Operational dark factory (candidate) — DES-0006 OBS + DES-0005 AWS first slices on main; flat reconfirm |
-| **Latest pulse** | [R-0027](reports/R-0027-20260917-1728.md) |
+| **Latest pulse** | [R-0029](reports/R-0029-20260917-1926.md) |
 | **Scorers** | Clark Bot (maturity pulse); prior: Marcos Blazquez + New Bot |
 | **Method** | Per [ASPECTS.md](ASPECTS.md); each aspect 0–100; overall = mean |
 
@@ -18,10 +18,10 @@
 | 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **86** | DES-0004/0005/0006 live IMPL + TEST-ONP/TEST-AWS/TEST-OBS; traveler@0.1; pytest **112 passed / 1 skipped**. |
 | 5 | Architecture purity (hexagonal isolation) | **88** | Pure `src/` + ports; LangGraph/Echo/OpenAI/Prometheus/boto adapter-only; open GraphRegistry; `adapters/{local,onprem,aws}`. |
 | 6 | Determinism, testability & readable core | **88** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; OBS+AWS parity; 112 passed / 1 skipped. |
-| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip ci #51 Success on `bada2de` (docs); product ci #41 on `14c4521`; approvals=0 and not strict up-to-date. |
+| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip ci #53 Success on `d7265e5` (docs on main); R-0028 PR ci #54 (unmerged); product ci #41 on `14c4521`; approvals=0 and not strict up-to-date. |
 | 8 | Factory observability (traces, quality loops) | **74** | MetricsPort + on-prem GET `/metrics` + local dump + Grafana JSON + TEST-OBS + gateway counters. First-slice only — not production-grade ops (85+). |
 | 9 | Multi-target deploy readiness | **78** | Local CLI + on-prem FastAPI/JWT/Postgres/Compose + **AWS** Lambda/DynamoDB/moto parity + LocalStack Compose + uneployed SAM; **no real account deploy**. |
-| 10 | Public project readiness | **84** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #23; no issue/PR templates. |
+| 10 | Public project readiness | **84** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #25 (R-0028 OPEN); no issue/PR templates. |
 
 ### Overall maturity
 
@@ -31,7 +31,7 @@
 | **Overall maturity** | **80.5** |
 | Band | **70–89 — Operational dark factory (candidate)** |
 | Meets ≥90? | **NO** |
-| Δ vs R-0026 | **0.0** (80.5 → 80.5) — flat reconfirm; tip `bada2de` docs-only; no new product evidence |
+| Δ vs R-0028 | **0.0** (80.5 → 80.5) — flat reconfirm; tip `d7265e5` docs-only on main; R-0028 PR #25 unmerged; no new product evidence |
 
 ## Next actions
 
@@ -42,7 +42,8 @@
 5. When a second reviewer exists: re-enable ≥1 required approving review; consider strict up-to-date (aspects 3, 7).
 6. Keep DES-0003 Draft ideation only — no product UI during pulse; out-of-tree consumers stay out of public kernel score.
 7. Continue weekday hourly pulses until overall ≥ 90; do not invent score lifts without new evidence.
-8. Refresh Mac SoT working tree from GitHub `main` when practical (currently missing onprem/aws / DES-0004+ / `.git`).
+8. Land / supersede open R-0028 PR #25 when merging this pulse so main tip includes R-0028+R-0029.
+9. Refresh Mac SoT working tree from GitHub `main` when practical (currently missing onprem/aws / DES-0004+ / `.git`).
 
 ## Revision history
 
@@ -78,3 +79,5 @@
 | 2026-09-17 15:28 | Clark Bot | Pulse R-0025: flat reconfirm **80.5** (Δ0) after R-0024 docs @ `6f72bde` / tip ci #47; Mac SoT connected but stale |
 | 2026-09-17 16:27 | Clark Bot | Pulse R-0026: flat reconfirm **80.5** (Δ0) after R-0025 docs @ `62318d7` / tip ci #49; Mac SoT connected but stale |
 | 2026-09-17 17:28 | Clark Bot | Pulse R-0027: flat reconfirm **80.5** (Δ0) after R-0026 docs @ `bada2de` / tip ci #51; Mac SoT connected but stale |
+| 2026-09-17 18:27 | Clark Bot | Pulse R-0028: flat reconfirm **80.5** (Δ0) after R-0027 docs @ `d7265e5` / tip ci #53; Mac SoT connected but stale |
+| 2026-09-17 19:26 | Clark Bot | Pulse R-0029: flat reconfirm **80.5** (Δ0) after R-0028; main tip still `d7265e5` / tip ci #53; R-0028 PR #25 OPEN (ci #54); Mac SoT connected but stale |
