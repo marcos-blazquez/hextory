@@ -4,7 +4,7 @@
 
 Instead of humans line-reading every pull request, **every workflow requires a Software Design Document (SDD)** that humans *and* agents review and approve. Code generation and implementation are **gated** on that approved design. Agents implement; design docs carry the shared contract.
 
-> Status: **First-slice scaffold**. Vision [DES-0001](docs/design/0001-hextory-vision.md), factory engine [DES-0002](docs/design/0002-factory-engine.md), on-prem adapter [DES-0004](docs/design/0004-onprem-adapter.md), AWS adapter [DES-0005](docs/design/0005-aws-adapter.md), and factory observability [DES-0006](docs/design/0006-factory-observability.md) are **Approved**. Local vertical slice (`src/` + `adapters/local` + `tests/`) is in tree; on-prem first slice (`adapters/onprem` FastAPI + Postgres checkpointer + Compose) is in tree. DES-0005 / DES-0006 first slices are authorized (impl follow-up; no AWS/metrics code in the Approval PR). [DES-0003](docs/design/0003-workflow-studio.md) (Hextory Studio UI) remains **Draft ideation only**. See the [maturity scorecard](docs/maturity/SCORECARD.md).
+> Status: **First-slice scaffold**. Vision [DES-0001](docs/design/0001-hextory-vision.md), factory engine [DES-0002](docs/design/0002-factory-engine.md), on-prem adapter [DES-0004](docs/design/0004-onprem-adapter.md), AWS adapter [DES-0005](docs/design/0005-aws-adapter.md), and factory observability [DES-0006](docs/design/0006-factory-observability.md) are **Approved**. Local vertical slice (`src/` + `adapters/local` + `tests/`) is in tree; on-prem first slice (`adapters/onprem` FastAPI + Postgres checkpointer + Compose) is in tree; AWS first slice (`adapters/aws` Lambda + DynamoDB/moto) is in tree; factory observability (DES-0006 MetricsPort + `/metrics`) is in tree. [DES-0003](docs/design/0003-workflow-studio.md) (Hextory Studio UI) remains **Draft ideation only**. See the [maturity scorecard](docs/maturity/SCORECARD.md).
 
 ## Dark-factory thesis
 
@@ -69,7 +69,8 @@ hextory/
 │   └── gateway/                       # RequestGateway
 ├── adapters/
 │   ├── local/                         # CLI + checkpointers + SddStatusReader + optional LangGraph runtime
-│   └── onprem/                        # FastAPI + JWT + Postgres checkpointer (DES-0004)
+│   ├── onprem/                        # FastAPI + JWT + Postgres checkpointer (DES-0004)
+│   └── aws/                           # Lambda + DynamoDB/moto (DES-0005; no real-account deploy)
 ├── docker-compose.yml                 # on-prem api + postgres:16
 └── tests/
     ├── unit/
@@ -77,7 +78,7 @@ hextory/
     └── adapters/
 ```
 
-First-slice engine (`DES-0002-J`) is present: pure `src/` + `adapters/local` + `tests/`. On-prem first slice ([DES-0004](docs/design/0004-onprem-adapter.md)) is in tree: `adapters/onprem` + Compose. AWS adapter ([DES-0005](docs/design/0005-aws-adapter.md)) and factory observability ([DES-0006](docs/design/0006-factory-observability.md)) are **Approved** (impl follow-up; not in this docs package). Studio UI ([DES-0003](docs/design/0003-workflow-studio.md)) stays Draft ideation.
+First-slice engine (`DES-0002-J`) is present: pure `src/` + `adapters/local` + `tests/`. On-prem first slice ([DES-0004](docs/design/0004-onprem-adapter.md)) is in tree: `adapters/onprem` + Compose. AWS first slice ([DES-0005](docs/design/0005-aws-adapter.md)) is in tree: `adapters/aws` Lambda handlers + DynamoDB checkpointer (moto CI; optional LocalStack Compose; **no real-account deploy**). Factory observability ([DES-0006](docs/design/0006-factory-observability.md)) MetricsPort + on-prem `/metrics` is in tree. Studio UI ([DES-0003](docs/design/0003-workflow-studio.md)) stays Draft ideation.
 
 ## Run tests and local CLI (DES-0002 first slice)
 
@@ -193,6 +194,21 @@ curl -s http://localhost:8080/health
 
 Workflow routes require `Authorization: Bearer <JWT>` (401 if missing/invalid). Gate denials are structured **403**. Optional live Postgres tests run only when `HEXTORY_DATABASE_URL` is set.
 
+## AWS Lambda / DynamoDB (DES-0005)
+
+Third deploy target: API Gateway HTTP API + Lambda handlers + DynamoDB checkpointer under `adapters/aws`. Same Gatekeeper / traveler semantics as the local CLI. First-slice proof uses **moto** (CI) and optional LocalStack Compose — **no real AWS account deploy**. Operator notes: [`adapters/aws/README.md`](adapters/aws/README.md).
+
+```bash
+pip install -e ".[dev,aws]"
+export HEXTORY_JWT_SECRET=dev-secret-change-me
+# Unit/parity tests use moto (no LocalStack / no real account):
+python -m pytest tests/adapters/test_aws_api.py
+# Optional LocalStack smoke (Docker):
+# docker compose -f adapters/aws/docker-compose.localstack.yml up -d
+```
+
+Uneployed SAM stub: `adapters/aws/template.yaml` — do not `sam deploy` in this slice.
+
 ## Contributing and CI
 
 See **[CONTRIBUTING.md](CONTRIBUTING.md)** for the design-doc gate, hexagonal rules, and testing layout.
@@ -227,9 +243,10 @@ Code-only contributions that bypass an Approved SDD will be rejected once public
 | [Factory engine SDD (0002)](docs/design/0002-factory-engine.md) | Hexagonal multi-agent engine (**Approved**) |
 | [Hextory Studio SDD (0003)](docs/design/0003-workflow-studio.md) | Managed workflow canvas — Twilio Studio–like (**Draft**, ideation only) |
 | [On-prem adapter SDD (0004)](docs/design/0004-onprem-adapter.md) | FastAPI + Postgres + Docker — second deploy target (**Approved**; first slice in tree) |
-| [AWS adapter SDD (0005)](docs/design/0005-aws-adapter.md) | API Gateway + Lambda + DynamoDB; LocalStack/moto first (**Approved**; impl follow-up) |
-| [Factory observability SDD (0006)](docs/design/0006-factory-observability.md) | Gate-denial metrics + Prometheus `/metrics` + Grafana-as-code (**Approved**; impl follow-up) |
+| [AWS adapter SDD (0005)](docs/design/0005-aws-adapter.md) | API Gateway + Lambda + DynamoDB; LocalStack/moto first (**Approved**; first slice in tree; no real-account deploy) |
+| [Factory observability SDD (0006)](docs/design/0006-factory-observability.md) | Gate-denial metrics + Prometheus `/metrics` + Grafana-as-code (**Approved**; first slice in tree) |
 | [On-prem operator notes](adapters/onprem/README.md) | Compose smoke, JWT/DSN env, curl examples |
+| [AWS operator notes](adapters/aws/README.md) | moto / LocalStack smoke, JWT env, uneployed SAM stub |
 | [Factory engine intent](docs/architecture/factory-engine-intent.md) | Historical intent; gate is DES-0002 **Approved** |
 | [CONTRIBUTING](CONTRIBUTING.md) | Design-doc gate, tests, CI on-ramp |
 | [SDD template](docs/design/TEMPLATE.md) | Start here for new workflows |
