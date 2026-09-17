@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| **Date** | 2026-09-16 19:45 America/Santiago |
-| **Stage** | Building foundations — ruleset + v0.1.0 + traveler@0.1; approaching operational candidate |
-| **Latest pulse** | [R-0015](reports/R-0015-20260916-1945.md) |
+| **Date** | 2026-09-17 08:23 America/Santiago |
+| **Stage** | Operational dark factory (candidate) — DES-0004 + `adapters/onprem` landed; observability still thin |
+| **Latest pulse** | [R-0016](reports/R-0016-20260917-0823.md) |
 | **Scorers** | Clark Bot (maturity pulse); prior: Marcos Blazquez + New Bot |
 | **Method** | Per [ASPECTS.md](ASPECTS.md); each aspect 0–100; overall = mean |
 
@@ -12,31 +12,31 @@
 
 | # | Aspect | Score (0–100) | Rationale |
 |---|---|---|---|
-| 1 | Vision clarity | **70** | DES-0001/0002 **Approved**; DES-0002 Approved-body hygiene + published traveler contract; DES-0003 bare Draft ideation. |
-| 2 | Design-doc coverage | **60** | TEMPLATE + Approved vision + Approved engine + Draft Studio ideation; no new Approved workflow SDDs. |
-| 3 | Review rigor (dual human+agent) | **55** | Two dual Approvals; PR merge-via-doc practiced (#1–#6); `required_approving_review_count: 0` caps further lift. |
-| 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **76** | DES-0002 §12 + live IMPL + published `hextory.digital_traveler@0.1`; pytest **72 passed**. |
-| 5 | Architecture purity (hexagonal isolation) | **80** | Pure `src/` + ports; LangGraph/Echo/OpenAI adapter-only; open GraphRegistry; only `adapters/local`. |
-| 6 | Determinism, testability & readable core | **84** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; 72 tests passed. |
-| 7 | Automation of design gates (CI/process) | **84** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; ci #13 Success on `187dda7`; approvals=0 and not strict up-to-date. |
-| 8 | Factory observability (traces, quality loops) | **52** | FileCheckpointer persists travelers + quality FAIL under `.hextory/`; FileIdempotency; no dashboards. |
-| 9 | Multi-target deploy readiness | **40** | Local CLI + File/Memory checkpointers; dual runtime ≠ second target; only `adapters/local`. |
-| 10 | Public project readiness | **82** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PR habit (#1–#6); no issue/PR templates. |
+| 1 | Vision clarity | **72** | DES-0001/0002/0004 **Approved**; on-prem-first multi-target direction explicit; DES-0003 bare Draft ideation. |
+| 2 | Design-doc coverage | **68** | TEMPLATE + Approved vision + Approved engine + Approved on-prem adapter; Draft Studio ideation; no new Approved workflow SDDs. |
+| 3 | Review rigor (dual human+agent) | **60** | Three dual Approvals; PR merge-via-doc practiced (#1–#9); `required_approving_review_count: 0` caps further lift. |
+| 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **80** | DES-0004 + live `adapters/onprem` IMPL + TEST-ONP-01…07; published `hextory.digital_traveler@0.1`; pytest **84 passed / 1 skipped**. |
+| 5 | Architecture purity (hexagonal isolation) | **85** | Pure `src/` + ports; LangGraph/Echo/OpenAI adapter-only; open GraphRegistry; `adapters/local` + `adapters/onprem` without core fork. |
+| 6 | Determinism, testability & readable core | **86** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; on-prem parity tests; 84 passed / 1 skipped. |
+| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; ci #21 Success on `fcbe5b0`; approvals=0 and not strict up-to-date. |
+| 8 | Factory observability (traces, quality loops) | **52** | FileCheckpointer persists travelers + quality FAIL under `.hextory/`; Postgres checkpointer for on-prem; FileIdempotency; no dashboards. |
+| 9 | Multi-target deploy readiness | **70** | Local CLI + on-prem FastAPI/JWT/Postgres/Compose with parity tests; AWS still deferred. |
+| 10 | Public project readiness | **84** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PR habit (#1–#9); no issue/PR templates. |
 
 ### Overall maturity
 
 | Metric | Value |
 |---|---|
-| Sum of aspect scores | 70+60+55+76+80+84+84+52+40+82 = **683** |
-| **Overall maturity** | **68.3** |
-| Band | **40–69 — Building foundations** (approaching operational candidate) |
+| Sum of aspect scores | 72+68+60+80+85+86+85+52+70+84 = **742** |
+| **Overall maturity** | **74.2** |
+| Band | **70–89 — Operational dark factory (candidate)** |
 | Meets ≥90? | **NO** |
-| Δ vs R-0014 | **0.0** (68.3 → 68.3) — flat reconfirm after PR #6 / ci #13 / main `187dda7`; no new product evidence |
+| Δ vs R-0015 | **+5.9** (68.3 → 74.2) — DES-0004 / `adapters/onprem` on main `fcbe5b0`; multi-target up; aspect 8 flat at 52 |
 
 ## Next actions
 
-1. Second deploy adapter beyond `adapters/local` with traveler/Gatekeeper parity (aspect 9) — dual runtime ≠ multi-target.
-2. Observability: dashboards / gate-denial metrics beyond file artifacts (aspect 8).
+1. Observability: dashboards / gate-denial metrics beyond file/Postgres artifacts (aspect 8).
+2. Third deploy target (AWS or equivalent) with traveler/Gatekeeper parity — do not invent aspect-9 lifts without it (aspect 9).
 3. Add issue/PR templates for SDD contribution path (aspect 10).
 4. More Approved workflow SDDs under dual review (aspects 2, 3).
 5. When a second reviewer exists: re-enable ≥1 required approving review; consider strict up-to-date (aspects 3, 7).
@@ -65,3 +65,4 @@
 | 2026-09-16 18:26 | Clark Bot | Pulse R-0013: flat reconfirm **68.3** (Δ0) after PR #4 / ci #9 |
 | 2026-09-16 19:28 | Clark Bot | Pulse R-0014: flat reconfirm **68.3** (Δ0) after PR #5 / ci #11 |
 | 2026-09-16 19:45 | Clark Bot | Pulse R-0015: flat reconfirm **68.3** (Δ0) after PR #6 / ci #13 / main `187dda7` |
+| 2026-09-17 08:23 | Clark Bot | Pulse R-0016: DES-0004 / `adapters/onprem` → overall **74.2** (+5.9); aspect 8 flat 52 |
