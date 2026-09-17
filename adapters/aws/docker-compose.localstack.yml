@@ -1,8 +1,9 @@
-# Optional LocalStack smoke for DES-0005 (NOT applied to a real AWS account).
+# Optional LocalStack smoke for DES-0005 (emulator; not a real AWS account).
 #   docker compose -f adapters/aws/docker-compose.localstack.yml up -d
 #
 # Services emulated: DynamoDB (+ enough AWS surface for handler smoke).
-# CI default path uses moto — this Compose file is operator/manual smoke only.
+# CI default path uses moto — this Compose file is operator/manual LocalStack smoke.
+# Authorized real-account smoke (hextory-* names, us-east-2) is documented in README.
 
 services:
   localstack:

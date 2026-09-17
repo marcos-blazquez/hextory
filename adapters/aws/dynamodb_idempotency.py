@@ -6,7 +6,7 @@ import os
 from datetime import datetime, timezone
 from typing import Any, Optional
 
-DEFAULT_TABLE = "hextory"
+DEFAULT_TABLE = "hextory-aws-smoke"
 
 
 def table_name_from_env() -> str:

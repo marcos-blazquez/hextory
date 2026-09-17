@@ -56,7 +56,7 @@ Python **3.11+**. See [`README.md`](README.md) for layout and CLI notes.
 | [DES-0002](docs/design/0002-factory-engine.md) | Approved | Factory engine; first slice authorized |
 | [DES-0003](docs/design/0003-workflow-studio.md) | Draft | Hextory Studio ideation — **no UI implementation** |
 | [DES-0004](docs/design/0004-onprem-adapter.md) | Approved | On-prem adapter (`adapters/onprem`) — first slice in tree; AWS/Studio still out of scope |
-| [DES-0005](docs/design/0005-aws-adapter.md) | Approved | AWS adapter (`adapters/aws`) — LocalStack/moto first; first slice authorized (impl follow-up) |
+| [DES-0005](docs/design/0005-aws-adapter.md) | Approved | AWS adapter (`adapters/aws`) — LocalStack/moto first; authorized `hextory-*` smoke opt-in |
 | [DES-0006](docs/design/0006-factory-observability.md) | Approved | Factory observability — metrics + `/metrics`; first slice authorized (impl follow-up) |
 
 ---

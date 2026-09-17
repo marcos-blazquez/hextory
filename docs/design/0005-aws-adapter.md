@@ -9,11 +9,11 @@
 | **Reviewers (human)** | Marcos Blazquez (2026-09-17 — Approve in chat) |
 | **Reviewers (agent)** | Clark Bot (2026-09-17 — checklist pass; see review record) |
 | **Created** | 2026-09-17 |
-| **Last updated** | 2026-09-17 (dual Approve) |
+| **Last updated** | 2026-09-17 (authorized smoke amendment — Q-AWS-6) |
 | **Related REQs** | REQ-0010, REQ-0016 (from DES-0002); also REQ-0003, REQ-0013, REQ-0015 |
 | **Supersedes** | none (refines DES-0002 §5.2 `adapters/aws` sketch; supersedes soft Q-AWS-1 resource-name deferral with concrete first-slice choices below) |
 | **Depends on** | [DES-0001](0001-hextory-vision.md) (**Approved**), [DES-0002](0002-factory-engine.md) (**Approved**), [DES-0004](0004-onprem-adapter.md) (**Approved**) as the second-target parity reference |
-| **Implementation** | **Authorized** for the first AWS slice per §9 / §13 and the end-of-doc slice list — LocalStack/moto + API GW HTTP API + Lambda + DynamoDB checkpointer + parity tests; **no real AWS account deploy**; Studio remains non-goal |
+| **Implementation** | **Authorized** for the first AWS slice per §9 / §13 and the end-of-doc slice list — LocalStack/moto + API GW HTTP API + Lambda + DynamoDB checkpointer + parity tests; CI must not deploy; **authorized manual `hextory-*` smoke** (us-east-2) in scope for multi-target evidence per Q-AWS-6 amendment; Studio remains non-goal |
 
 ---
 
@@ -30,7 +30,7 @@ This SDD (now **Approved**) is the design gate for the **third deploy target**: 
 5. Public kernel stays product-agnostic: never name private sibling products or out-of-tree app brands in this SDD or adapter code.
 6. Traveler contract stays `hextory.digital_traveler@0.1` / DES-0002-G — no core schema change.
 7. DES-0003 (Studio UI) remains Draft ideation and is **out of scope** here.
-8. First-slice proof is **LocalStack and/or moto** (+ Docker Compose or documented LocalStack compose). **Explicit NG: no deploy to a real AWS account** in the first slice.
+8. First-slice **CI** proof is **LocalStack and/or moto** (+ Docker Compose or documented LocalStack compose). CI must not deploy to a real AWS account. An **authorized manual smoke** with `hextory-*` / `hextory-public-*` names in `us-east-2` is allowed when operators opt in (Q-AWS-6 amendment) — do not share resources with other workloads in the same account; use `hextory-*` names only.
 
 **Dual review complete (2026-09-17).** Marcos Blazquez + Clark Bot **Approve**. §13 is green; first-slice implementation is authorized under the constraints below.
 
@@ -46,8 +46,8 @@ Aspect **9** (multi-target deploy readiness) is capped at roughly **~70** while 
 
 - **G1 (REQ-0010 / REQ-0016):** Specify `adapters/aws` so the same pure `src/` core runs under an AWS-shaped binding with identical traveler/workflow semantics to `adapters/local` and `adapters/onprem`.
 - **G2:** Semantic parity for run / status / resume (or AWS-shaped equivalents) vs local CLI traveler outcomes — same Gatekeeper denial and terminal statuses (shipped / escalated / denied).
-- **G3:** First slice proven with **moto and/or LocalStack** + Docker Compose (or documented LocalStack compose). **Explicit NG: no deploy to a real AWS account.**
-- **G4:** Optional IaC (SAM / CDK / CloudFormation) may land as design-tracked artifacts that are **not applied** against a real account in the first slice.
+- **G3:** First slice proven with **moto and/or LocalStack** + Docker Compose (or documented LocalStack compose). **CI must not deploy** to a real AWS account; authorized manual `hextory-*` smoke is a separate opt-in evidence path (Q-AWS-6).
+- **G4:** Optional IaC (SAM / CDK / CloudFormation) may land as design-tracked artifacts; **not applied from CI**. Authorized smoke may apply only with `hextory-*` / `hextory-public-*` stack/table names.
 - **G5 (REQ-0015):** TDD + BDD-style (Given/When/Then in ordinary pytest, not Cucumber) tests under `tests/adapters/` proving parity vs local CLI traveler outcomes.
 
 ### 1.3 Success definition
@@ -55,7 +55,7 @@ Aspect **9** (multi-target deploy readiness) is capped at roughly **~70** while 
 - Dual review Approves this SDD without re-litigating DES-0002 core ports or DES-0004 on-prem parity baseline (**done 2026-09-17**).
 - Agents implement the AWS-shaped vertical slice against acceptance criteria and TEST IDs without inventing architecture.
 - Parity tests demonstrate that a run accepted/denied/shipped/escalated via the AWS adapter path matches local CLI traveler semantics for the same inputs (under LocalStack/moto).
-- Aspect-9 evidence path exists once implemented (adapter package + LocalStack/moto compose or harness + parity tests) **without** real-account deploy.
+- Aspect-9 evidence path exists once implemented (adapter package + LocalStack/moto compose or harness + parity tests); authorized `hextory-*` smoke may strengthen multi-target evidence when operators opt in.
 
 ### 1.4 Scope
 
@@ -67,7 +67,7 @@ Aspect **9** (multi-target deploy readiness) is capped at roughly **~70** while 
 - Traceability to REQ-0010 / REQ-0016 (and related gateway/testing REQs).
 - Optional uneployed IaC stub posture (SAM/CDK/CloudFormation checked into repo but not applied).
 
-**Out of scope:** see Explicit non-goals (§8). First-slice AWS scaffold is authorized while Status is **Approved** and §13 is green; Studio remains deferred; real AWS account deploy remains NG for first slice.
+**Out of scope:** see Explicit non-goals (§8). First-slice AWS scaffold is authorized while Status is **Approved** and §13 is green; Studio remains deferred; CI real-account deploy remains NG; authorized manual smoke is in scope per Q-AWS-6 amendment.
 
 ---
 
@@ -116,7 +116,7 @@ Hexagonal / ports & adapters (DES-0002-A). This SDD owns the **AWS adapter bound
 | ID | Decision | Alternatives considered | Rationale |
 |---|---|---|---|
 | **DES-0005-A** | Third deploy target after on-prem is **AWS-shaped** (`adapters/aws`) | GCP/Azure first; “generic cloud” only; skip third target | Aligns with DES-0002 sketch; clears aspect-9 ceiling after local+onprem |
-| **DES-0005-B** | First-slice proof = **LocalStack and/or moto**; real AWS account deploy deferred (**NG**) | Real account day one; LocalStack-only forever | Verifiable in CI/public kernel without credentials or spend |
+| DES-0005-B | First-slice **CI** proof = **LocalStack and/or moto**; CI must not deploy. Authorized manual `hextory-*` smoke (us-east-2) allowed when operators opt in (**Q-AWS-6**) | Unbounded real-account day one; LocalStack-only forever | Verifiable in CI/public kernel without credentials; optional bounded smoke for multi-target evidence |
 | **DES-0005-C** | Persistence primary = **DynamoDB** via Checkpointer port (traveler + checkpoint items); S3 deferred for large artifacts | S3-primary blobs; S3+Dynamo dual-write day one; reuse Postgres remotely | Single managed KV matches serverless handlers; LocalStack/moto Dynamo coverage is mature; **Q-AWS-2 accepted 2026-09-17** |
 | **DES-0005-D** | Inbound = **API Gateway HTTP API + Lambda handlers** mapped to same semantic ops as on-prem `POST /runs`, `GET /runs/{id}`, `POST /runs/{id}/resume` | Lambda Function URL only; ALB+ECS; API Gateway REST (v1) | Matches DES-0002 AWS sketch; multi-route HTTP semantics without Function URL’s thinner gateway features; HTTP API is lighter than REST v1 |
 | **DES-0005-E** | Auth is **adapter-local** (JWT bearer stub via LocalStack authorizer; API keys optional later); core stays agnostic | IAM-only SigV4 for all clients; no auth in first slice; API-keys-only | Keeps hexagonal purity; **Q-AWS-1 accepted 2026-09-17** — JWT bearer stub aligns with DES-0004-B |
@@ -218,12 +218,13 @@ Any new port method needed for DynamoDB binding must be justified in an amendmen
 | SddStatusReader wiring | Reuse or share local reader semantics (manifest + markdown Status) |
 | LocalStack Compose (or documented compose) | Emulate API GW / Lambda / Dynamo for smoke |
 | moto unit harness | In-process Dynamo (and related) fakes for fast CI (**Q-AWS-3** accepted: moto required) |
-| Optional IaC stub | SAM/CDK/CloudFormation templates checked in; **not applied** to a real account |
+| Optional IaC stub | SAM/CDK/CloudFormation templates checked in; **not applied from CI**; authorized smoke may apply with `hextory-*` names only |
 | Entrypoint | Handler module names at impl — e.g. `adapters.aws.handlers…` |
 
 #### Explicitly not in this adapter (first slice)
 
-- Real AWS account deploy / CI that applies IaC to live accounts
+- Real AWS account deploy **from CI** / automated pipelines that apply IaC to live accounts
+- Unbounded sharing of stack/table names with other workloads in the same account (use `hextory-*` / `hextory-public-*` only for any authorized smoke)
 - Studio / React / `adapters/web` (DES-0003)
 - Core schema changes
 - Observability dashboards (owned by DES-0006; may consume AWS adapter later)
@@ -237,7 +238,7 @@ Any new port method needed for DynamoDB binding must be justified in an amendmen
 | Auth | Reject missing/invalid credentials with 401; do not confuse with Gatekeeper 4xx denial |
 | Idempotency | Honor `idempotency_key` when provided (same semantics as local/on-prem) |
 | Rework / escalate | Core policy only (max 3 default) |
-| Real-account deploy | Forbidden in first slice (DES-0005-B / NG1) |
+| Real-account deploy | Forbidden **from CI** (DES-0005-B / NG1); authorized manual `hextory-*` smoke opt-in (Q-AWS-6) |
 
 ---
 
@@ -271,13 +272,13 @@ Exact LocalStack URLs/ports are impl details; parity is semantic, not URL-string
 | A-03 | DynamoDB is acceptable primary store (DES-0005-C) | Late switch to S3-primary | **Q-AWS-2 interim accepted 2026-09-17** — Dynamo primary; S3 deferred |
 | A-04 | Auth scheme can be stubbed in LocalStack before production IAM/JWT hardening | Auth rework | **Q-AWS-1 interim accepted 2026-09-17** — JWT bearer stub via LocalStack authorizer |
 | A-05 | No core schema change needed for Dynamo persistence | Forced traveler migration | Adapter maps existing fields only |
-| A-06 | Optional IaC stubs do not imply live deploy | Accidental `sam deploy` / CDK apply | NG1 + CI must not apply to real accounts |
+| A-06 | Optional IaC stubs do not imply CI live deploy | Accidental `sam deploy` from CI | NG1 + CI must not apply; authorized smoke uses `hextory-*` names only |
 
 ---
 
 ## 8. Explicit non-goals
 
-- **NG1:** Deploy to a **real AWS account** (apply IaC, create live resources, use production credentials) in the first slice.
+- **NG1:** Deploy to a **real AWS account from CI** (apply IaC, create live resources via automated pipelines) in the first slice. **Amendment (Q-AWS-6):** an authorized **manual** smoke with `hextory-*` / `hextory-public-*` stack/table names in `us-east-2` is in scope for multi-target evidence when operators opt in; do not share resources with other workloads in the same account; use `hextory-*` names only.
 - **NG2:** Studio UI, React, xyflow, or `adapters/web` (DES-0003 stays Draft ideation).
 - **NG3:** Changing DigitalTraveler core schema or published `@0.1` contract.
 - **NG4:** Forking Gatekeeper, departments, or RequestGateway into an AWS-only engine.
@@ -302,7 +303,7 @@ Concrete, testable criteria. Agents may implement **only after** gate criteria (
 | AC-06 | Auth required on workflow routes per Q-AWS-1 (JWT bearer stub); invalid/missing → 401 (distinct from Gatekeeper denial) | TEST-AWS-06 |
 | AC-07 | `src/` has zero AWS SDK / LocalStack / moto / `adapters` imports | TEST-0010 + TEST-AWS-07 |
 | AC-08 | Adapter tests live under `tests/adapters/` with BDD-style readability; no Cucumber | TEST-AWS-03 docstrings / layout |
-| AC-09 | Any IaC stubs in-repo are not applied to a real account in first-slice CI | TEST-AWS-08 / CI policy review |
+| AC-09 | Any IaC stubs in-repo are not applied from first-slice **CI**; authorized smoke (if run) uses `hextory-*` names only | TEST-AWS-08 / CI policy review |
 
 ---
 
@@ -315,7 +316,7 @@ Concrete, testable criteria. Agents may implement **only after** gate criteria (
 | DynamoDB unavailable | Connection/errors from store | Fail run/resume; do not pretend MemorySaver success in AWS mode | Restore LocalStack/Dynamo; retry |
 | Quality FAIL | Core quality | Rework per DES-0002-H (max 3) then escalate | Same as local |
 | Checkpoint corrupt / missing on resume | Checkpointer load | Structured error; no silent restart | Operator investigates store |
-| Accidental real-account deploy attempt | CI / operator procedure | Block; treat as out of first-slice scope | Amend SDD before live deploy slice |
+| Accidental real-account deploy from CI | CI / operator procedure | Block; treat as out of first-slice CI scope | Authorized smoke only via opt-in `hextory-*` procedure (Q-AWS-6) |
 
 **Rework policy defaults:** inherit DES-0002-H (max rework **3**, then human escalation). Partial ships forbidden.
 
@@ -333,12 +334,12 @@ Reviewers must check each item. Architecture-critical items require **human** si
 | 4 | Acceptance criteria are testable | ☑ | ☑ | Yes |
 | 5 | Traceability IDs are complete and unique | ☑ | ☑ | Yes |
 | 6 | Gate criteria are unambiguous | ☑ | ☑ | Yes |
-| 7 | Security / privacy / compliance touched? (auth, secrets, no real-account deploy) | ☑ | ☑ | Yes |
+| 7 | Security / privacy / compliance touched? (auth, secrets, CI must not deploy; authorized smoke bounds) | ☑ | ☑ | Yes |
 | 8 | Glossary terms used consistently | ☑ | ☑ | No |
 | 9 | Visuals / diagrams present or explicitly deferred | ☑ | ☑ | No |
 | 10 | No implementation leakage that bypasses this SDD | ☑ | ☑ | Yes |
 | 11 | Q-AWS-1 interim (auth) acceptable to Marcos or resolved | ☑ | ☑ | Yes |
-| 12 | Real AWS account deploy and Studio explicitly non-goals for first slice | ☑ | ☑ | Yes |
+| 12 | Real AWS account deploy from CI and Studio explicitly non-goals for first slice; authorized `hextory-*` smoke documented | ☑ | ☑ | Yes |
 | 13 | LocalStack/moto-first proof path is explicit | ☑ | ☑ | Yes |
 
 **Sign-off**
@@ -378,7 +379,7 @@ All of the following must be true:
 
 **Only when every box is checked may agents generate implementation for this workflow.**
 
-**Post-approval note:** Gate criteria are green. Implementation may proceed for the **first AWS slice only** (`adapters/aws` Lambda handlers + DynamoDB checkpointer + LocalStack/moto + `tests/adapters/` parity per §9 and end-of-doc slice list). **No real AWS account deploy** (NG1). Studio remains non-goal (NG2).
+**Post-approval note:** Gate criteria are green. Implementation may proceed for the **first AWS slice only** (`adapters/aws` Lambda handlers + DynamoDB checkpointer + LocalStack/moto + `tests/adapters/` parity per §9 and end-of-doc slice list). **CI must not deploy** (NG1). **Authorized manual `hextory-*` smoke** is in scope for multi-target evidence (Q-AWS-6 amendment). Studio remains non-goal (NG2).
 
 ---
 
@@ -406,7 +407,7 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 | **Q-AWS-3** | LocalStack vs moto-only in CI? | Marcos + implementer | Before first CI merge post-Approval | **Accepted 2026-09-17** — moto unit tests required; optional LocalStack Compose smoke (manual or nightly) (Marcos + Clark dual Approve) |
 | Q-AWS-4 | Exact Dynamo table key schema / GSI / TTL? | Implementer after Approval | During first impl slice | Soft — adapter-local |
 | Q-AWS-5 | Which IaC flavor for uneployed stubs (SAM vs CDK vs raw CFN)? | Dual review | Soft | Soft — pick one stub at impl |
-| Q-AWS-6 | When (if ever) is real-account deploy authorized (separate slice / amendment)? | Marcos | After first LocalStack/moto slice | Soft — requires explicit amendment; not first slice |
+| Q-AWS-6 | When (if ever) is real-account deploy authorized (separate slice / amendment)? | Marcos | After first LocalStack/moto slice | **Accepted 2026-09-17 (amendment)** — authorized **manual** smoke only: `hextory-*` / `hextory-public-*` names, `us-east-2`, opt-in operators; CI still must not deploy; unbounded production deploy remains a later slice |
 
 ---
 
@@ -416,6 +417,7 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 |---|---|---|
 | 2026-09-17 | Marcos Blazquez (direction) + Clark Bot | Initial Draft: AWS third-target adapter; LocalStack/moto-first; DynamoDB primary; API GW HTTP API + Lambda; no real-account deploy; no implementation |
 | 2026-09-17 | Marcos Blazquez + Clark Bot | Dual review → **Approved**; Q-AWS-1/2/3 interims accepted; §13 green; first AWS slice authorized (impl follow-up; no real-account deploy) |
+| 2026-09-17 | Marcos + Steel (green-light) + Clark Bot | **Amendment:** authorized manual `hextory-*` smoke (us-east-2) in scope for multi-target evidence; CI must not deploy; Q-AWS-6 accepted for bounded smoke only |
 
 ---
 
@@ -427,7 +429,7 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 - **Keep current** — update status and revision history on every material change.
 - **Central access** — live only under `docs/design/`; listed in README / CONTRIBUTING / `config/sdd_status.json`.
 - **Collaboration** — dual review mandatory before Approval; record dissent in open questions or changes-requested notes.
-- **Future growth** — real-account deploy is a later slice; do not smuggle live cloud into first proof.
+- **Future growth** — unbounded real-account production deploy remains a later slice; authorized `hextory-*` smoke does not imply production readiness.
 - **Traceability** — REQ ↔ DES ↔ IMPL ↔ TEST must stay walkable after ship.
 
 ## Testing approach (required when the workflow produces code)
@@ -446,8 +448,8 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 1. Scaffold `adapters/aws/` (Lambda handlers + auth wiring + DynamoDB checkpointer).
 2. Add LocalStack Docker Compose (or documented LocalStack compose) and/or moto parity harness.
 3. Add `tests/adapters/` parity tests vs local CLI traveler semantics (TEST-AWS-01…08).
-4. Optionally check in uneployed SAM/CDK/CloudFormation stubs — **do not** apply to a real AWS account.
-5. Do **not** change traveler core schema; do **not** implement Studio; do **not** deploy to a real AWS account.
+4. Optionally check in uneployed SAM/CDK/CloudFormation stubs — **do not** apply from CI; authorized smoke uses `hextory-*` names only.
+5. Do **not** change traveler core schema; do **not** implement Studio; do **not** add CI `sam deploy`.
 
 ---
 

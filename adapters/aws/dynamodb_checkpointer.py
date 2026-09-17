@@ -14,7 +14,7 @@ from typing import Any, Optional
 
 from src.domain.traveler import DigitalTraveler
 
-DEFAULT_TABLE = "hextory"
+DEFAULT_TABLE = "hextory-aws-smoke"
 
 
 def table_name_from_env() -> str:

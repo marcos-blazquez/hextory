@@ -14,8 +14,15 @@ Gatekeeper + `SddStatusReader` semantics match the local CLI. Non-Approved or
 missing `sdd_id` → structured **403** denial (no assembly). Missing/invalid JWT
 → **401** (never confused with gate denial).
 
-**First-slice proof:** moto unit tests (required) + optional LocalStack Compose
-smoke. **No deploy to a real AWS account** (DES-0005-B / NG1).
+**First-slice CI proof:** moto unit tests (required) + optional LocalStack Compose
+smoke. CI must **not** deploy to a real AWS account.
+
+**Authorized smoke (manual opt-in):** operators may run a bounded real-account
+smoke in `us-east-2` using only `hextory-` / `hextory-public-` stack and table
+names (e.g. stack `hextory-aws-smoke`, table `hextory-aws-smoke`). Do not share
+resources with other workloads in the same account; use `hextory-*` names only.
+See [Authorized smoke](#authorized-smoke) and evidence note
+[`docs/maturity/evidence/AWS-SMOKE-001.md`](../../docs/maturity/evidence/AWS-SMOKE-001.md).
 
 ## Environment
 
@@ -24,10 +31,10 @@ smoke. **No deploy to a real AWS account** (DES-0005-B / NG1).
 | `HEXTORY_JWT_SECRET` | yes (workflow routes) | HS256 secret for bearer tokens |
 | `HEXTORY_JWT_ISSUER` | no | Optional `iss` claim check |
 | `HEXTORY_JWT_AUDIENCE` | no | Optional `aud` claim check |
-| `HEXTORY_DYNAMODB_TABLE` | no | DynamoDB table (default `hextory`) |
+| `HEXTORY_DYNAMODB_TABLE` | no | DynamoDB table (default `hextory-aws-smoke`) |
 | `HEXTORY_AWS_ENDPOINT` | LocalStack | e.g. `http://localhost:4566` |
-| `AWS_DEFAULT_REGION` | no | default `us-east-1` |
-| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | LocalStack | dummy `test` / `test` |
+| `AWS_DEFAULT_REGION` | no | default `us-east-1` (authorized smoke: `us-east-2`) |
+| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | LocalStack or smoke | LocalStack: dummy `test` / `test`; smoke: operator credentials (never commit) |
 
 ## Install
 
@@ -81,13 +88,73 @@ Tear down:
 docker compose -f adapters/aws/docker-compose.localstack.yml down
 ```
 
-## Uneployed IaC stub
+## Authorized smoke
 
-`adapters/aws/template.yaml` is a **SAM design stub only**. Do **not** run
-`sam deploy`, `cdk deploy`, or CloudFormation apply against a real account in
-this first slice. CI must not deploy.
+Manual, operator-opt-in only. Not part of CI. Hard boundaries:
+
+- Region: `us-east-2`
+- Names: stack and table must use `hextory-` or `hextory-public-` prefix (canonical: `hextory-aws-smoke`)
+- Do not share resources with other workloads in the same account; use `hextory-*` names only
+- Scope: DynamoDB checkpointer round-trip via `adapters/aws` handlers; metrics scrape deferred
+- No secrets in the repo
+
+Example env (credentials from the operator shell — never commit):
+
+```bash
+export AWS_DEFAULT_REGION=us-east-2
+export HEXTORY_DYNAMODB_TABLE=hextory-aws-smoke
+export HEXTORY_JWT_SECRET=…   # operator-local only
+# Ensure AWS credentials are available for the authorized account.
+# Optional: apply SAM/CFN with stack name hextory-aws-smoke and TableName=hextory-aws-smoke,
+# or create the DynamoDB table alone and invoke handlers in-process.
+```
+
+Round-trip check (in-process against real DynamoDB — same handler path as moto):
+
+```bash
+python - <<'PY'
+import json, os
+os.environ.setdefault("AWS_DEFAULT_REGION", "us-east-2")
+os.environ.setdefault("HEXTORY_DYNAMODB_TABLE", "hextory-aws-smoke")
+assert os.environ.get("HEXTORY_JWT_SECRET"), "set HEXTORY_JWT_SECRET"
+from adapters.aws.auth import mint_token
+from adapters.aws.handlers import build_handler_context, handle_event
+ctx = build_handler_context()
+token = mint_token()
+event = {
+    "version": "2.0",
+    "rawPath": "/runs",
+    "headers": {"authorization": f"Bearer {token}"},
+    "requestContext": {"http": {"method": "POST"}},
+    "body": json.dumps({
+        "sdd_id": "DES-0002",
+        "workflow_id": "starter_factory",
+        "payload": {"force_quality": "PASS"},
+    }),
+}
+print(handle_event(event, handler_context=ctx))
+PY
+```
+
+Teardown:
+
+```bash
+# If a CloudFormation/SAM stack was created:
+#   aws cloudformation delete-stack --stack-name hextory-aws-smoke --region us-east-2
+# If only the table was created:
+#   aws dynamodb delete-table --table-name hextory-aws-smoke --region us-east-2
+```
+
+Record outcome in [`docs/maturity/evidence/AWS-SMOKE-001.md`](../../docs/maturity/evidence/AWS-SMOKE-001.md) (Mac smoke **SUCCEEDED** 2026-09-17; see evidence note).
+
+## Uneployed IaC stub (CI)
+
+`adapters/aws/template.yaml` is a SAM design stub. **Do not** run `sam deploy`,
+`cdk deploy`, or CloudFormation apply from CI. Default table parameter is
+`hextory-aws-smoke` for the authorized manual path only.
 
 ## Metrics (optional)
 
 Handlers accept an optional `MetricsPort` via `build_handler_context(metrics=…)`
-(DES-0006). First AWS slice does not require a Prometheus scrape endpoint.
+(DES-0006). First AWS slice does not require a Prometheus scrape endpoint;
+authorized smoke defers metrics scrape.

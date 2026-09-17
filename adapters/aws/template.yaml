@@ -1,15 +1,15 @@
-# UNEPLOYED SAM stub — DES-0005 first slice (Q-AWS-5).
-# DO NOT apply to a real AWS account.
-# DO NOT add CI steps that run `sam deploy` / `aws cloudformation deploy`.
-#
-# This file documents the intended API Gateway HTTP API + Lambda + DynamoDB
-# shape for a later authorized live-deploy slice. First-slice verification uses
-# moto (+ optional LocalStack Compose), not this template.
+# SAM design stub — DES-0005 (Q-AWS-5) + authorized smoke amendment.
+# First-slice CI MUST NOT run `sam deploy` / `aws cloudformation deploy`.
+# An authorized, manual smoke (operators opt in) may apply this stub only with
+# hextory-* / hextory-public-* stack and table names (e.g. hextory-aws-smoke)
+# in us-east-2. Do not share resources with other workloads in the same account;
+# use hextory-* names only. Default CI proof remains moto (+ optional LocalStack).
 
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Hextory AWS adapter stub (DES-0005). Uneployed design artifact only.
+  Hextory AWS adapter stub (DES-0005). Uneployed by default; optional authorized
+  manual smoke with hextory-* names only.
 
 Parameters:
   JwtSecret:
@@ -18,7 +18,7 @@ Parameters:
     Description: HS256 secret for bearer JWT (adapter-local)
   TableName:
     Type: String
-    Default: hextory
+    Default: hextory-aws-smoke
 
 Globals:
   Function:
@@ -74,5 +74,5 @@ Resources:
 
 Outputs:
   Note:
-    Description: Uneployed stub — do not sam deploy in first slice
-    Value: "DES-0005 NG1 — LocalStack/moto only"
+    Description: Uneployed by default — CI must not sam deploy; authorized hextory-* smoke is manual only
+    Value: "DES-0005 — moto/LocalStack default; authorized hextory-* smoke opt-in"
