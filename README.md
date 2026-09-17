@@ -70,7 +70,7 @@ hextory/
 ├── adapters/
 │   ├── local/                         # CLI + checkpointers + SddStatusReader + optional LangGraph runtime
 │   ├── onprem/                        # FastAPI + JWT + Postgres checkpointer (DES-0004)
-│   └── aws/                           # Lambda + DynamoDB/moto (DES-0005; no real-account deploy)
+│   └── aws/                           # Lambda + DynamoDB/moto (DES-0005; authorized hextory-* smoke opt-in)
 ├── docker-compose.yml                 # on-prem api + postgres:16
 └── tests/
     ├── unit/
@@ -78,7 +78,7 @@ hextory/
     └── adapters/
 ```
 
-First-slice engine (`DES-0002-J`) is present: pure `src/` + `adapters/local` + `tests/`. On-prem first slice ([DES-0004](docs/design/0004-onprem-adapter.md)) is in tree: `adapters/onprem` + Compose. AWS first slice ([DES-0005](docs/design/0005-aws-adapter.md)) is in tree: `adapters/aws` Lambda handlers + DynamoDB checkpointer (moto CI; optional LocalStack Compose; **no real-account deploy**). Factory observability ([DES-0006](docs/design/0006-factory-observability.md)) MetricsPort + on-prem `/metrics` is in tree. Studio UI ([DES-0003](docs/design/0003-workflow-studio.md)) stays Draft ideation.
+First-slice engine (`DES-0002-J`) is present: pure `src/` + `adapters/local` + `tests/`. On-prem first slice ([DES-0004](docs/design/0004-onprem-adapter.md)) is in tree: `adapters/onprem` + Compose. AWS first slice ([DES-0005](docs/design/0005-aws-adapter.md)) is in tree: `adapters/aws` Lambda handlers + DynamoDB checkpointer (moto CI; optional LocalStack Compose; authorized manual `hextory-*` smoke in us-east-2). Factory observability ([DES-0006](docs/design/0006-factory-observability.md)) MetricsPort + on-prem `/metrics` is in tree. Studio UI ([DES-0003](docs/design/0003-workflow-studio.md)) stays Draft ideation.
 
 ## Run tests and local CLI (DES-0002 first slice)
 
@@ -196,7 +196,7 @@ Workflow routes require `Authorization: Bearer <JWT>` (401 if missing/invalid). 
 
 ## AWS Lambda / DynamoDB (DES-0005)
 
-Third deploy target: API Gateway HTTP API + Lambda handlers + DynamoDB checkpointer under `adapters/aws`. Same Gatekeeper / traveler semantics as the local CLI. First-slice proof uses **moto** (CI) and optional LocalStack Compose — **no real AWS account deploy**. Operator notes: [`adapters/aws/README.md`](adapters/aws/README.md).
+Third deploy target: API Gateway HTTP API + Lambda handlers + DynamoDB checkpointer under `adapters/aws`. Same Gatekeeper / traveler semantics as the local CLI. First-slice **CI** proof uses **moto** and optional LocalStack Compose — CI must not deploy. An **authorized** manual smoke (`hextory-*` names, `us-east-2`) is documented for operators who opt in. Operator notes: [`adapters/aws/README.md`](adapters/aws/README.md); evidence placeholder: [`docs/maturity/evidence/AWS-SMOKE-001.md`](docs/maturity/evidence/AWS-SMOKE-001.md).
 
 ```bash
 pip install -e ".[dev,aws]"
@@ -207,7 +207,7 @@ python -m pytest tests/adapters/test_aws_api.py
 # docker compose -f adapters/aws/docker-compose.localstack.yml up -d
 ```
 
-Uneployed SAM stub: `adapters/aws/template.yaml` — do not `sam deploy` in this slice.
+SAM stub: `adapters/aws/template.yaml` — do not `sam deploy` from CI; authorized smoke uses `hextory-aws-smoke` names only.
 
 ## Contributing and CI
 
