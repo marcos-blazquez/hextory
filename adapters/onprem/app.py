@@ -5,6 +5,7 @@ Routes:
   GET  /runs/{id}
   POST /runs/{id}/resume
   GET  /health   (optional; no JWT)
+  GET  /metrics  (Prometheus scrape; no JWT — DES-0006)
 """
 
 from __future__ import annotations
@@ -12,13 +13,15 @@ from __future__ import annotations
 from typing import Any, Optional
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
 
 from adapters.onprem.auth import AuthPrincipal, require_jwt
+from adapters.onprem.prometheus_metrics import PrometheusMetrics
 from adapters.onprem.wiring import build_gateway
 from src.domain.traveler import DigitalTraveler
 from src.gateway.request_gateway import RequestGateway, RunResult
+from src.ports.metrics import MetricsPort
 
 
 class RunRequestBody(BaseModel):
@@ -78,20 +81,45 @@ def create_app(
     *,
     gateway: Optional[RequestGateway] = None,
     use_memory: bool = False,
+    metrics: Optional[MetricsPort] = None,
 ) -> FastAPI:
     """Application factory.
 
     Pass an explicit ``gateway`` for tests. Otherwise wire from env
     (Postgres when ``HEXTORY_DATABASE_URL`` is set; memory otherwise).
+    When ``metrics`` is omitted, a process-local PrometheusMetrics is created
+    and injected into the gateway (unless a gateway is passed without metrics).
     """
     app = FastAPI(title="Hextory on-prem", version="0.1.0")
+    prom: Optional[PrometheusMetrics] = None
+    if metrics is None:
+        prom = PrometheusMetrics()
+        metrics = prom
+    elif isinstance(metrics, PrometheusMetrics):
+        prom = metrics
+
     if gateway is None:
-        gateway, _ = build_gateway(use_memory=use_memory)
+        gateway, _ = build_gateway(use_memory=use_memory, metrics=metrics)
     app.state.gateway = gateway
+    app.state.metrics = metrics
+    app.state.prometheus_metrics = prom
 
     @app.get("/health")
     def health() -> dict[str, str]:
         return {"status": "ok"}
+
+    @app.get("/metrics")
+    def metrics_endpoint() -> Response:
+        """Prometheus text exposition (DES-0006 AC-05). No JWT."""
+        exporter = getattr(app.state, "prometheus_metrics", None)
+        if exporter is None:
+            # Fallback: empty registry body if a non-Prometheus sink was injected.
+            return Response(
+                content=b"# no prometheus registry configured\n",
+                media_type="text/plain; version=0.0.4; charset=utf-8",
+            )
+        body, content_type = exporter.exposition()
+        return Response(content=body, media_type=content_type)
 
     @app.post("/runs")
     def create_run(

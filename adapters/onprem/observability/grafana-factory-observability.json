@@ -1,0 +1,76 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "id": 1,
+      "title": "Gate denials rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "rate(hextory_gate_denials_total[5m])",
+          "legendFormat": "{{workflow_id}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Runs accepted",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "rate(hextory_runs_accepted_total[5m])",
+          "legendFormat": "{{workflow_id}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Terminal status breakdown",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "rate(hextory_runs_terminal_total[5m])",
+          "legendFormat": "{{status}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Quality FAIL / rework",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "rate(hextory_quality_fail_total[5m])",
+          "legendFormat": "quality_fail",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(hextory_rework_total[5m])",
+          "legendFormat": "rework",
+          "refId": "B"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["hextory", "des-0006", "factory-observability"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "title": "Hextory factory observability (DES-0006)",
+  "uid": "hextory-des-0006-factory-obs",
+  "version": 1,
+  "description": "Minimal operator view for DES-0006 frozen metrics scraped from adapters/onprem GET /metrics. Metric names: hextory_gate_denials_total, hextory_runs_accepted_total, hextory_runs_terminal_total, hextory_quality_fail_total, hextory_rework_total."
+}

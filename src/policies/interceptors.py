@@ -155,6 +155,8 @@ class DesignDocGateInterceptor:
         if not decision.allowed:
             ctx.denied = True
             ctx.denial_reason = decision.reason
+            # Distinguish Gatekeeper denial from quota/auth (DES-0006 / AC-02).
+            ctx.metadata["gate_denied"] = True
         return ctx
 
 

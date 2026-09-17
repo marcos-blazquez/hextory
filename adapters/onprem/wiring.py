@@ -23,6 +23,7 @@ from src.ports.checkpointer import Checkpointer
 from src.ports.graph_runner import GraphRunner
 from src.ports.idempotency import IdempotencyStore, InMemoryIdempotencyStore
 from src.ports.llm import LlmPort, NullLlm
+from src.ports.metrics import MetricsPort
 
 
 def _repo_root() -> Path:
@@ -39,6 +40,7 @@ def build_gateway(
     llm: Optional[LlmPort] = None,
     use_memory: bool = False,
     database_url: Optional[str] = None,
+    metrics: Optional[MetricsPort] = None,
 ) -> tuple[RequestGateway, Checkpointer]:
     """Build gateway with on-prem ports.
 
@@ -92,5 +94,6 @@ def build_gateway(
         checkpointer=cp,
         runner=selected,
         idempotency_store=idem,
+        metrics=metrics,
     )
     return gateway, cp

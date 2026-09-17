@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Optional
 
-from src.domain.statuses import RoutingDecision, TravelerStatus
+from src.domain.statuses import QualityResult, RoutingDecision, TravelerStatus
 from src.domain.traveler import DEFAULT_MAX_REWORK, DigitalTraveler
 from src.graphs.registry import GraphRegistry
 from src.graphs.runtime import PureGraphRunner
@@ -22,6 +22,16 @@ from src.ports.gatekeeper import Gatekeeper
 from src.ports.graph_runner import GraphRunner
 from src.ports.id_generator import IdGenerator, UuidGenerator
 from src.ports.idempotency import IdempotencyStore, InMemoryIdempotencyStore
+from src.ports.metrics import (
+    METRIC_GATE_DENIALS,
+    METRIC_QUALITY_FAIL,
+    METRIC_REWORK,
+    METRIC_RUNS_ACCEPTED,
+    METRIC_RUNS_TERMINAL,
+    MetricsPort,
+    NoOpMetrics,
+    SafeMetrics,
+)
 
 
 @dataclass
@@ -44,6 +54,7 @@ class RequestGateway:
         traveler_store: Optional[dict[str, DigitalTraveler]] = None,
         runner: Optional[GraphRunner] = None,
         idempotency_store: Optional[IdempotencyStore] = None,
+        metrics: Optional[MetricsPort] = None,
     ) -> None:
         self._gatekeeper = gatekeeper
         self._registry = registry
@@ -71,6 +82,8 @@ class RequestGateway:
         )
         # Default remains pure registry walker for stability (DES-0002-B optional LangGraph).
         self._runner: GraphRunner = runner if runner is not None else PureGraphRunner()
+        # DES-0006: best-effort metrics (never fail the business run).
+        self._metrics: MetricsPort = SafeMetrics(metrics or NoOpMetrics())
 
     def _remember_idempotency(self, key: Optional[str], traveler_id: str) -> None:
         if key:
@@ -95,6 +108,44 @@ class RequestGateway:
             if ev.decision == RoutingDecision.DENY:
                 return ev.notes
         return ""
+
+
+    def _inc(self, name: str, *, labels: Optional[dict[str, str]] = None) -> None:
+        self._metrics.increment(name, labels=labels)
+
+    def _emit_gate_denial(self, workflow_id: str) -> None:
+        self._inc(METRIC_GATE_DENIALS, labels={"workflow_id": workflow_id})
+        self._inc(
+            METRIC_RUNS_TERMINAL,
+            labels={"workflow_id": workflow_id, "status": TravelerStatus.DENIED.value},
+        )
+
+    def _emit_accepted(self, workflow_id: str) -> None:
+        self._inc(METRIC_RUNS_ACCEPTED, labels={"workflow_id": workflow_id})
+
+    def _emit_run_outcomes(self, traveler: DigitalTraveler) -> None:
+        """Emit quality/rework/terminal facts from a completed traveler."""
+        wf = traveler.workflow_id
+        fail_n = sum(
+            1 for r in traveler.quality_reports if r.result == QualityResult.FAIL
+        )
+        for _ in range(fail_n):
+            self._inc(METRIC_QUALITY_FAIL, labels={"workflow_id": wf})
+        rework_n = sum(
+            1 for e in traveler.routing_history if e.decision == RoutingDecision.REWORK
+        )
+        for _ in range(rework_n):
+            self._inc(METRIC_REWORK, labels={"workflow_id": wf})
+        terminal = {
+            TravelerStatus.SHIPPED,
+            TravelerStatus.ESCALATED,
+            TravelerStatus.DENIED,
+        }
+        if traveler.status in terminal:
+            self._inc(
+                METRIC_RUNS_TERMINAL,
+                labels={"workflow_id": wf, "status": traveler.status.value},
+            )
 
     def run(
         self,
@@ -150,6 +201,17 @@ class RequestGateway:
             )
             self._persist(traveler)
             self._remember_idempotency(idempotency_key, traveler.traveler_id)
+            if ctx.metadata.get("gate_denied"):
+                self._emit_gate_denial(workflow_id)
+            else:
+                # Quota / other interceptor denials: terminal only, not gate_denials.
+                self._inc(
+                    METRIC_RUNS_TERMINAL,
+                    labels={
+                        "workflow_id": workflow_id,
+                        "status": TravelerStatus.DENIED.value,
+                    },
+                )
             return RunResult(traveler=traveler, denied=True, reason=ctx.denial_reason)
 
         if not self._registry.has(workflow_id):
@@ -173,6 +235,13 @@ class RequestGateway:
             )
             self._persist(traveler)
             self._remember_idempotency(idempotency_key, traveler.traveler_id)
+            self._inc(
+                METRIC_RUNS_TERMINAL,
+                labels={
+                    "workflow_id": workflow_id,
+                    "status": TravelerStatus.DENIED.value,
+                },
+            )
             return RunResult(traveler=traveler, denied=True, reason=reason)
 
         definition = self._registry.get(workflow_id)
@@ -202,6 +271,7 @@ class RequestGateway:
             notes="run accepted",
             at=now,
         )
+        self._emit_accepted(workflow_id)
 
         traveler = self._runner.run(
             definition,
@@ -210,6 +280,7 @@ class RequestGateway:
         )
         self._persist(traveler)
         self._remember_idempotency(idempotency_key, traveler.traveler_id)
+        self._emit_run_outcomes(traveler)
         return RunResult(traveler=traveler, denied=False)
 
     def status(self, traveler_id: str) -> Optional[DigitalTraveler]:
