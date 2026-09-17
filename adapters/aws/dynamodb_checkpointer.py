@@ -25,6 +25,16 @@ def _utcnow() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _is_resource_not_found(exc: BaseException) -> bool:
+    """True when DynamoDB reports the table does not exist."""
+    error = getattr(exc, "response", {}) or {}
+    code = (error.get("Error") or {}).get("Code", "")
+    if code == "ResourceNotFoundException":
+        return True
+    name = type(exc).__name__
+    return "ResourceNotFoundException" in name
+
+
 class DynamoDbCheckpointer:
     """Persist travelers as DynamoDB items keyed by traveler_id / checkpoint key."""
 
@@ -77,11 +87,20 @@ class DynamoDbCheckpointer:
         return self._client
 
     def ensure_table(self) -> None:
+        """Ensure the table exists without calling ``list_tables``.
+
+        Uses ``describe_table`` (covered by SAM ``DynamoDBCrudPolicy`` on the
+        single table). ``ResourceNotFoundException`` means create for moto /
+        LocalStack; a live SAM stack already has the table so only describe runs.
+        """
         if self._table_ready:
             return
         client = self._boto()
-        existing = client.list_tables().get("TableNames", [])
-        if self._table not in existing:
+        try:
+            client.describe_table(TableName=self._table)
+        except Exception as exc:
+            if not _is_resource_not_found(exc):
+                raise
             client.create_table(
                 TableName=self._table,
                 AttributeDefinitions=[{"AttributeName": "pk", "AttributeType": "S"}],
