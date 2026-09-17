@@ -145,7 +145,7 @@ Teardown:
 #   aws dynamodb delete-table --table-name hextory-aws-smoke --region us-east-2
 ```
 
-Record outcome in [`docs/maturity/evidence/AWS-SMOKE-001.md`](../../docs/maturity/evidence/AWS-SMOKE-001.md) (timestamp/status placeholder for the operator).
+Record outcome in [`docs/maturity/evidence/AWS-SMOKE-001.md`](../../docs/maturity/evidence/AWS-SMOKE-001.md) (Mac smoke **SUCCEEDED** 2026-09-17; see evidence note).
 
 ## Uneployed IaC stub (CI)
 
