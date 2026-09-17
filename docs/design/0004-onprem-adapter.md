@@ -4,22 +4,22 @@
 |---|---|
 | **Doc ID** | DES-0004 |
 | **Title** | On-prem adapter (FastAPI + Postgres + Docker) |
-| **Status** | **Draft** |
+| **Status** | **Approved** |
 | **Authors** | Marcos Blazquez (on-prem-first direction) + Clark Bot |
-| **Reviewers (human)** | Marcos Blazquez (pending) |
-| **Reviewers (agent)** | Clark Bot (pending) |
+| **Reviewers (human)** | Marcos Blazquez (2026-09-16 — Approve in chat) |
+| **Reviewers (agent)** | Clark Bot (2026-09-16 — checklist pass; see review record) |
 | **Created** | 2026-09-16 |
-| **Last updated** | 2026-09-16 |
+| **Last updated** | 2026-09-16 (dual Approve) |
 | **Related REQs** | REQ-0010, REQ-0016 (from DES-0002); also REQ-0003, REQ-0013, REQ-0015 |
 | **Supersedes** | none |
 | **Depends on** | [DES-0001](0001-hextory-vision.md) (**Approved**), [DES-0002](0002-factory-engine.md) (**Approved**) |
-| **Implementation** | **Not authorized** while Status is Draft — scaffold only after dual review Approves this SDD |
+| **Implementation** | **Authorized** for the first on-prem slice per §9 / §13 and the end-of-doc slice list — FastAPI + Postgres checkpointer + Compose + parity tests; AWS and Studio remain non-goals |
 
 ---
 
 ## 0. Document posture
 
-This SDD drafts the **second deploy target** for the factory engine: an on-prem HTTP adapter under `adapters/onprem`, as sketched in DES-0002 §5.2. Marcos directed **on-prem first** for multi-target readiness; AWS remains deferred.
+This SDD (now **Approved**) is the design gate for the **second deploy target**: an on-prem HTTP adapter under `adapters/onprem`, as sketched in DES-0002 §5.2. Marcos directed **on-prem first** for multi-target readiness; AWS remains deferred.
 
 **Hard rules (must survive into any future build):**
 
@@ -45,25 +45,25 @@ Aspect **9** (multi-target deploy readiness) is capped while only `adapters/loca
 - **G3:** Postgres-backed checkpointer (and traveler persistence) suitable for process restart and resume.
 - **G4:** Docker Compose (or equivalent) for local/on-prem operator loops — API + Postgres together.
 - **G5 (REQ-0015):** TDD + BDD-style (Given/When/Then in ordinary pytest, not Cucumber) tests under `tests/adapters/` proving parity vs local CLI traveler outcomes.
-- **G6:** Default auth for the first on-prem slice: **JWT bearer**; leave mTLS as a later option (see Q-ONP-1).
+- **G6:** Default auth for the first on-prem slice: **JWT bearer**; mTLS as a later option (**Q-ONP-1 confirmed**).
 
 ### 1.3 Success definition
 
-- Dual review Approves (or requests changes on) this Draft without re-litigating DES-0002 core ports.
-- After Approval, agents can scaffold `adapters/onprem/` against §9 acceptance criteria and TEST IDs without inventing architecture.
+- Dual review Approves this SDD without re-litigating DES-0002 core ports (**done 2026-09-16**).
+- Agents implement the on-prem vertical slice against acceptance criteria and TEST IDs without inventing architecture.
 - Parity tests demonstrate that a run accepted/denied/shipped/escalated via HTTP matches the local CLI traveler semantics for the same inputs.
-- Aspect-9 evidence path exists on paper (adapter package + compose + parity tests) once implemented; this Draft alone does not claim multi-target readiness.
+- Aspect-9 evidence path exists once implemented (adapter package + compose + parity tests).
 
 ### 1.4 Scope
 
-**In scope (this Draft):**
+**In scope (this Approved SDD):**
 
 - On-prem adapter architecture, HTTP contract, Postgres persistence role, Docker Compose ops shape.
 - Auth default proposal (JWT bearer) and open questions for Marcos confirmation.
 - Design decisions DES-0004-A…; acceptance criteria; gate criteria; TEST ID plan.
 - Traceability to REQ-0010 / REQ-0016 (and related gateway/testing REQs).
 
-**Out of scope:** see Explicit non-goals (§8). No FastAPI/Postgres/Docker implementation lands while Status is **Draft**.
+**Out of scope:** see Explicit non-goals (§8). First-slice on-prem scaffold is authorized only while Status is **Approved** and §13 is green; AWS and Studio remain deferred.
 
 ---
 
@@ -109,7 +109,7 @@ Hexagonal / ports & adapters (DES-0002-A). This SDD owns the **on-prem adapter b
 | ID | Decision | Alternatives considered | Rationale |
 |---|---|---|---|
 | **DES-0004-A** | First multi-target slice after local is **on-prem** (`adapters/onprem`); AWS deferred | AWS first; both at once | Marcos on-prem-first direction; smaller second-target surface |
-| **DES-0004-B** | Default auth = **JWT bearer** for first on-prem slice; mTLS optional later | mTLS-only; JWT+mTLS mandatory day one; no auth | Unblocks HTTP ops; matches DES-0002 Q-ONP-1 soft open; Marcos to confirm (Q-ONP-1) |
+| **DES-0004-B** | Default auth = **JWT bearer** for first on-prem slice; mTLS optional later | mTLS-only; JWT+mTLS mandatory day one; no auth | **Q-ONP-1 confirmed 2026-09-16** (Marcos + Clark Approve); unblocks HTTP ops |
 | **DES-0004-C** | Postgres for traveler + checkpoint persistence | Files only; Redis; SQLite | Matches DES-0002 on-prem sketch; durable resume across restarts |
 | **DES-0004-D** | Reuse core `RequestGateway` + interceptor stack; adapter only wires ports | Separate on-prem gateway; fork Gatekeeper | Preserves REQ-0010 / REQ-0013; no second engine |
 | **DES-0004-E** | HTTP routes: `POST /runs`, `GET /runs/{id}`, `POST /runs/{id}/resume` with same semantic contract as local CLI | Custom verb set; gRPC-first | Aligns with DES-0002 §4.1 sketch |
@@ -249,7 +249,7 @@ $ curl -s https://onprem.example/runs/trv_… \
 | ID | Assumption / dependency | Risk if wrong | Mitigation |
 |---|---|---|---|
 | A-01 | DES-0002 remains Approved and local slice stays the semantic reference | Parity undefined | Freeze traveler contract `@0.1`; parity tests |
-| A-02 | Marcos confirms JWT for first slice (Q-ONP-1) | Rework auth middleware | Keep auth adapter-local; mTLS as additive option |
+| A-02 | JWT bearer is the first-slice auth (Q-ONP-1 confirmed) | Late auth rework if operators need mTLS day one | mTLS remains additive later option |
 | A-03 | Postgres is acceptable on-prem dependency | Ops friction | Document Compose; version pin in Q-ONP-2 |
 | A-04 | TLS termination can be deferred to reverse proxy (Q-ONP-3) | App-level TLS complexity | Default: terminate at proxy; app speaks HTTP inside Compose network |
 | A-05 | No core schema change needed for on-prem persistence | Forced traveler migration | Adapter maps existing fields only |
@@ -262,8 +262,8 @@ $ curl -s https://onprem.example/runs/trv_… \
 - **NG2:** Studio UI, React, xyflow, or `adapters/web` (DES-0003 stays Draft ideation).
 - **NG3:** Changing DigitalTraveler core schema or published `@0.1` contract.
 - **NG4:** Forking Gatekeeper, departments, or RequestGateway into an on-prem-only engine.
-- **NG5:** Implementing FastAPI/Postgres/Compose code while this SDD is **Draft** (docs-only until Approved).
-- **NG6:** Mandating mTLS on day one (optional later; see Q-ONP-1).
+- **NG5:** Shipping FastAPI/Postgres/Compose outside the authorized first-slice acceptance criteria without citing this Approved SDD.
+- **NG6:** Mandating mTLS on day one (optional later; Q-ONP-1 resolved as JWT-first).
 - **NG7:** Message bus / multi-region HA as first-slice requirements.
 
 ---
@@ -305,25 +305,25 @@ Reviewers must check each item. Architecture-critical items require **human** si
 
 | # | Check | Human | Agent | Critical? |
 |---|---|---|---|---|
-| 1 | Goals and non-goals are clear and consistent | ☐ | ☐ | Yes |
-| 2 | Architecture fits hexagonal / factory rules (no core fork) | ☐ | ☐ | Yes |
-| 3 | Interfaces and failure modes are specified | ☐ | ☐ | Yes |
-| 4 | Acceptance criteria are testable | ☐ | ☐ | Yes |
-| 5 | Traceability IDs are complete and unique | ☐ | ☐ | Yes |
-| 6 | Gate criteria are unambiguous | ☐ | ☐ | Yes |
-| 7 | Security / privacy / compliance touched? (JWT, TLS, DB secrets) | ☐ | ☐ | Yes |
-| 8 | Glossary terms used consistently | ☐ | ☐ | No |
-| 9 | Visuals / diagrams present or explicitly deferred | ☐ | ☐ | No |
-| 10 | No implementation leakage that bypasses this SDD | ☐ | ☐ | Yes |
-| 11 | Q-ONP-1 interim (JWT default) acceptable to Marcos | ☐ | ☐ | Yes |
-| 12 | AWS and Studio explicitly non-goals | ☐ | ☐ | Yes |
+| 1 | Goals and non-goals are clear and consistent | ☑ | ☑ | Yes |
+| 2 | Architecture fits hexagonal / factory rules (no core fork) | ☑ | ☑ | Yes |
+| 3 | Interfaces and failure modes are specified | ☑ | ☑ | Yes |
+| 4 | Acceptance criteria are testable | ☑ | ☑ | Yes |
+| 5 | Traceability IDs are complete and unique | ☑ | ☑ | Yes |
+| 6 | Gate criteria are unambiguous | ☑ | ☑ | Yes |
+| 7 | Security / privacy / compliance touched? (JWT, TLS, DB secrets) | ☑ | ☑ | Yes |
+| 8 | Glossary terms used consistently | ☑ | ☑ | No |
+| 9 | Visuals / diagrams present or explicitly deferred | ☑ | ☑ | No |
+| 10 | No implementation leakage that bypasses this SDD | ☑ | ☑ | Yes |
+| 11 | Q-ONP-1 interim (JWT default) acceptable to Marcos | ☑ | ☑ | Yes |
+| 12 | AWS and Studio explicitly non-goals | ☑ | ☑ | Yes |
 
 **Sign-off**
 
 | Role | Name | Date | Decision |
 |---|---|---|---|
-| Human reviewer | Marcos Blazquez | | Approve / Changes requested |
-| Agent reviewer | Clark Bot | | Approve / Changes requested |
+| Human reviewer | Marcos Blazquez | 2026-09-16 | **Approve** |
+| Agent reviewer | Clark Bot | 2026-09-16 | **Approve** |
 
 ---
 
@@ -345,17 +345,17 @@ IDs must remain stable once Approved. New work gets new IDs; do not reuse.
 
 All of the following must be true:
 
-- [ ] Status is **Approved** (both human and agent reviews recorded).
-- [ ] All **Critical** checklist items signed off by a human.
-- [ ] Every `REQ-*` maps to at least one `DES-*` and planned `TEST-*`.
-- [ ] Non-goals and failure/rework policy are non-empty and specific.
-- [ ] Acceptance criteria are binary/testable (no vague “should be good”).
-- [ ] No open **blocking** questions in §15 (or each has an approved interim decision) — Q-ONP-1 needs Marcos confirmation or recorded interim.
-- [ ] Maturity / process owners acknowledge this SDD in dual review (Marcos + Clark).
+- [x] Status is **Approved** (both human and agent reviews recorded).
+- [x] All **Critical** checklist items signed off by a human.
+- [x] Every `REQ-*` maps to at least one `DES-*` and planned `TEST-*`.
+- [x] Non-goals and failure/rework policy are non-empty and specific.
+- [x] Acceptance criteria are binary/testable (no vague “should be good”).
+- [x] No open **blocking** questions in §15 (or each has an approved interim decision) — **Q-ONP-1 resolved = JWT bearer** for first slice (Marcos Approve 2026-09-16 + Clark Approve); Q-ONP-2/3 remain open with non-blocking proposed interims for first scaffold.
+- [x] Maturity / process owners acknowledge this SDD in dual review (Marcos + Clark).
 
 **Only when every box is checked may agents generate implementation for this workflow.**
 
-**Draft note:** While Status is **Draft**, agents must **not** scaffold FastAPI, Postgres checkpointers, or Compose files as product implementation. Docs/index updates for this Draft are allowed.
+**Post-approval note:** Gate criteria are green. Implementation may proceed for the **first on-prem slice only** (`adapters/onprem` FastAPI + Postgres checkpointer + Docker Compose + `tests/adapters/` parity per §9 and end-of-doc slice list). AWS and Studio remain non-goals (NG1/NG2).
 
 ---
 
@@ -377,9 +377,9 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 
 | ID | Question | Owner | Due | Resolution |
 |---|---|---|---|---|
-| **Q-ONP-1** | Confirm auth: this Draft proposes **JWT bearer** for the first on-prem slice; mTLS later optional. Confirm or override (mTLS / both)? | Marcos | Before Approval | **Proposed interim:** JWT bearer default — **awaiting Marcos confirmation** |
-| **Q-ONP-2** | Postgres major version pin for Compose (e.g. 16 vs 15)? | Marcos + implementer | Before first Compose merge | Open |
-| **Q-ONP-3** | TLS termination: reverse proxy vs app-level TLS? | Marcos | Before production-hardening slice | **Proposed interim:** reverse proxy terminates TLS; app HTTP on internal network — confirm |
+| **Q-ONP-1** | Confirm auth: JWT bearer for first on-prem slice; mTLS later optional? | Marcos | Before Approval | **Confirmed 2026-09-16** — JWT bearer first slice; mTLS later optional (Marcos Approve of Draft + Clark Approve) |
+| **Q-ONP-2** | Postgres major version pin for Compose (e.g. 16 vs 15)? | Marcos + implementer | Before first Compose merge | Open — non-blocking for first scaffold; pin at impl |
+| **Q-ONP-3** | TLS termination: reverse proxy vs app-level TLS? | Marcos | Before production-hardening slice | **Proposed interim (non-blocking):** reverse proxy terminates TLS; app HTTP on internal network — confirm later |
 | Q-ONP-4 | Exact JWT issuer/audience/secret wiring (env names, rotation)? | Implementer after Approval | During first impl slice | Soft — adapter-local |
 | Q-ONP-5 | OpenAPI publish path (repo vs generated artifact)? | Dual review | Soft | Soft |
 
@@ -390,6 +390,7 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 | Date | Author | Change |
 |---|---|---|
 | 2026-09-16 | Marcos Blazquez (direction) + Clark Bot | Initial Draft: on-prem-first adapter SDD; JWT proposal; parity + Compose goals; no implementation |
+| 2026-09-16 | Marcos Blazquez + Clark Bot | Dual review → **Approved**; Q-ONP-1 = JWT bearer; §13 green; first on-prem slice authorized (impl follow-up) |
 
 ---
 
@@ -413,9 +414,9 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 | Testing layer | `tests/adapters/` (DES-0002-E); optional unit fakes for auth/DB borders |
 | Traceability | Link TEST-ONP-* to REQ-0010 / REQ-0016 / DES-0004-* |
 
-### First implementation slice (AFTER Approval — not now)
+### First implementation slice (authorized after Approval)
 
-When §13 is green:
+§13 is green. Follow-up implementation (separate from this Approval docs package) may:
 
 1. Scaffold `adapters/onprem/` (FastAPI app + JWT middleware + Postgres checkpointer wiring).
 2. Add `docker-compose.yml` (api + Postgres) and minimal operator docs.
@@ -426,4 +427,4 @@ When §13 is green:
 
 ## Review records
 
-Agent/human review stubs for dual Approval are recorded under `docs/design/reviews/` **when dual review completes** (same pattern as DES-0001 / DES-0002). Draft SDDs do not require a review file until review starts.
+Dual Approval recorded: human Approve (Marcos Blazquez, chat 2026-09-16) + agent Approve ([DES-0004-agent-review-20260916.md](reviews/DES-0004-agent-review-20260916.md)).
