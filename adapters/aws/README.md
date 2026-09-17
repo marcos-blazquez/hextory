@@ -36,6 +36,11 @@ See [Authorized smoke](#authorized-smoke) and evidence note
 | `AWS_DEFAULT_REGION` | no | default `us-east-1` (authorized smoke: `us-east-2`) |
 | `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | LocalStack or smoke | LocalStack: dummy `test` / `test`; smoke: operator credentials (never commit) |
 
+`DynamoDbCheckpointer.ensure_table` (and the idempotency store) use
+`describe_table` — not `list_tables` — so SAM `DynamoDBCrudPolicy` on the single
+table is sufficient for an authorized deploy. Missing tables (moto / LocalStack)
+are created after `ResourceNotFoundException`; a live stack table already exists.
+
 ## Install
 
 ```bash

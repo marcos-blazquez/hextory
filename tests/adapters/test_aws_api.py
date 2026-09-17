@@ -25,6 +25,7 @@ from moto import mock_aws
 
 from adapters.aws.auth import mint_token
 from adapters.aws.dynamodb_checkpointer import DynamoDbCheckpointer
+from adapters.aws.dynamodb_idempotency import DynamoDbIdempotencyStore
 from adapters.aws.handlers import build_handler_context, handle_event
 from adapters.aws.responses import traveler_summary
 from adapters.aws.wiring import build_gateway as build_aws_gateway
@@ -33,6 +34,61 @@ from src.domain.statuses import TravelerStatus
 from src.domain.traveler import DigitalTraveler
 from src.ports.idempotency import InMemoryIdempotencyStore
 from src.ports.metrics import InMemoryMetrics
+
+
+class _ResourceNotFound(Exception):
+    """Stub ClientError-shaped exception for ensure_table unit tests."""
+
+    def __init__(self) -> None:
+        super().__init__("Requested resource not found")
+        self.response = {"Error": {"Code": "ResourceNotFoundException", "Message": "not found"}}
+
+
+class _StubDynamoClient:
+    """Minimal DynamoDB client stub — tracks describe/create; list_tables must not run."""
+
+    def __init__(self, *, table_exists: bool = False) -> None:
+        self.table_exists = table_exists
+        self.calls: list[str] = []
+        self.created: list[str] = []
+
+    def list_tables(self) -> dict[str, Any]:
+        self.calls.append("list_tables")
+        raise AssertionError("ensure_table must not call list_tables")
+
+    def describe_table(self, *, TableName: str) -> dict[str, Any]:
+        self.calls.append(f"describe_table:{TableName}")
+        if not self.table_exists:
+            raise _ResourceNotFound()
+        return {"Table": {"TableName": TableName, "TableStatus": "ACTIVE"}}
+
+    def create_table(self, **kwargs: Any) -> dict[str, Any]:
+        name = kwargs["TableName"]
+        self.calls.append(f"create_table:{name}")
+        self.created.append(name)
+        self.table_exists = True
+        return {"TableDescription": {"TableName": name}}
+
+    def get_waiter(self, name: str) -> Any:
+        self.calls.append(f"get_waiter:{name}")
+
+        class _Waiter:
+            def wait(self, **_kwargs: Any) -> None:
+                return None
+
+        return _Waiter()
+
+    def put_item(self, **kwargs: Any) -> dict[str, Any]:
+        self.calls.append("put_item")
+        return {}
+
+    def get_item(self, **kwargs: Any) -> dict[str, Any]:
+        self.calls.append("get_item")
+        return {}
+
+    def delete_item(self, **kwargs: Any) -> dict[str, Any]:
+        self.calls.append("delete_item")
+        return {}
 
 
 @pytest.fixture
@@ -288,6 +344,43 @@ def test_aws_03_given_fail_fixture_when_aws_then_escalated_like_local(
 # ---------------------------------------------------------------------------
 
 
+def test_aws_04_ensure_table_uses_describe_not_list_when_missing():
+    """
+    ensure_table must use describe_table + create on ResourceNotFoundException.
+    list_tables is not covered by SAM DynamoDBCrudPolicy and must not be called.
+    """
+    stub = _StubDynamoClient(table_exists=False)
+    cp = DynamoDbCheckpointer(table_name="hextory-cp", client=stub)
+    cp.ensure_table()
+    assert "list_tables" not in stub.calls
+    assert stub.calls[0] == "describe_table:hextory-cp"
+    assert "create_table:hextory-cp" in stub.calls
+    assert stub.created == ["hextory-cp"]
+    # Second call is a no-op (cached).
+    before = list(stub.calls)
+    cp.ensure_table()
+    assert stub.calls == before
+
+
+def test_aws_04_ensure_table_describe_only_when_table_exists():
+    """When the table already exists (live SAM stack), only describe_table runs."""
+    stub = _StubDynamoClient(table_exists=True)
+    cp = DynamoDbCheckpointer(table_name="hextory-cp", client=stub)
+    cp.ensure_table()
+    assert stub.calls == ["describe_table:hextory-cp"]
+    assert stub.created == []
+
+
+def test_aws_04_idempotency_ensure_table_uses_describe_not_list():
+    """Standalone idempotency store must also avoid list_tables."""
+    stub = _StubDynamoClient(table_exists=False)
+    store = DynamoDbIdempotencyStore(table_name="hextory-idem", client=stub)
+    store.ensure_table()
+    assert "list_tables" not in stub.calls
+    assert stub.calls[0] == "describe_table:hextory-idem"
+    assert "create_table:hextory-idem" in stub.calls
+
+
 def test_aws_04_given_moto_dynamodb_when_new_instance_loads_then_resume_works(
     dynamodb_client: Any, jwt_secret: str
 ):
@@ -348,6 +441,8 @@ def test_aws_05_given_repo_when_inspect_then_localstack_docs_and_moto_harness_ex
     assert "localstack" in readme.lower()
     assert "HEXTORY_JWT_SECRET" in readme
     assert "real AWS" in readme or "real account" in readme.lower()
+    assert "describe_table" in readme.lower()
+    assert "DynamoDBCrudPolicy" in readme or "CRUD" in readme
 
     # moto import used by this module proves the unit harness path.
     assert mock_aws is not None
@@ -452,8 +547,12 @@ def test_aws_08_given_iac_stub_when_inspect_ci_then_no_real_account_deploy():
     template = REPO / "adapters" / "aws" / "template.yaml"
     assert template.is_file()
     tpl = template.read_text(encoding="utf-8")
-    assert "UNEPLOYED" in tpl or "Do not" in tpl or "DO NOT" in tpl
+    assert "UNEPLOYED" in tpl or "Do not" in tpl or "DO NOT" in tpl or "must not" in tpl.lower()
     assert "AWS::Serverless" in tpl or "AWS::DynamoDB" in tpl
+    # CRUD on the single table is enough; do not grant account-wide ListTables.
+    assert "DynamoDBCrudPolicy" in tpl
+    assert "ListTables" not in tpl
+    assert "dynamodb:ListTables" not in tpl
 
     ci = (REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
     banned = (

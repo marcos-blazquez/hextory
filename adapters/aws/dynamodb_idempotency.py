@@ -17,6 +17,16 @@ def _utcnow() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _is_resource_not_found(exc: BaseException) -> bool:
+    """True when DynamoDB reports the table does not exist."""
+    error = getattr(exc, "response", {}) or {}
+    code = (error.get("Error") or {}).get("Code", "")
+    if code == "ResourceNotFoundException":
+        return True
+    name = type(exc).__name__
+    return "ResourceNotFoundException" in name
+
+
 class DynamoDbIdempotencyStore:
     """Persist idempotency_key → traveler_id in DynamoDB (first write wins)."""
 
@@ -73,6 +83,7 @@ class DynamoDbIdempotencyStore:
         return self._client
 
     def ensure_table(self) -> None:
+        """Ensure the table exists via ``describe_table`` (no ``list_tables``)."""
         if self._table_ready:
             return
         if self._checkpointer is not None:
@@ -80,8 +91,11 @@ class DynamoDbIdempotencyStore:
             self._table_ready = True
             return
         client = self._boto()
-        existing = client.list_tables().get("TableNames", [])
-        if self._table not in existing:
+        try:
+            client.describe_table(TableName=self._table)
+        except Exception as exc:
+            if not _is_resource_not_found(exc):
+                raise
             client.create_table(
                 TableName=self._table,
                 AttributeDefinitions=[{"AttributeName": "pk", "AttributeType": "S"}],
