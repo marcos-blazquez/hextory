@@ -23,7 +23,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - name: Install
-        run: pip install -e ".[dev]"
+        run: pip install -e ".[dev,onprem]"
       - name: Run tests
         run: python -m pytest
 
@@ -35,8 +35,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install (minimal — gates script is stdlib-only; install for import check consistency)
-        run: pip install -e ".[dev]"
+      - name: Install (dev + onprem for import-boundary consistency with pytest job)
+        run: pip install -e ".[dev,onprem]"
       - name: Design-gate checks
         run: python scripts/ci_design_gates.py
       - name: Re-run import / layout tests explicitly
