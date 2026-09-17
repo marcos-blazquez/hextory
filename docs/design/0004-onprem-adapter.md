@@ -158,9 +158,9 @@ Client JWT → FastAPI → (optional auth interceptor context)
 
 | Interface | Protocol | Auth | Contract summary |
 |---|---|---|---|
-| `POST /runs` | HTTP JSON | JWT bearer (proposed) | Start run; body includes `sdd_id`, `workflow_id`, payload; optional idempotency key |
-| `GET /runs/{id}` | HTTP JSON | JWT bearer (proposed) | Status / traveler summary by `traveler_id` |
-| `POST /runs/{id}/resume` | HTTP JSON | JWT bearer (proposed) | Resume from Postgres checkpoint |
+| `POST /runs` | HTTP JSON | JWT bearer | Start run; body includes `sdd_id`, `workflow_id`, payload; optional idempotency key |
+| `GET /runs/{id}` | HTTP JSON | JWT bearer | Status / traveler summary by `traveler_id` |
+| `POST /runs/{id}/resume` | HTTP JSON | JWT bearer | Resume from Postgres checkpoint |
 | Health (optional) | HTTP | none or JWT | Liveness for Compose/`/health` — non-workflow |
 
 All workflow paths **must** supply `sdd_id` (and workflow identity on create). Missing or non-Approved → Gatekeeper denial (no assembly entry), same as local CLI.
