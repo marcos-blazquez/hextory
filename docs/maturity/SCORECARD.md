@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| **Date** | 2026-09-17 11:47 America/Santiago |
-| **Stage** | Operational dark factory (candidate) — DES-0004 + `adapters/onprem` landed; observability still thin |
-| **Latest pulse** | [R-0020](reports/R-0020-20260917-1147.md) |
+| **Date** | 2026-09-17 12:45 America/Santiago |
+| **Stage** | Operational dark factory (candidate) — DES-0005/0006 Approved (docs); OBS + AWS impl still pending |
+| **Latest pulse** | [R-0021](reports/R-0021-20260917-1245.md) |
 | **Scorers** | Clark Bot (maturity pulse); prior: Marcos Blazquez + New Bot |
 | **Method** | Per [ASPECTS.md](ASPECTS.md); each aspect 0–100; overall = mean |
 
@@ -12,37 +12,37 @@
 
 | # | Aspect | Score (0–100) | Rationale |
 |---|---|---|---|
-| 1 | Vision clarity | **72** | DES-0001/0002/0004 **Approved**; on-prem-first multi-target direction explicit; DES-0003 bare Draft ideation. |
-| 2 | Design-doc coverage | **68** | TEMPLATE + Approved vision + Approved engine + Approved on-prem adapter; Draft Studio ideation; no new Approved workflow SDDs. |
-| 3 | Review rigor (dual human+agent) | **60** | Three dual Approvals; PR merge-via-doc practiced; `required_approving_review_count: 0` caps further lift. |
-| 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **80** | DES-0004 + live `adapters/onprem` IMPL + TEST-ONP; published `hextory.digital_traveler@0.1`; pytest **84 passed / 1 skipped**. |
-| 5 | Architecture purity (hexagonal isolation) | **85** | Pure `src/` + ports; LangGraph/Echo/OpenAI adapter-only; open GraphRegistry; `adapters/local` + `adapters/onprem` without core fork. |
+| 1 | Vision clarity | **76** | DES-0001/0002/0004/0005/0006 **Approved**; AWS + observability direction explicit; DES-0003 bare Draft ideation. |
+| 2 | Design-doc coverage | **76** | TEMPLATE + five Approved SDDs (vision/engine/on-prem/AWS/OBS); Draft Studio; no Approved *workflow* SDDs. |
+| 3 | Review rigor (dual human+agent) | **70** | Five dual Approvals; PR #15 merge-via-doc; `required_approving_review_count: 0` caps further lift. |
+| 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **80** | DES-0004 + live `adapters/onprem` IMPL + TEST-ONP; traveler@0.1; sdd_status has DES-0005/0006; no AWS/OBS IMPL yet; pytest **84 passed / 1 skipped**. |
+| 5 | Architecture purity (hexagonal isolation) | **85** | Pure `src/` + ports; LangGraph/Echo/OpenAI adapter-only; open GraphRegistry; `adapters/local` + `adapters/onprem` only — no `adapters/aws`. |
 | 6 | Determinism, testability & readable core | **86** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; on-prem parity tests; 84 passed / 1 skipped. |
-| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; ci #29 Success on `e9ad938` (docs); product ci #21 on `fcbe5b0`; approvals=0 and not strict up-to-date. |
-| 8 | Factory observability (traces, quality loops) | **52** | FileCheckpointer persists travelers + quality FAIL under `.hextory/`; Postgres checkpointer for on-prem; FileIdempotency; no dashboards. |
-| 9 | Multi-target deploy readiness | **70** | Local CLI + on-prem FastAPI/JWT/Postgres/Compose with parity tests; AWS still deferred. |
-| 10 | Public project readiness | **84** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PR habit; no issue/PR templates. |
+| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; ci #34 Success on `e5dd7d1` (docs); product ci #21 on `fcbe5b0`; approvals=0 and not strict up-to-date. |
+| 8 | Factory observability (traces, quality loops) | **52** | FileCheckpointer + Postgres checkpointer + FileIdempotency; DES-0006 Approved but **no** MetricsPort / Prometheus `/metrics` / dashboards yet. |
+| 9 | Multi-target deploy readiness | **70** | Local CLI + on-prem FastAPI/JWT/Postgres/Compose with parity tests; DES-0005 Approved but **no** `adapters/aws` yet. |
+| 10 | Public project readiness | **84** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #15; no issue/PR templates. |
 
 ### Overall maturity
 
 | Metric | Value |
 |---|---|
-| Sum of aspect scores | 72+68+60+80+85+86+85+52+70+84 = **742** |
-| **Overall maturity** | **74.2** |
+| Sum of aspect scores | 76+76+70+80+85+86+85+52+70+84 = **764** |
+| **Overall maturity** | **76.4** |
 | Band | **70–89 — Operational dark factory (candidate)** |
 | Meets ≥90? | **NO** |
-| Δ vs R-0019 | **0.0** (74.2 → 74.2) — flat reconfirm; only R-0019 maturity docs landed at `e9ad938`; aspect 8 still 52 |
+| Δ vs R-0020 | **+2.2** (74.2 → 76.4) — DES-0005/0006 dual Approve on main @ `e5dd7d1`; aspects 8/9 held flat (no impl) |
 
 ## Next actions
 
-1. Observability: dashboards / gate-denial metrics beyond file/Postgres artifacts (aspect 8).
-2. Third deploy target (AWS or equivalent) with traveler/Gatekeeper parity — do not invent aspect-9 lifts without it (aspect 9).
+1. Observability first slice per DES-0006: MetricsPort + Prometheus `/metrics` + gate-denial counters (aspect 8).
+2. AWS first slice per DES-0005: `adapters/aws` LocalStack/moto + parity — no real account deploy (aspect 9).
 3. Add issue/PR templates for SDD contribution path (aspect 10).
-4. More Approved workflow SDDs under dual review (aspects 2, 3).
+4. More Approved *workflow* SDDs under dual review (aspects 2, 3).
 5. When a second reviewer exists: re-enable ≥1 required approving review; consider strict up-to-date (aspects 3, 7).
 6. Keep DES-0003 Draft ideation only — no product UI during pulse; out-of-tree consumers stay out of public kernel score.
 7. Continue weekday hourly pulses until overall ≥ 90; do not invent score lifts without new evidence.
-8. Refresh Mac SoT working tree from GitHub `main` when practical (currently missing onprem / DES-0004 / `.git`).
+8. Refresh Mac SoT working tree from GitHub `main` when practical (currently missing onprem / DES-0004+ / `.git`).
 
 ## Revision history
 
@@ -71,3 +71,4 @@
 | 2026-09-17 10:40 | Clark Bot | Pulse R-0018: flat reconfirm **74.2** (Δ0) after R-0017 docs @ `359ce5e` / ci #25; Mac SoT offline |
 | 2026-09-17 11:06 | Clark Bot | Pulse R-0019: flat reconfirm **74.2** (Δ0) after R-0018 docs @ `de42c94` / ci #27; Mac SoT offline |
 | 2026-09-17 11:47 | Clark Bot | Pulse R-0020: flat reconfirm **74.2** (Δ0) after R-0019 docs @ `e9ad938` / ci #29; Mac SoT connected but stale |
+| 2026-09-17 12:45 | Clark Bot | Pulse R-0021: DES-0005/0006 dual Approve on main @ `e5dd7d1` → overall **76.4** (+2.2); aspects 8/9 held |
