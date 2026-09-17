@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| **Date** | 2026-09-17 09:34 America/Santiago |
+| **Date** | 2026-09-17 10:40 America/Santiago |
 | **Stage** | Operational dark factory (candidate) — DES-0004 + `adapters/onprem` landed; observability still thin |
-| **Latest pulse** | [R-0017](reports/R-0017-20260917-0934.md) |
+| **Latest pulse** | [R-0018](reports/R-0018-20260917-1040.md) |
 | **Scorers** | Clark Bot (maturity pulse); prior: Marcos Blazquez + New Bot |
 | **Method** | Per [ASPECTS.md](ASPECTS.md); each aspect 0–100; overall = mean |
 
@@ -14,14 +14,14 @@
 |---|---|---|---|
 | 1 | Vision clarity | **72** | DES-0001/0002/0004 **Approved**; on-prem-first multi-target direction explicit; DES-0003 bare Draft ideation. |
 | 2 | Design-doc coverage | **68** | TEMPLATE + Approved vision + Approved engine + Approved on-prem adapter; Draft Studio ideation; no new Approved workflow SDDs. |
-| 3 | Review rigor (dual human+agent) | **60** | Three dual Approvals; PR merge-via-doc practiced (#1–#10); `required_approving_review_count: 0` caps further lift. |
+| 3 | Review rigor (dual human+agent) | **60** | Three dual Approvals; PR merge-via-doc practiced; `required_approving_review_count: 0` caps further lift. |
 | 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **80** | DES-0004 + live `adapters/onprem` IMPL + TEST-ONP; published `hextory.digital_traveler@0.1`; pytest **84 passed / 1 skipped**. |
 | 5 | Architecture purity (hexagonal isolation) | **85** | Pure `src/` + ports; LangGraph/Echo/OpenAI adapter-only; open GraphRegistry; `adapters/local` + `adapters/onprem` without core fork. |
 | 6 | Determinism, testability & readable core | **86** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; on-prem parity tests; 84 passed / 1 skipped. |
-| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; ci #23 Success on `421ac29`; approvals=0 and not strict up-to-date. |
+| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; ci #25 Success on `359ce5e`; approvals=0 and not strict up-to-date. |
 | 8 | Factory observability (traces, quality loops) | **52** | FileCheckpointer persists travelers + quality FAIL under `.hextory/`; Postgres checkpointer for on-prem; FileIdempotency; no dashboards. |
 | 9 | Multi-target deploy readiness | **70** | Local CLI + on-prem FastAPI/JWT/Postgres/Compose with parity tests; AWS still deferred. |
-| 10 | Public project readiness | **84** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PR habit (#1–#10); no issue/PR templates. |
+| 10 | Public project readiness | **84** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PR habit; no issue/PR templates. |
 
 ### Overall maturity
 
@@ -31,7 +31,7 @@
 | **Overall maturity** | **74.2** |
 | Band | **70–89 — Operational dark factory (candidate)** |
 | Meets ≥90? | **NO** |
-| Δ vs R-0016 | **0.0** (74.2 → 74.2) — flat reconfirm; only maturity docs landed at `421ac29`; aspect 8 still 52 |
+| Δ vs R-0017 | **0.0** (74.2 → 74.2) — flat reconfirm; only R-0017 maturity docs landed at `359ce5e`; aspect 8 still 52 |
 
 ## Next actions
 
@@ -67,3 +67,4 @@
 | 2026-09-16 19:45 | Clark Bot | Pulse R-0015: flat reconfirm **68.3** (Δ0) after PR #6 / ci #13 / main `187dda7` |
 | 2026-09-17 08:23 | Clark Bot | Pulse R-0016: DES-0004 / `adapters/onprem` → overall **74.2** (+5.9); aspect 8 flat 52 |
 | 2026-09-17 09:34 | Clark Bot | Pulse R-0017: flat reconfirm **74.2** (Δ0) after PR #10 / ci #23 / main `421ac29`; Mac SoT offline |
+| 2026-09-17 10:40 | Clark Bot | Pulse R-0018: flat reconfirm **74.2** (Δ0) after R-0017 docs @ `359ce5e` / ci #25; Mac SoT offline |
