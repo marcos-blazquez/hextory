@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| **Date** | 2026-09-18 13:45 America/Santiago |
+| **Date** | 2026-09-18 14:34 America/Santiago |
 | **Stage** | Operational dark factory (candidate) — DES-0006 OBS + DES-0005 AWS first slices; AWS-SMOKE-001 real DynamoDB smoke SUCCEEDED |
-| **Latest pulse** | [R-0036](reports/R-0036-20260918-1345.md) |
+| **Latest pulse** | [R-0037](reports/R-0037-20260918-1434.md) |
 | **Scorers** | Clark Bot (maturity pulse); prior: Marcos Blazquez + New Bot |
 | **Method** | Per [ASPECTS.md](ASPECTS.md); each aspect 0–100; overall = mean |
 
@@ -18,10 +18,10 @@
 | 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **86** | DES-0004/0005/0006 live IMPL + TEST-ONP/TEST-AWS/TEST-OBS; traveler@0.1; AWS-SMOKE-001 evidence; pytest **115 passed / 1 skipped**. |
 | 5 | Architecture purity (hexagonal isolation) | **88** | Pure `src/` + ports; LangGraph/Echo/OpenAI/Prometheus/boto adapter-only; open GraphRegistry; `adapters/{local,onprem,aws}`. |
 | 6 | Determinism, testability & readable core | **88** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; OBS+AWS parity; 115 passed / 1 skipped. |
-| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip CI Success on `cc2ec42` (docs; Actions run 35364565916 / #75); product tip ci #63 on `65a46c8`; approvals=0 and not strict up-to-date. |
+| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip CI Success on `204cd74` (docs; Actions run 35370673471 / #77); product tip ci #63 on `65a46c8`; approvals=0 and not strict up-to-date. |
 | 8 | Factory observability (traces, quality loops) | **74** | MetricsPort + on-prem GET `/metrics` + local dump + Grafana JSON + TEST-OBS + gateway counters. First-slice only — not production-grade ops (85+); AWS-SMOKE metrics deferred. |
 | 9 | Multi-target deploy readiness | **82** | Local CLI + on-prem FastAPI/JWT/Postgres/Compose + **AWS** Lambda/DynamoDB/moto + LocalStack Compose + uneployed SAM + **AWS-SMOKE-001 SUCCEEDED** (real DynamoDB us-east-2); no full SAM/HTTP API deploy; CI must not deploy (NG1). |
-| 10 | Public project readiness | **84** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #35; no issue/PR templates. |
+| 10 | Public project readiness | **84** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #36; no issue/PR templates. |
 
 ### Overall maturity
 
@@ -31,7 +31,7 @@
 | **Overall maturity** | **80.9** |
 | Band | **70–89 — Operational dark factory (candidate)** |
 | Meets ≥90? | **NO** |
-| Δ vs R-0035 | **0.0** (80.9 → 80.9) — flat reconfirm; no new ops/deploy/templates/workflow-SDD evidence; tip `cc2ec42` (R-0035 docs) |
+| Δ vs R-0036 | **0.0** (80.9 → 80.9) — flat reconfirm; no new ops/deploy/templates/workflow-SDD evidence; tip `204cd74` (R-0036 docs) |
 
 ## Next actions
 
@@ -42,7 +42,7 @@
 5. When a second reviewer exists: re-enable ≥1 required approving review; consider strict up-to-date (aspects 3, 7).
 6. Keep DES-0003 Draft ideation only — no product UI during pulse; out-of-tree consumers stay out of public kernel score.
 7. Continue weekday hourly pulses until overall ≥ 90; do not invent score lifts without new evidence.
-8. Land R-0036 maturity trio on main (R-0035 already via #35).
+8. Land R-0037 maturity trio on main (R-0036 already via #36).
 9. When Mac returns online: refresh SoT working tree from GitHub `main`.
 
 ## Revision history
@@ -88,3 +88,4 @@
 | 2026-09-18 11:45 | Clark Bot | Pulse R-0034: flat reconfirm **80.9** (Δ0) after R-0033 docs @ `5a50937` / tip CI Success (Actions run 35354099441 / #71); product tip still `65a46c8` / ci #63; Mac SoT offline |
 | 2026-09-18 12:40 | Clark Bot | Pulse R-0035: flat reconfirm **80.9** (Δ0) after R-0034 docs @ `704cabc` / tip CI Success (Actions run 35359406843 / #73); product tip still `65a46c8` / ci #63; Mac SoT offline |
 | 2026-09-18 13:45 | Clark Bot | Pulse R-0036: flat reconfirm **80.9** (Δ0) after R-0035 docs @ `cc2ec42` / tip CI Success (Actions run 35364565916 / #75); product tip still `65a46c8` / ci #63; Mac SoT unused |
+| 2026-09-18 14:34 | Clark Bot | Pulse R-0037: flat reconfirm **80.9** (Δ0) after R-0036 docs @ `204cd74` / tip CI Success (Actions run 35370673471 / #77); product tip still `65a46c8` / ci #63; Mac SoT unused |
