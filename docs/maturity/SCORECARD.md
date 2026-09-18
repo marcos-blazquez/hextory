@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| **Date** | 2026-09-18 16:32 America/Santiago |
+| **Date** | 2026-09-18 17:27 America/Santiago |
 | **Stage** | Operational dark factory (candidate) — DES-0006 OBS + DES-0005 AWS first slices; AWS-SMOKE-001 real DynamoDB smoke SUCCEEDED |
-| **Latest pulse** | [R-0039](reports/R-0039-20260918-1632.md) |
+| **Latest pulse** | [R-0040](reports/R-0040-20260918-1727.md) |
 | **Scorers** | Clark Bot (maturity pulse); prior: Marcos Blazquez + New Bot |
 | **Method** | Per [ASPECTS.md](ASPECTS.md); each aspect 0–100; overall = mean |
 
@@ -18,10 +18,10 @@
 | 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **86** | DES-0004/0005/0006 live IMPL + TEST-ONP/TEST-AWS/TEST-OBS; traveler@0.1; AWS-SMOKE-001 evidence; pytest **115 passed / 1 skipped**. |
 | 5 | Architecture purity (hexagonal isolation) | **88** | Pure `src/` + ports; LangGraph/Echo/OpenAI/Prometheus/boto adapter-only; open GraphRegistry; `adapters/{local,onprem,aws}`. |
 | 6 | Determinism, testability & readable core | **88** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; OBS+AWS parity; 115 passed / 1 skipped. |
-| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip CI Success on `95d3c92` (docs; Actions run 35380840156 / #81); product tip ci #63 on `65a46c8`; approvals=0 and not strict up-to-date. |
+| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip CI Success on `b6aecfb` (docs; Actions run 35386858158); product tip ci #63 on `65a46c8`; approvals=0 and not strict up-to-date. |
 | 8 | Factory observability (traces, quality loops) | **74** | MetricsPort + on-prem GET `/metrics` + local dump + Grafana JSON + TEST-OBS + gateway counters. First-slice only — not production-grade ops (85+); AWS-SMOKE metrics deferred. |
 | 9 | Multi-target deploy readiness | **82** | Local CLI + on-prem FastAPI/JWT/Postgres/Compose + **AWS** Lambda/DynamoDB/moto + LocalStack Compose + uneployed SAM + **AWS-SMOKE-001 SUCCEEDED** (real DynamoDB us-east-2); no full SAM/HTTP API deploy; CI must not deploy (NG1). |
-| 10 | Public project readiness | **84** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #38; no issue/PR templates. |
+| 10 | Public project readiness | **84** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #39; no issue/PR templates. |
 
 ### Overall maturity
 
@@ -31,7 +31,7 @@
 | **Overall maturity** | **80.9** |
 | Band | **70–89 — Operational dark factory (candidate)** |
 | Meets ≥90? | **NO** |
-| Δ vs R-0038 | **0.0** (80.9 → 80.9) — flat reconfirm; no new ops/deploy/templates/workflow-SDD evidence; tip `95d3c92` (R-0038 docs) |
+| Δ vs R-0039 | **0.0** (80.9 → 80.9) — flat reconfirm; no new ops/deploy/templates/workflow-SDD evidence; tip `b6aecfb` (R-0039 docs) |
 
 ## Next actions
 
@@ -42,13 +42,14 @@
 5. When a second reviewer exists: re-enable ≥1 required approving review; consider strict up-to-date (aspects 3, 7).
 6. Keep DES-0003 Draft ideation only — no product UI during pulse; out-of-tree consumers stay out of public kernel score.
 7. Continue weekday hourly pulses until overall ≥ 90; do not invent score lifts without new evidence.
-8. Land R-0039 maturity trio on main (R-0038 already via #38).
+8. Land R-0040 maturity trio on main (R-0039 already via #39).
 9. When Mac returns online: refresh SoT working tree from GitHub `main`.
 
 ## Revision history
 
 | Date | Author | Change |
 |---|---|---|
+| 2026-09-18 17:27 | Clark Bot | Pulse R-0040: flat **80.9** (Δ0 vs R-0039); tip `b6aecfb` / PR #39; blockers SAME |
 | 2026-09-15 | Marcos Blazquez + New Bot | Baseline ideation scores on 0–100 scale |
 | 2026-09-15 | New Bot | Aligned with pulse R-0001; aspect 6 includes readable-core bar |
 | 2026-09-15 ~15:34 | Clark Bot / New Bot | Post–DES-0001 Approval lift → overall **16.4** |
