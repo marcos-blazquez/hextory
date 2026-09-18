@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| **Date** | 2026-09-18 08:24 America/Santiago |
+| **Date** | 2026-09-18 09:38 America/Santiago |
 | **Stage** | Operational dark factory (candidate) — DES-0006 OBS + DES-0005 AWS first slices; AWS-SMOKE-001 real DynamoDB smoke SUCCEEDED |
-| **Latest pulse** | [R-0030](reports/R-0030-20260918-0824.md) |
+| **Latest pulse** | [R-0031](reports/R-0031-20260918-0938.md) |
 | **Scorers** | Clark Bot (maturity pulse); prior: Marcos Blazquez + New Bot |
 | **Method** | Per [ASPECTS.md](ASPECTS.md); each aspect 0–100; overall = mean |
 
@@ -18,10 +18,10 @@
 | 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **86** | DES-0004/0005/0006 live IMPL + TEST-ONP/TEST-AWS/TEST-OBS; traveler@0.1; AWS-SMOKE-001 evidence; pytest **115 passed / 1 skipped**. |
 | 5 | Architecture purity (hexagonal isolation) | **88** | Pure `src/` + ports; LangGraph/Echo/OpenAI/Prometheus/boto adapter-only; open GraphRegistry; `adapters/{local,onprem,aws}`. |
 | 6 | Determinism, testability & readable core | **88** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; OBS+AWS parity; 115 passed / 1 skipped. |
-| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip ci #63 Success on `65a46c8`; approvals=0 and not strict up-to-date. |
+| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip ci #65 Success on `1a0d940` (docs); product tip ci #63 on `65a46c8`; approvals=0 and not strict up-to-date. |
 | 8 | Factory observability (traces, quality loops) | **74** | MetricsPort + on-prem GET `/metrics` + local dump + Grafana JSON + TEST-OBS + gateway counters. First-slice only — not production-grade ops (85+); AWS-SMOKE metrics deferred. |
 | 9 | Multi-target deploy readiness | **82** | Local CLI + on-prem FastAPI/JWT/Postgres/Compose + **AWS** Lambda/DynamoDB/moto + LocalStack Compose + uneployed SAM + **AWS-SMOKE-001 SUCCEEDED** (real DynamoDB us-east-2); no full SAM/HTTP API deploy; CI must not deploy (NG1). |
-| 10 | Public project readiness | **84** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #29; no issue/PR templates. |
+| 10 | Public project readiness | **84** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #30; no issue/PR templates. |
 
 ### Overall maturity
 
@@ -31,7 +31,7 @@
 | **Overall maturity** | **80.9** |
 | Band | **70–89 — Operational dark factory (candidate)** |
 | Meets ≥90? | **NO** |
-| Δ vs R-0029 | **+0.4** (80.5 → 80.9) — aspect 9 lift from AWS-SMOKE-001 + DescribeTable fix (#28/#29); tip `65a46c8` |
+| Δ vs R-0030 | **0.0** (80.9 → 80.9) — flat reconfirm; no new ops/deploy/templates/workflow-SDD evidence; tip `1a0d940` (R-0030 docs) |
 
 ## Next actions
 
@@ -42,7 +42,7 @@
 5. When a second reviewer exists: re-enable ≥1 required approving review; consider strict up-to-date (aspects 3, 7).
 6. Keep DES-0003 Draft ideation only — no product UI during pulse; out-of-tree consumers stay out of public kernel score.
 7. Continue weekday hourly pulses until overall ≥ 90; do not invent score lifts without new evidence.
-8. Land R-0030 maturity trio on main (R-0028+R-0029 already via #27).
+8. Land R-0031 maturity trio on main (R-0030 already via #30).
 9. When Mac returns online: refresh SoT working tree from GitHub `main`.
 
 ## Revision history
@@ -82,3 +82,4 @@
 | 2026-09-17 18:27 | Clark Bot | Pulse R-0028: flat reconfirm **80.5** (Δ0) after R-0027 docs @ `d7265e5` / tip ci #53; Mac SoT connected but stale |
 | 2026-09-17 19:26 | Clark Bot | Pulse R-0029: flat reconfirm **80.5** (Δ0) after R-0028; main tip still `d7265e5` / tip ci #53; R-0028 PR #25 OPEN (ci #54); Mac SoT connected but stale |
 | 2026-09-18 08:24 | Clark Bot | Pulse R-0030: overall **80.9** (+0.4); aspect 9 78→82 from AWS-SMOKE-001 + PR #28/#29; tip `65a46c8` / ci #63; Mac SoT offline |
+| 2026-09-18 09:38 | Clark Bot | Pulse R-0031: flat reconfirm **80.9** (Δ0) after R-0030 docs @ `1a0d940` / tip ci #65; product tip still `65a46c8` / ci #63; Mac SoT offline |
