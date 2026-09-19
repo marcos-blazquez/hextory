@@ -44,6 +44,8 @@ If NO: state the single biggest blocker to 90+.
 
 **Readable code bar (cross-cutting):** Prefer clear names, small functions, explicit types, walk-through-friendly modules, and minimal cleverness. Score aspect 6 down when code exists but is hard to narrate aloud.
 
+**Solo-author interim (paused / waived 2026-09-19):** Do **not** list `required_approving_review_count: 0` / “require ≥1 approving review” as an active gap or biggest-blocker item. Dual design-doc Approve (human+agent) is the review-rigor signal. Approvals=0 solo merges are accepted until a second reviewer exists; do not change GitHub branch protection from a pulse.
+
 ---
 
 ## 3. Capability lenses
