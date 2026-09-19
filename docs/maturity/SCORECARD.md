@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| **Date** | 2026-09-19 13:14 America/Santiago |
+| **Date** | 2026-09-19 14:24 America/Santiago |
 | **Stage** | Operational dark factory (candidate) — DES-0006 OBS + DES-0005 AWS first slices; AWS-SMOKE-001 real DynamoDB smoke SUCCEEDED |
-| **Latest pulse** | [R-0048](reports/R-0048-20260919-1314.md) |
+| **Latest pulse** | [R-0049](reports/R-0049-20260919-1424.md) |
 | **Scorers** | Clark Bot (maturity pulse); prior: Marcos Blazquez + New Bot |
 | **Method** | Per [ASPECTS.md](ASPECTS.md); each aspect 0–100; overall = mean |
 
@@ -18,10 +18,10 @@
 | 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **86** | DES-0004/0005/0006 live IMPL + TEST-ONP/TEST-AWS/TEST-OBS; traveler@0.1; AWS-SMOKE-001 evidence; pytest **115 passed / 1 skipped**. |
 | 5 | Architecture purity (hexagonal isolation) | **88** | Pure `src/` + ports; LangGraph/Echo/OpenAI/Prometheus/boto adapter-only; open GraphRegistry; `adapters/{local,onprem,aws}`. |
 | 6 | Determinism, testability & readable core | **88** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; OBS+AWS parity; 115 passed / 1 skipped. |
-| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; main tip `ed3cdce` (R-0047 docs); product tip `65a46c8`; approvals=0 and not strict up-to-date. |
+| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; main tip `bff6d42` (R-0048 docs); product tip `65a46c8`; approvals=0 and not strict up-to-date. |
 | 8 | Factory observability (traces, quality loops) | **74** | MetricsPort + on-prem GET `/metrics` + local dump + Grafana JSON + TEST-OBS + gateway counters. First-slice only — not production-grade ops (85+); AWS-SMOKE metrics deferred. |
 | 9 | Multi-target deploy readiness | **82** | Local CLI + on-prem FastAPI/JWT/Postgres/Compose + **AWS** Lambda/DynamoDB/moto + LocalStack Compose + uneployed SAM + **AWS-SMOKE-001 SUCCEEDED** (real DynamoDB us-east-2); no full SAM/HTTP API deploy; CI must not deploy (NG1). |
-| 10 | Public project readiness | **84** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #47; no issue/PR templates. |
+| 10 | Public project readiness | **84** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #48; no issue/PR templates. |
 
 ### Overall maturity
 
@@ -31,7 +31,7 @@
 | **Overall maturity** | **80.9** |
 | Band | **70–89 — Operational dark factory (candidate)** |
 | Meets ≥90? | **NO** |
-| Δ vs R-0047 | **0.0** (80.9 → 80.9) — flat reconfirm; no new ops/deploy/templates/workflow-SDD evidence; tip `ed3cdce` (R-0047 docs) |
+| Delta vs R-0048 | **0.0** (80.9 -> 80.9) — flat reconfirm; no new ops/deploy/templates/workflow-SDD evidence; tip `bff6d42` (R-0048 docs) |
 
 ## Next actions
 
@@ -42,14 +42,15 @@
 5. When a second reviewer exists: re-enable ≥1 required approving review; consider strict up-to-date (aspects 3, 7).
 6. Keep DES-0003 Draft ideation only — no product UI during pulse; out-of-tree consumers stay out of public kernel score.
 7. Continue scheduled pulses until overall ≥ 90; do not invent score lifts without new evidence.
-8. Land R-0048 maturity trio on main.
+8. Land R-0049 maturity trio on main.
 9. When Mac returns online: refresh SoT working tree from GitHub `main`.
 
 ## Revision history
 
 | Date | Author | Change |
 |---|---|---|
-| 2026-09-19 13:14 | Clark Bot | Pulse R-0048: flat **80.9** (Δ0 vs R-0047); tip `ed3cdce` / PR #47; blockers SAME |
+| 2026-09-19 14:24 | Clark Bot | Pulse R-0049: flat **80.9** (Delta0 vs R-0048); tip `bff6d42` / PR #48; blockers SAME |
+| 2026-09-19 13:14 | Clark Bot | Pulse R-0048: flat **80.9** (Delta0 vs R-0047); tip `ed3cdce` / PR #47; blockers SAME |
 | 2026-09-19 12:23 | Clark Bot | Pulse R-0047: flat **80.9** (Δ0 vs R-0046); tip `84bfd51` / PR #46; blockers SAME |
 | 2026-09-19 11:21 | Clark Bot | Pulse R-0046: flat **80.9** (Δ0 vs R-0045); tip `3ac9d7f` / PR #45; blockers SAME |
 | 2026-09-19 10:20 | Clark Bot | Pulse R-0045: flat **80.9** (Δ0 vs R-0044); tip `a6fec42` / PR #44; blockers SAME |
