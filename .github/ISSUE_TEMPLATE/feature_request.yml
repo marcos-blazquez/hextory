@@ -1,0 +1,66 @@
+name: Feature / workflow request
+description: Propose a capability or new workflow. Prefer a Draft SDD for implementation-bound work.
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Hextory is **design-gated**: product/engine code for a workflow must not merge until that workflow’s SDD is **Approved** (dual human + agent review).
+
+        - Small docs/CI/process ideas can stay here.
+        - New workflows or architecture changes should become `docs/design/NNNN-slug.md` (copy `docs/design/TEMPLATE.md`) and enter dual review.
+
+        Keep requests **public-kernel** and consumer-agnostic. Do not name private sibling products or out-of-tree apps.
+  - type: input
+    id: related-des
+    attributes:
+      label: Related DES-#### (existing or proposed)
+      description: Cite an existing SDD, or note the next free DES id if drafting.
+      placeholder: DES-0007 (Draft) or new DES-NNNN
+    validations:
+      required: false
+  - type: dropdown
+    id: gate-status
+    attributes:
+      label: Intended gate path
+      options:
+        - Docs / process only (no SDD required)
+        - Draft SDD first, then dual review
+        - Covered by an already Approved SDD (cite DES-####)
+        - Unsure
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / opportunity
+      description: Who feels the pain? What is missing in the public kernel?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed shape
+      description: Desired workflow topology, ports, adapter surface, or process change. Prefer graph/registry language from DES-0002.
+    validations:
+      required: true
+  - type: textarea
+    id: non-goals
+    attributes:
+      label: Explicit non-goals
+      description: What this request must not become (e.g. Gatekeeper fork, Studio UI while DES-0003 is Draft, CI real-account AWS deploy).
+      placeholder: |
+        - No Gatekeeper fork
+        - No private product names in public docs
+    validations:
+      required: false
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints acknowledged
+      options:
+        - label: I understand Draft ≠ Approved; implementation waits for dual review + green §13 gate criteria.
+          required: true
+        - label: This request stays public-kernel / consumer-agnostic (no private product names).
+          required: true
