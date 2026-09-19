@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| **Date** | 2026-09-19 14:24 America/Santiago |
-| **Stage** | Operational dark factory (candidate) — DES-0006 OBS + DES-0005 AWS first slices; AWS-SMOKE-001 real DynamoDB smoke SUCCEEDED |
-| **Latest pulse** | [R-0049](reports/R-0049-20260919-1424.md) |
+| **Date** | 2026-09-19 15:22 America/Santiago |
+| **Stage** | Operational dark factory (candidate) — DES-0006 OBS + DES-0005 AWS first slices; AWS-SMOKE-001 + **AWS-SMOKE-002** (full SAM+HTTP) SUCCEEDED; issue/PR templates landed |
+| **Latest pulse** | [R-0050](reports/R-0050-20260919-1522.md) |
 | **Scorers** | Clark Bot (maturity pulse); prior: Marcos Blazquez + New Bot |
 | **Method** | Per [ASPECTS.md](ASPECTS.md); each aspect 0–100; overall = mean |
 
@@ -12,43 +12,43 @@
 
 | # | Aspect | Score (0–100) | Rationale |
 |---|---|---|---|
-| 1 | Vision clarity | **76** | DES-0001/0002/0004/0005/0006 **Approved**; AWS + observability direction explicit and first-slice implemented; DES-0003 bare Draft ideation. |
-| 2 | Design-doc coverage | **76** | TEMPLATE + five Approved SDDs (vision/engine/on-prem/AWS/OBS); Draft Studio; no Approved *workflow* SDDs. |
-| 3 | Review rigor (dual human+agent) | **70** | Five dual Approvals; PR #16/#18/#28/#29 under Approved DES; `required_approving_review_count: 0` caps further lift. |
-| 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **86** | DES-0004/0005/0006 live IMPL + TEST-ONP/TEST-AWS/TEST-OBS; traveler@0.1; AWS-SMOKE-001 evidence; pytest **115 passed / 1 skipped**. |
+| 1 | Vision clarity | **76** | DES-0001/0002/0004/0005/0006 **Approved**; AWS + observability direction explicit and first-slice implemented; DES-0003 + DES-0007 bare Draft. |
+| 2 | Design-doc coverage | **76** | TEMPLATE + five Approved SDDs (vision/engine/on-prem/AWS/OBS); Draft Studio + **Draft DES-0007** workflow (not Approved — no coverage lift). |
+| 3 | Review rigor (dual human+agent) | **70** | Five dual Approvals; PR #16/#18/#28/#29 under Approved DES; DES-0007 dual review TBD; `required_approving_review_count: 0` caps further lift. |
+| 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **86** | DES-0004/0005/0006 live IMPL + TEST-ONP/TEST-AWS/TEST-OBS; traveler@0.1; AWS-SMOKE-001 + AWS-SMOKE-002 evidence; pytest **115 passed / 1 skipped** (CI). |
 | 5 | Architecture purity (hexagonal isolation) | **88** | Pure `src/` + ports; LangGraph/Echo/OpenAI/Prometheus/boto adapter-only; open GraphRegistry; `adapters/{local,onprem,aws}`. |
 | 6 | Determinism, testability & readable core | **88** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; OBS+AWS parity; 115 passed / 1 skipped. |
-| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; main tip `bff6d42` (R-0048 docs); product tip `65a46c8`; approvals=0 and not strict up-to-date. |
-| 8 | Factory observability (traces, quality loops) | **74** | MetricsPort + on-prem GET `/metrics` + local dump + Grafana JSON + TEST-OBS + gateway counters. First-slice only — not production-grade ops (85+); AWS-SMOKE metrics deferred. |
-| 9 | Multi-target deploy readiness | **82** | Local CLI + on-prem FastAPI/JWT/Postgres/Compose + **AWS** Lambda/DynamoDB/moto + LocalStack Compose + uneployed SAM + **AWS-SMOKE-001 SUCCEEDED** (real DynamoDB us-east-2); no full SAM/HTTP API deploy; CI must not deploy (NG1). |
-| 10 | Public project readiness | **84** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #48; no issue/PR templates. |
+| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip `87b822e` (SMOKE-002); product tip `65a46c8`; approvals=0 and not strict up-to-date. |
+| 8 | Factory observability (traces, quality loops) | **74** | MetricsPort + on-prem GET `/metrics` + local dump + Grafana JSON + TEST-OBS + gateway counters. First-slice only — not production-grade ops (85+); AWS-SMOKE metrics still deferred. |
+| 9 | Multi-target deploy readiness | **86** | Local CLI + on-prem FastAPI/JWT/Postgres/Compose + **AWS** Lambda/DynamoDB/moto + LocalStack Compose + **AWS-SMOKE-001** + **AWS-SMOKE-002 SUCCEEDED** (live SAM stack + HTTP API → Lambda → DynamoDB us-east-2); CI must not deploy (NG1); manual opt-in only. |
+| 10 | Public project readiness | **87** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #51; **issue/PR templates** with design-gate checklist. |
 
 ### Overall maturity
 
 | Metric | Value |
 |---|---|
-| Sum of aspect scores | 76+76+70+86+88+88+85+74+82+84 = **809** |
-| **Overall maturity** | **80.9** |
+| Sum of aspect scores | 76+76+70+86+88+88+85+74+86+87 = **816** |
+| **Overall maturity** | **81.6** |
 | Band | **70–89 — Operational dark factory (candidate)** |
 | Meets ≥90? | **NO** |
-| Delta vs R-0048 | **0.0** (80.9 -> 80.9) — flat reconfirm; no new ops/deploy/templates/workflow-SDD evidence; tip `bff6d42` (R-0048 docs) |
+| Delta vs R-0049 | **+0.7** (80.9 -> 81.6) — aspect 9 +4 (AWS-SMOKE-002), aspect 10 +3 (templates); OBS/Draft-workflow held |
 
 ## Next actions
 
 1. Deepen observability beyond first slice (operated scrape/alerts / traveler-journey visibility) — aspect 8 toward 85+.
-2. Strengthen AWS multi-target path beyond table+handler smoke (fuller SAM/HTTP evidence); keep NG1 (no CI real-account deploy) clear — aspect 9.
-3. Add issue/PR templates for SDD contribution path (aspect 10).
-4. More Approved *workflow* SDDs under dual review (aspects 2, 3).
-5. When a second reviewer exists: re-enable ≥1 required approving review; consider strict up-to-date (aspects 3, 7).
-6. Keep DES-0003 Draft ideation only — no product UI during pulse; out-of-tree consumers stay out of public kernel score.
-7. Continue scheduled pulses until overall ≥ 90; do not invent score lifts without new evidence.
-8. Land R-0049 maturity trio on main.
-9. When Mac returns online: refresh SoT working tree from GitHub `main`.
+2. Dual-review DES-0007 (or another thin workflow SDD) to **Approved** — aspects 2, 3.
+3. When a second reviewer exists: re-enable ≥1 required approving review; consider strict up-to-date (aspects 3, 7).
+4. Optional: CoC / security basics for residual aspect-10 gap.
+5. Keep DES-0003 Draft ideation only — no product UI during pulse; out-of-tree consumers stay out of public kernel score.
+6. Continue scheduled pulses until overall ≥ 90; do not invent score lifts without new evidence.
+7. Land R-0050 maturity trio on main.
+8. When convenient: refresh Mac Documents SoT working tree from GitHub `main`.
 
 ## Revision history
 
 | Date | Author | Change |
 |---|---|---|
+| 2026-09-19 15:22 | Clark Bot | Pulse R-0050: overall **81.6** (+0.7 vs R-0049); tip `87b822e` / PR #51; aspect 9 82→86, aspect 10 84→87 |
 | 2026-09-19 14:24 | Clark Bot | Pulse R-0049: flat **80.9** (Delta0 vs R-0048); tip `bff6d42` / PR #48; blockers SAME |
 | 2026-09-19 13:14 | Clark Bot | Pulse R-0048: flat **80.9** (Delta0 vs R-0047); tip `ed3cdce` / PR #47; blockers SAME |
 | 2026-09-19 12:23 | Clark Bot | Pulse R-0047: flat **80.9** (Δ0 vs R-0046); tip `84bfd51` / PR #46; blockers SAME |
