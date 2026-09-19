@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| **Date** | 2026-09-19 15:22 America/Santiago |
-| **Stage** | Operational dark factory (candidate) — DES-0006 OBS + DES-0005 AWS first slices; AWS-SMOKE-001 + **AWS-SMOKE-002** (full SAM+HTTP) SUCCEEDED; issue/PR templates landed |
-| **Latest pulse** | [R-0050](reports/R-0050-20260919-1522.md) |
+| **Date** | 2026-09-19 16:17 America/Santiago |
+| **Stage** | Operational dark factory (candidate) — DES-0006 OBS + DES-0005 AWS first slices; AWS-SMOKE-001 + **AWS-SMOKE-002** (full SAM+HTTP) SUCCEEDED; issue/PR templates landed; approvals≥1 expectation waived |
+| **Latest pulse** | [R-0051](reports/R-0051-20260919-1617.md) |
 | **Scorers** | Clark Bot (maturity pulse); prior: Marcos Blazquez + New Bot |
 | **Method** | Per [ASPECTS.md](ASPECTS.md); each aspect 0–100; overall = mean |
 
@@ -18,10 +18,10 @@
 | 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **86** | DES-0004/0005/0006 live IMPL + TEST-ONP/TEST-AWS/TEST-OBS; traveler@0.1; AWS-SMOKE-001 + AWS-SMOKE-002 evidence; pytest **115 passed / 1 skipped** (CI). |
 | 5 | Architecture purity (hexagonal isolation) | **88** | Pure `src/` + ports; LangGraph/Echo/OpenAI/Prometheus/boto adapter-only; open GraphRegistry; `adapters/{local,onprem,aws}`. |
 | 6 | Determinism, testability & readable core | **88** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; OBS+AWS parity; 115 passed / 1 skipped. |
-| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip `87b822e` (SMOKE-002); product tip `65a46c8`. Approvals=0 / not strict up-to-date are **paused/waived** for solo-author interim (2026-09-19) — do not re-list as blockers. |
+| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip `52e0917` (waiver docs / #53); product tip `65a46c8`. Approvals=0 / not strict up-to-date are **paused/waived** for solo-author interim (2026-09-19) — do not re-list as blockers. |
 | 8 | Factory observability (traces, quality loops) | **74** | MetricsPort + on-prem GET `/metrics` + local dump + Grafana JSON + TEST-OBS + gateway counters. First-slice only — not production-grade ops (85+); AWS-SMOKE metrics still deferred. |
 | 9 | Multi-target deploy readiness | **86** | Local CLI + on-prem FastAPI/JWT/Postgres/Compose + **AWS** Lambda/DynamoDB/moto + LocalStack Compose + **AWS-SMOKE-001** + **AWS-SMOKE-002 SUCCEEDED** (live SAM stack + HTTP API → Lambda → DynamoDB us-east-2); CI must not deploy (NG1); manual opt-in only. |
-| 10 | Public project readiness | **87** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #51; **issue/PR templates** with design-gate checklist. |
+| 10 | Public project readiness | **87** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #53; **issue/PR templates** with design-gate checklist. |
 
 ### Overall maturity
 
@@ -31,7 +31,7 @@
 | **Overall maturity** | **81.6** |
 | Band | **70–89 — Operational dark factory (candidate)** |
 | Meets ≥90? | **NO** |
-| Delta vs R-0049 | **+0.7** (80.9 -> 81.6) — aspect 9 +4 (AWS-SMOKE-002), aspect 10 +3 (templates); OBS/Draft-workflow held |
+| Delta vs R-0050 | **0.0** (81.6 -> 81.6) — FLAT; blockers MOVED (approvals=0 dropped from active list); OBS/Draft-workflow held |
 
 ## Next actions
 
@@ -44,12 +44,13 @@
 
 ### Parked / waived (not an active punch-list item)
 
-- **`required_approving_review_count ≥ 1`** — paused/waived **2026-09-19** for solo-author interim (proved not feasible to require 1 approval currently). Solo merges with approvals=0 are accepted. Dual design-doc Approve (human+agent) remains the review-rigor signal. Revisit only when a second reviewer exists; do **not** change GitHub branch protection from maturity docs. Next pulse: do not re-list approvals=0 as a blocker; leave numeric scores for the pulse to recompute under the waived rule (no invented lifts here).
+- **`required_approving_review_count ≥ 1`** — paused/waived **2026-09-19** for solo-author interim (proved not feasible to require 1 approval currently). Solo merges with approvals=0 are accepted. Dual design-doc Approve (human+agent) remains the review-rigor signal. Revisit only when a second reviewer exists; do **not** change GitHub branch protection from maturity docs. Do **not** re-list approvals=0 as a blocker; numeric scores for aspects 3/7 stay at 70/85 under the waived rule (no invented lifts from the waiver alone).
 
 ## Revision history
 
 | Date | Author | Change |
 |---|---|---|
+| 2026-09-19 16:17 | Clark Bot | Pulse R-0051: overall **81.6** (Δ0 vs R-0050); tip `52e0917` / PR #53; blockers MOVED (approvals=0 parked only) |
 | 2026-09-19 | Marcos decision / docs | Waive approvals≥1 expectation (aspects 3/7 narrative); scores unchanged pending next pulse |
 | 2026-09-19 15:22 | Clark Bot | Pulse R-0050: overall **81.6** (+0.7 vs R-0049); tip `87b822e` / PR #51; aspect 9 82→86, aspect 10 84→87 |
 | 2026-09-19 14:24 | Clark Bot | Pulse R-0049: flat **80.9** (Delta0 vs R-0048); tip `bff6d42` / PR #48; blockers SAME |
