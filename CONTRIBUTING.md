@@ -59,6 +59,7 @@ Python **3.11+**. See [`README.md`](README.md) for layout and CLI notes.
 | [DES-0005](docs/design/0005-aws-adapter.md) | Approved | AWS adapter (`adapters/aws`) — LocalStack/moto first; authorized `hextory-*` smoke opt-in |
 | [DES-0006](docs/design/0006-factory-observability.md) | Approved | Factory observability — metrics + `/metrics`; first slice authorized (impl follow-up) |
 | [DES-0007](docs/design/0007-linear-quality-gate.md) | Draft | Second workflow SDD (`linear_quality_gate`) — **no implementation until Approved** |
+| [DES-0008](docs/design/0008-env-and-flow-variables.md) | Draft | Env + in-flow vars (`{{var}}` / `VariableResolverPort`) — **no implementation until Approved** |
 
 GitHub issue and PR templates under [`.github/`](.github/) ask for related **DES-####** and gate status when relevant.
 
