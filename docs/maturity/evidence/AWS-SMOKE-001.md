@@ -24,6 +24,7 @@ evidence: DynamoDB checkpointer round-trip against table `hextory-aws-smoke` in
 - CI must not `sam deploy`; this smoke is **manual opt-in** only.
 - Default CI proof remains **moto** (+ optional LocalStack Compose).
 - Full SAM / HTTP API deploy was **not** required for this first evidence slice.
+  Full SAM + HTTP live evidence is recorded in [AWS-SMOKE-002](AWS-SMOKE-002.md).
 
 ## Procedure (operator)
 
@@ -50,7 +51,7 @@ Operator notes: [`adapters/aws/README.md`](../../../adapters/aws/README.md).
 | **Ops observed** | `GET /health` → 200; `POST /runs` (`DES-0002` / `starter_factory` / `force_quality` PASS) → 200 traveler **shipped**; `GET /runs/{id}` → 200; DynamoDB scan → 1 item with `pk` `traveler#trv_…` |
 | **checkpoint_ref form** | `dynamodb://hextory-aws-smoke/travelers/trv_…` |
 | **Metrics scrape** | Deferred |
-| **SAM / HTTP API** | Not deployed for this slice (table + handler round-trip only) |
+| **SAM / HTTP API** | Not deployed for this slice (table + handler round-trip only). See [AWS-SMOKE-002](AWS-SMOKE-002.md) for full SAM/HTTP live evidence. |
 | **Secrets** | JWT secret ephemeral via env only; not committed |
 | **Teardown** | Table may remain idle (pay-per-request). To delete: `aws dynamodb delete-table --table-name hextory-aws-smoke --region us-east-2` |
 
