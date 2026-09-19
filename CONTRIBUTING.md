@@ -4,7 +4,7 @@ Hextory is a **design-gated dark factory**: Approved Software Design Documents (
 
 This guide is the contributor on-ramp. Process detail lives in [`docs/workflows/design-doc-review.md`](docs/workflows/design-doc-review.md).
 
-> **Repo note:** Public GitHub + Actions CI + branch ruleset (PR + required checks + 1 review) are live. DigitalTraveler published contract: [`docs/contracts/digital-traveler-0.1.md`](docs/contracts/digital-traveler-0.1.md) (`hextory.digital_traveler@0.1`).
+> **Repo note:** Public GitHub + Actions CI + branch ruleset (PR + required checks) are live. Required approving-review count remains **0** for the solo-author interim (**paused/waived 2026-09-19**); dual design-doc Approve (human+agent) is the review-rigor signal — do not treat approvals=0 as a gap to close. DigitalTraveler published contract: [`docs/contracts/digital-traveler-0.1.md`](docs/contracts/digital-traveler-0.1.md) (`hextory.digital_traveler@0.1`).
 
 ---
 

@@ -14,11 +14,11 @@
 |---|---|---|---|
 | 1 | Vision clarity | **76** | DES-0001/0002/0004/0005/0006 **Approved**; AWS + observability direction explicit and first-slice implemented; DES-0003 + DES-0007 bare Draft. |
 | 2 | Design-doc coverage | **76** | TEMPLATE + five Approved SDDs (vision/engine/on-prem/AWS/OBS); Draft Studio + **Draft DES-0007** workflow (not Approved — no coverage lift). |
-| 3 | Review rigor (dual human+agent) | **70** | Five dual Approvals; PR #16/#18/#28/#29 under Approved DES; DES-0007 dual review TBD; `required_approving_review_count: 0` caps further lift. |
+| 3 | Review rigor (dual human+agent) | **70** | Five dual Approvals; PR #16/#18/#28/#29 under Approved DES; DES-0007 dual review TBD. Dual SDD Approve is the review-rigor signal; `required_approving_review_count: 0` is **paused/waived** (2026-09-19 solo-author interim) — not an active gap. |
 | 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **86** | DES-0004/0005/0006 live IMPL + TEST-ONP/TEST-AWS/TEST-OBS; traveler@0.1; AWS-SMOKE-001 + AWS-SMOKE-002 evidence; pytest **115 passed / 1 skipped** (CI). |
 | 5 | Architecture purity (hexagonal isolation) | **88** | Pure `src/` + ports; LangGraph/Echo/OpenAI/Prometheus/boto adapter-only; open GraphRegistry; `adapters/{local,onprem,aws}`. |
 | 6 | Determinism, testability & readable core | **88** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; OBS+AWS parity; 115 passed / 1 skipped. |
-| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip `87b822e` (SMOKE-002); product tip `65a46c8`; approvals=0 and not strict up-to-date. |
+| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip `87b822e` (SMOKE-002); product tip `65a46c8`. Approvals=0 / not strict up-to-date are **paused/waived** for solo-author interim (2026-09-19) — do not re-list as blockers. |
 | 8 | Factory observability (traces, quality loops) | **74** | MetricsPort + on-prem GET `/metrics` + local dump + Grafana JSON + TEST-OBS + gateway counters. First-slice only — not production-grade ops (85+); AWS-SMOKE metrics still deferred. |
 | 9 | Multi-target deploy readiness | **86** | Local CLI + on-prem FastAPI/JWT/Postgres/Compose + **AWS** Lambda/DynamoDB/moto + LocalStack Compose + **AWS-SMOKE-001** + **AWS-SMOKE-002 SUCCEEDED** (live SAM stack + HTTP API → Lambda → DynamoDB us-east-2); CI must not deploy (NG1); manual opt-in only. |
 | 10 | Public project readiness | **87** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #51; **issue/PR templates** with design-gate checklist. |
@@ -37,17 +37,20 @@
 
 1. Deepen observability beyond first slice (operated scrape/alerts / traveler-journey visibility) — aspect 8 toward 85+.
 2. Dual-review DES-0007 (or another thin workflow SDD) to **Approved** — aspects 2, 3.
-3. When a second reviewer exists: re-enable ≥1 required approving review; consider strict up-to-date (aspects 3, 7).
-4. Optional: CoC / security basics for residual aspect-10 gap.
-5. Keep DES-0003 Draft ideation only — no product UI during pulse; out-of-tree consumers stay out of public kernel score.
-6. Continue scheduled pulses until overall ≥ 90; do not invent score lifts without new evidence.
-7. Land R-0050 maturity trio on main.
-8. When convenient: refresh Mac Documents SoT working tree from GitHub `main`.
+3. Optional: CoC / security basics for residual aspect-10 gap.
+4. Keep DES-0003 Draft ideation only — no product UI during pulse; out-of-tree consumers stay out of public kernel score.
+5. Continue scheduled pulses until overall ≥ 90; do not invent score lifts without new evidence.
+6. When convenient: refresh Mac Documents SoT working tree from GitHub `main`.
+
+### Parked / waived (not an active punch-list item)
+
+- **`required_approving_review_count ≥ 1`** — paused/waived **2026-09-19** for solo-author interim (proved not feasible to require 1 approval currently). Solo merges with approvals=0 are accepted. Dual design-doc Approve (human+agent) remains the review-rigor signal. Revisit only when a second reviewer exists; do **not** change GitHub branch protection from maturity docs. Next pulse: do not re-list approvals=0 as a blocker; leave numeric scores for the pulse to recompute under the waived rule (no invented lifts here).
 
 ## Revision history
 
 | Date | Author | Change |
 |---|---|---|
+| 2026-09-19 | Marcos decision / docs | Waive approvals≥1 expectation (aspects 3/7 narrative); scores unchanged pending next pulse |
 | 2026-09-19 15:22 | Clark Bot | Pulse R-0050: overall **81.6** (+0.7 vs R-0049); tip `87b822e` / PR #51; aspect 9 82→86, aspect 10 84→87 |
 | 2026-09-19 14:24 | Clark Bot | Pulse R-0049: flat **80.9** (Delta0 vs R-0048); tip `bff6d42` / PR #48; blockers SAME |
 | 2026-09-19 13:14 | Clark Bot | Pulse R-0048: flat **80.9** (Delta0 vs R-0047); tip `ed3cdce` / PR #47; blockers SAME |

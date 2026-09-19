@@ -81,6 +81,8 @@ Evidence should be concrete: paths to SDDs, review records, CI configs, traces, 
 
 **Evidence sources:** Checklist completions in SDDs; review comments; merge decisions citing design readiness (not diff walkthroughs).
 
+**Solo-author interim (paused / waived 2026-09-19):** Do **not** treat GitHub `required_approving_review_count: 0` (or solo merges with approvals=0) as an active maturity gap to close. Requiring ≥1 PR approving review is not feasible while there is only one human author. The real review-rigor signal remains **dual design-doc Approve (human + agent)** on SDDs. Revisit ruleset approving-review count only when a second reviewer exists — and do not change GitHub branch protection from maturity docs alone.
+
 ---
 
 ### 4. Traceability (REQ ↔ DES ↔ IMPL ↔ TEST)
@@ -129,6 +131,8 @@ Evidence should be concrete: paths to SDDs, review records, CI configs, traces, 
 
 **Evidence sources:** CI workflows; status bots; branch protection requiring human merge approval tied to doc gate; templates.
 
+**Solo-author interim (paused / waived 2026-09-19):** `required_approving_review_count: 0` is an accepted ruleset posture, not a blocker for this aspect. Score against required status checks (design-gates + pytest), Gatekeeper / Q-GATE-1, and design-readiness merge habit — not against flipping approvals to ≥1. Strict up-to-date remains optional / parked with the same second-reviewer revisit.
+
 ---
 
 ### 8. Factory observability (traces, quality loops)
@@ -165,6 +169,7 @@ Evidence should be concrete: paths to SDDs, review records, CI configs, traces, 
 
 | Date | Author | Change |
 |---|---|---|
+| 2026-09-19 | Marcos Blazquez (decision) | Aspects 3/7: pause/waive `required_approving_review_count ≥ 1`; dual SDD Approve remains the review-rigor signal |
 | 2026-09-15 | Marcos Blazquez + New Bot | Initial aspects; 0–100 scale + thresholds |
 | 2026-09-15 | New Bot | Product capabilities lenses; aspect 5 includes open-ended graphs; code-review avoidance is one capability |
 | 2026-09-15 | New Bot | TDD + BDD-style (not Cucumber) capability; testing-layer location TBD |
