@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Design-doc review workflow
+    url: https://github.com/marcos-blazquez/hextory/blob/main/docs/workflows/design-doc-review.md
+    about: How Draft SDDs move through dual review to Approved before implementation.
+  - name: Contributing guide
+    url: https://github.com/marcos-blazquez/hextory/blob/main/CONTRIBUTING.md
+    about: What you may change without an Approved SDD, and how PRs cite DES-#### / gate status.

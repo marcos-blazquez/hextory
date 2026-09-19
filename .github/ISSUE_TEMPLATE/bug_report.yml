@@ -1,0 +1,80 @@
+name: Bug report
+description: Report a defect in the public Hextory kernel (core, adapters, docs, CI).
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Keep this issue **public-kernel** and consumer-agnostic. Do not name private sibling products or out-of-tree apps.
+
+        If the bug is about behavior gated by an SDD, cite the related **DES-####** and whether that SDD is Draft / In Review / Approved (see `config/sdd_status.json`).
+  - type: input
+    id: related-des
+    attributes:
+      label: Related DES-#### (if any)
+      description: e.g. DES-0002, DES-0007. Leave blank if unknown.
+      placeholder: DES-0002
+    validations:
+      required: false
+  - type: dropdown
+    id: gate-status
+    attributes:
+      label: Gate / SDD status (when relevant)
+      options:
+        - Not applicable
+        - Draft (no implementation expected)
+        - In Review / Changes Requested
+        - Approved (implementation in scope)
+        - Unknown / mismatch with config/sdd_status.json
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Core (src/)
+        - adapters/local
+        - adapters/onprem
+        - adapters/aws
+        - Docs / SDD / maturity
+        - CI / design-gates
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One or two sentences describing the defect.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Commands, inputs, and expected vs actual outcome.
+      placeholder: |
+        1. …
+        2. …
+        Expected: …
+        Actual: …
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Python version, OS, adapter profile, commit SHA if known.
+    validations:
+      required: false
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints acknowledged
+      options:
+        - label: This report does not propose a Gatekeeper fork or soft-allow on SDD read errors.
+          required: true
+        - label: This report does not ask for a real AWS account deploy from CI.
+          required: true
