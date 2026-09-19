@@ -1,13 +1,13 @@
 # Next pulse focus (sticky)
 
-1. R-0051 overall **81.6** (Δ0 vs R-0050) — **FLAT** on score. Main evidence tip before this pulse land is `52e0917` (waiver docs / PR #53); product tip remains `65a46c8` (40 maturity/docs/templates/smoke commits ahead). Blockers **MOVED**: approvals=0 dropped from active list (parked/waived only).
-2. Ceiling to >=90 — active blockers: **deepen observability ops** (operated scrape, alerts/SLOs, traveler journeys; aspect 8=74 — AWS-SMOKE metrics still deferred); **dual-Approve DES-0007** (or another workflow SDD; aspect 2/3 — Draft alone does not lift coverage). Optional CoC/security for aspect 10 residual (not primary).
+1. R-0052 overall **81.6** (Δ0 vs R-0051) — **FLAT** on score; blockers **SAME**. Main evidence tip before this pulse land is `e0d3100` (Draft DES-0008 / PR #55); product tip remains `65a46c8` (42 maturity/docs/templates/smoke commits ahead).
+2. Ceiling to >=90 — active blockers: **deepen observability ops** (operated scrape, alerts/SLOs, traveler journeys; aspect 8=74 — AWS-SMOKE metrics still deferred); **dual-Approve DES-0007** (or another workflow SDD; aspect 2/3 — Draft alone does not lift coverage). Draft DES-0008 (env/vars) is inventory only — not a workflow coverage fix. Optional CoC/security for aspect 10 residual (not primary).
 3. Capability lenses remain explicit: code-review avoidance is one capability; open graphs remain proven via `GraphRegistry`; testing uses `tests/{unit,behavior,adapters}` with readable BDD-style behavior tests, not Cucumber.
 4. AWS-SMOKE-001 + AWS-SMOKE-002 **SUCCEEDED** (held). Do **not** lift aspect 8 from smoke evidence — metrics scrape remains deferred. NG1: CI must not `sam deploy`.
 5. Prefer GitHub `main` + authenticated `gh` (Mac SoT when m16 unreachable; quote `?` URLs for zsh). Public `.github/` has ISSUE_TEMPLATE/ + PULL_REQUEST_TEMPLATE.md + workflows. Documents SoT tree is not a git checkout.
 6. Always run design-gates + pytest when a product clone is available. Overall <90 means continue scheduled pulses; >=90 pauses the routine.
-7. Do not draft new SDDs or implement product features during pulse runs. Keep public docs agnostic of out-of-tree consumers. Draft DES-0007 does **not** authorize implementation.
-8. Memory note for next run: R-0051 flat 81.6 with blockers MOVED only via waiver parking — do **not** invent score lifts from the approvals waiver; next movement needs operated OBS or Approved workflow SDDs.
+7. Do not draft new SDDs or implement product features during pulse runs. Keep public docs agnostic of out-of-tree consumers. Draft DES-0007 and DES-0008 do **not** authorize implementation.
+8. Memory note for next run: R-0052 flat 81.6 with blockers SAME — do **not** invent score lifts from Draft DES-0008 or the approvals waiver; next movement needs operated OBS or Approved workflow SDDs.
 
 ## Parked / waived (not active punch list)
 

@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| **Date** | 2026-09-19 16:17 America/Santiago |
-| **Stage** | Operational dark factory (candidate) — DES-0006 OBS + DES-0005 AWS first slices; AWS-SMOKE-001 + **AWS-SMOKE-002** (full SAM+HTTP) SUCCEEDED; issue/PR templates landed; approvals≥1 expectation waived |
-| **Latest pulse** | [R-0051](reports/R-0051-20260919-1617.md) |
+| **Date** | 2026-09-19 17:16 America/Santiago |
+| **Stage** | Operational dark factory (candidate) — DES-0006 OBS + DES-0005 AWS first slices; AWS-SMOKE-001 + **AWS-SMOKE-002** (full SAM+HTTP) SUCCEEDED; issue/PR templates landed; Draft DES-0008 env/vars on tip; approvals≥1 expectation waived |
+| **Latest pulse** | [R-0052](reports/R-0052-20260919-1716.md) |
 | **Scorers** | Clark Bot (maturity pulse); prior: Marcos Blazquez + New Bot |
 | **Method** | Per [ASPECTS.md](ASPECTS.md); each aspect 0–100; overall = mean |
 
@@ -12,16 +12,16 @@
 
 | # | Aspect | Score (0–100) | Rationale |
 |---|---|---|---|
-| 1 | Vision clarity | **76** | DES-0001/0002/0004/0005/0006 **Approved**; AWS + observability direction explicit and first-slice implemented; DES-0003 + DES-0007 bare Draft. |
-| 2 | Design-doc coverage | **76** | TEMPLATE + five Approved SDDs (vision/engine/on-prem/AWS/OBS); Draft Studio + **Draft DES-0007** workflow (not Approved — no coverage lift). |
-| 3 | Review rigor (dual human+agent) | **70** | Five dual Approvals; PR #16/#18/#28/#29 under Approved DES; DES-0007 dual review TBD. Dual SDD Approve is the review-rigor signal; `required_approving_review_count: 0` is **paused/waived** (2026-09-19 solo-author interim) — not an active gap. |
+| 1 | Vision clarity | **76** | DES-0001/0002/0004/0005/0006 **Approved**; AWS + observability direction explicit and first-slice implemented; DES-0003 + DES-0007 + DES-0008 bare Draft. |
+| 2 | Design-doc coverage | **76** | TEMPLATE + five Approved SDDs (vision/engine/on-prem/AWS/OBS); Draft Studio + **Draft DES-0007** workflow + **Draft DES-0008** env/vars (not Approved — no coverage lift). |
+| 3 | Review rigor (dual human+agent) | **70** | Five dual Approvals; PR #16/#18/#28/#29 under Approved DES; DES-0007/0008 dual review TBD. Dual SDD Approve is the review-rigor signal; `required_approving_review_count: 0` is **paused/waived** (2026-09-19 solo-author interim) — not an active gap. |
 | 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **86** | DES-0004/0005/0006 live IMPL + TEST-ONP/TEST-AWS/TEST-OBS; traveler@0.1; AWS-SMOKE-001 + AWS-SMOKE-002 evidence; pytest **115 passed / 1 skipped** (CI). |
 | 5 | Architecture purity (hexagonal isolation) | **88** | Pure `src/` + ports; LangGraph/Echo/OpenAI/Prometheus/boto adapter-only; open GraphRegistry; `adapters/{local,onprem,aws}`. |
 | 6 | Determinism, testability & readable core | **88** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; OBS+AWS parity; 115 passed / 1 skipped. |
-| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip `52e0917` (waiver docs / #53); product tip `65a46c8`. Approvals=0 / not strict up-to-date are **paused/waived** for solo-author interim (2026-09-19) — do not re-list as blockers. |
+| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip `e0d3100` (Draft DES-0008 / #55); product tip `65a46c8`. Approvals=0 / not strict up-to-date are **paused/waived** for solo-author interim (2026-09-19) — do not re-list as blockers. |
 | 8 | Factory observability (traces, quality loops) | **74** | MetricsPort + on-prem GET `/metrics` + local dump + Grafana JSON + TEST-OBS + gateway counters. First-slice only — not production-grade ops (85+); AWS-SMOKE metrics still deferred. |
 | 9 | Multi-target deploy readiness | **86** | Local CLI + on-prem FastAPI/JWT/Postgres/Compose + **AWS** Lambda/DynamoDB/moto + LocalStack Compose + **AWS-SMOKE-001** + **AWS-SMOKE-002 SUCCEEDED** (live SAM stack + HTTP API → Lambda → DynamoDB us-east-2); CI must not deploy (NG1); manual opt-in only. |
-| 10 | Public project readiness | **87** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #53; **issue/PR templates** with design-gate checklist. |
+| 10 | Public project readiness | **87** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #55; **issue/PR templates** with design-gate checklist. |
 
 ### Overall maturity
 
@@ -31,16 +31,17 @@
 | **Overall maturity** | **81.6** |
 | Band | **70–89 — Operational dark factory (candidate)** |
 | Meets ≥90? | **NO** |
-| Delta vs R-0050 | **0.0** (81.6 -> 81.6) — FLAT; blockers MOVED (approvals=0 dropped from active list); OBS/Draft-workflow held |
+| Delta vs R-0051 | **0.0** (81.6 -> 81.6) — FLAT; blockers SAME (OBS first-slice + Draft workflow coverage); Draft DES-0008 noted — no lift |
 
 ## Next actions
 
 1. Deepen observability beyond first slice (operated scrape/alerts / traveler-journey visibility) — aspect 8 toward 85+.
 2. Dual-review DES-0007 (or another thin workflow SDD) to **Approved** — aspects 2, 3.
-3. Optional: CoC / security basics for residual aspect-10 gap.
-4. Keep DES-0003 Draft ideation only — no product UI during pulse; out-of-tree consumers stay out of public kernel score.
-5. Continue scheduled pulses until overall ≥ 90; do not invent score lifts without new evidence.
-6. When convenient: refresh Mac Documents SoT working tree from GitHub `main`.
+3. Optional: dual-review DES-0008 (env/in-flow variables) when ready — kernel contract; does not substitute for workflow coverage.
+4. Optional: CoC / security basics for residual aspect-10 gap.
+5. Keep DES-0003 Draft ideation only — no product UI during pulse; out-of-tree consumers stay out of public kernel score.
+6. Continue scheduled pulses until overall ≥ 90; do not invent score lifts without new evidence.
+7. When convenient: refresh Mac Documents SoT working tree from GitHub `main`.
 
 ### Parked / waived (not an active punch-list item)
 
@@ -50,6 +51,7 @@
 
 | Date | Author | Change |
 |---|---|---|
+| 2026-09-19 17:16 | Clark Bot | Pulse R-0052: overall **81.6** (Δ0 vs R-0051); tip `e0d3100` / PR #55; blockers SAME |
 | 2026-09-19 16:17 | Clark Bot | Pulse R-0051: overall **81.6** (Δ0 vs R-0050); tip `52e0917` / PR #53; blockers MOVED (approvals=0 parked only) |
 | 2026-09-19 | Marcos decision / docs | Waive approvals≥1 expectation (aspects 3/7 narrative); scores unchanged pending next pulse |
 | 2026-09-19 15:22 | Clark Bot | Pulse R-0050: overall **81.6** (+0.7 vs R-0049); tip `87b822e` / PR #51; aspect 9 82→86, aspect 10 84→87 |
