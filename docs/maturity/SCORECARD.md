@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| **Date** | 2026-09-20 18:18 America/Santiago |
+| **Date** | 2026-09-20 19:20 America/Santiago |
 | **Stage** | Operational dark factory (candidate) — DES-0006 OBS + DES-0005 AWS first slices; AWS-SMOKE-001 + **AWS-SMOKE-002** (full SAM+HTTP) SUCCEEDED; issue/PR templates landed; DES-0008 **Approved**; Draft DES-0007/0009 on tip; approvals≥1 expectation waived |
-| **Latest pulse** | [R-0065](reports/R-0065-20260920-1818.md) |
+| **Latest pulse** | [R-0066](reports/R-0066-20260920-1920.md) |
 | **Scorers** | Clark Bot (maturity pulse); prior: Marcos Blazquez + New Bot |
 | **Method** | Per [ASPECTS.md](ASPECTS.md); each aspect 0–100; overall = mean |
 
@@ -18,10 +18,10 @@
 | 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **86** | DES-0004/0005/0006 live IMPL + TEST-ONP/TEST-AWS/TEST-OBS; traveler@0.1; AWS-SMOKE-001 + AWS-SMOKE-002 evidence; DES-0008 Authorized but no VariableResolverPort/TEST-VAR-* yet; pytest **108 passed / 4 skipped** (CI 3.11/3.12). |
 | 5 | Architecture purity (hexagonal isolation) | **88** | Pure `src/` + ports; LangGraph/Echo/OpenAI/Prometheus/boto adapter-only; open GraphRegistry; `adapters/{local,onprem,aws}`. |
 | 6 | Determinism, testability & readable core | **88** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; OBS+AWS parity; **108 passed / 4 skipped** (CI). |
-| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip `0ad1eac` (R-0064 / #70); product tip `65a46c8`. Approvals=0 / not strict up-to-date are **paused/waived** for solo-author interim (2026-09-19) — do not re-list as blockers. |
+| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip `0f8f7d5` (R-0065 / #71); product tip `65a46c8`. Approvals=0 / not strict up-to-date are **paused/waived** for solo-author interim (2026-09-19) — do not re-list as blockers. |
 | 8 | Factory observability (traces, quality loops) | **74** | MetricsPort + on-prem GET `/metrics` + local dump + Grafana JSON + TEST-OBS + gateway counters. First-slice only — not production-grade ops (85+); AWS-SMOKE metrics still deferred. |
 | 9 | Multi-target deploy readiness | **86** | Local CLI + on-prem FastAPI/JWT/Postgres/Compose + **AWS** Lambda/DynamoDB/moto + LocalStack Compose + **AWS-SMOKE-001** + **AWS-SMOKE-002 SUCCEEDED** (live SAM stack + HTTP API → Lambda → DynamoDB us-east-2); CI must not deploy (NG1); manual opt-in only. |
-| 10 | Public project readiness | **87** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #70; **issue/PR templates** with design-gate checklist. |
+| 10 | Public project readiness | **87** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #71; **issue/PR templates** with design-gate checklist. |
 
 ### Overall maturity
 
@@ -31,7 +31,7 @@
 | **Overall maturity** | **82.2** |
 | Band | **70–89 — Operational dark factory (candidate)** |
 | Meets ≥90? | **NO** |
-| Delta vs R-0064 | **0.0** (82.2 -> 82.2) — score FLAT; blockers SAME (OBS first-slice + Draft workflow coverage) |
+| Delta vs R-0065 | **0.0** (82.2 -> 82.2) — score FLAT; blockers SAME (OBS first-slice + Draft workflow coverage) |
 
 ## Next actions
 
@@ -52,6 +52,7 @@
 
 | Date | Author | Change |
 |---|---|---|
+| 2026-09-20 19:20 | Clark Bot | Pulse R-0066: overall **82.2** (Δ0 vs R-0065); tip `0f8f7d5` / PR #71; blockers SAME; last Sunday weekend fire |
 | 2026-09-20 18:18 | Clark Bot | Pulse R-0065: overall **82.2** (Δ0 vs R-0064); tip `0ad1eac` / PR #70; blockers SAME |
 | 2026-09-20 17:21 | Clark Bot | Pulse R-0064: overall **82.2** (Δ0 vs R-0063); tip `24e2b6f` / PR #69; blockers SAME |
 | 2026-09-20 16:18 | Clark Bot | Pulse R-0063: overall **82.2** (Δ0 vs R-0062); tip `5b65def` / PR #68; blockers SAME |
