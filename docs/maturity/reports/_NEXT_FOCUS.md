@@ -1,13 +1,48 @@
-# Next pulse focus (sticky)
+# Next focus (sticky)
 
-1. R-0055 overall **82.2** (+0.6 vs R-0054) — score **MOVED** (DES-0008 dual Approve via PR #59); blockers **SAME**. Main evidence tip before this pulse land is `b4df4fa` (Draft DES-0009 / PR #60); product tip remains `65a46c8` (50 maturity/docs/templates/smoke commits ahead).
-2. Ceiling to >=90 — active blockers: **deepen observability ops** (operated scrape, alerts/SLOs, traveler journeys; aspect 8=74 — AWS-SMOKE metrics still deferred); **dual-Approve DES-0007** (or another workflow SDD; aspect 2/3 — Draft alone does not lift coverage). DES-0008 is now **Approved** (kernel vars; Authorized VariableResolverPort slice not yet implemented — does not close workflow gap). Draft DES-0009 is inventory only. Optional CoC/security for aspect 10 residual (not primary).
-3. Capability lenses remain explicit: code-review avoidance is one capability; open graphs remain proven via `GraphRegistry`; testing uses `tests/{unit,behavior,adapters}` with readable BDD-style behavior tests, not Cucumber.
-4. AWS-SMOKE-001 + AWS-SMOKE-002 **SUCCEEDED** (held). Do **not** lift aspect 8 from smoke evidence — metrics scrape remains deferred. NG1: CI must not `sam deploy`.
-5. Prefer GitHub `main` + authenticated `gh` (Mac SoT when m16 unreachable; quote `?` URLs for zsh). Public `.github/` has ISSUE_TEMPLATE/ + PULL_REQUEST_TEMPLATE.md + workflows. Documents SoT tree is not a git checkout.
-6. Always run design-gates + pytest when a product clone is available. Cite live CI pytest (**108 passed / 4 skipped**). Overall <90 means continue scheduled pulses; >=90 pauses the routine (weekday); weekend pulses report the boolean only.
-7. Do not draft new SDDs or implement product features during pulse runs. Keep public docs agnostic of out-of-tree consumers. Draft DES-0007 and DES-0009 do **not** authorize implementation; DES-0008 Authorization requires a separate IMPL PR before aspect-4 lift.
-8. Memory note for next run: R-0055 overall 82.2 (+0.6) with blockers SAME — do **not** invent further lifts from Draft DES-0009 or docs-only tip CI; next movement needs operated OBS, Approved workflow SDDs (DES-0007), or DES-0008 IMPL/TEST.
+Last pulse: **R-0056** (2026-09-20 09:21 America/Santiago) — overall **82.2** (Δ0 vs R-0055); score **FLAT**; blockers **SAME**.
+
+## Active blockers (punch list)
+
+1. **Observability first-slice (aspect 8 = 74)** — MetricsPort + /metrics + Grafana JSON + TEST-OBS exist; need operated scrape/alerts and traveler-journey visibility toward 85+. AWS-SMOKE metrics scrape still deferred.
+2. **Thin Approved *workflow* SDD coverage** — **Draft DES-0007** (linear quality gate) still not dual-Approved. DES-0008 Approved is kernel vars, not workflow coverage. Draft DES-0009 (RequestGateway run bind) is inventory only.
+
+## Parked / waived (not active)
+
+- `required_approving_review_count ≥ 1` — paused/waived **2026-09-19** solo-author interim. Dual design-doc Approve remains the review-rigor signal. Do not re-list approvals=0 as a blocker; do not change GitHub branch protection from maturity docs.
+
+## Evidence landmarks
+
+- Main tip (before R-0056 land): `d83236f` (merge PR #61 / R-0055)
+- Product tip: `65a46c8` (unchanged; ahead_by 52 vs main are maturity/docs/templates/smoke)
+- DES Approved: 0001, 0002, 0004, 0005, 0006, **0008**; Draft: 0003, 0007, 0009, 9999
+- AWS-SMOKE-001 + AWS-SMOKE-002 **SUCCEEDED** (held); NG1: CI must not `sam deploy`
+- Pytest CI: **108 passed / 4 skipped** (3.11/3.12); design-gates OK (9 docs; 10 manifest keys)
+- Ruleset: required checks design-gates + pytest; approvals=0 waived/parked; strict up-to-date false
+
+## Ordered next actions
+
+1. Deepen observability beyond first slice (operated scrape/alerts / traveler-journey) — aspect 8 toward 85+.
+2. Dual-review DES-0007 (or another thin workflow SDD) to **Approved** — aspects 2, 3.
+3. Optional: implement DES-0008 first-slice VariableResolverPort + TEST-VAR-* (Authorized) — aspect 4 (does not close workflow gap).
+4. Optional: dual-review DES-0009 when ready — does not substitute for workflow coverage.
+5. Optional: CoC/security for aspect 10 residual.
+6. Keep DES-0003 Draft ideation only — no product UI during pulse; out-of-tree consumers stay out of public kernel score.
+7. Continue scheduled pulses until overall ≥ 90; do not invent score lifts without new evidence.
+8. When convenient: refresh Mac Documents SoT working tree from GitHub `main`.
+
+## Capability lenses
+
+- Code-review avoidance is one capability among others; dual SDD Approve is the review-rigor signal under solo-author waiver.
+- Open graphs remain proven via GraphRegistry; Draft DES-0007 does not authorize impl.
+- Testing: tests/{unit,behavior,adapters}, BDD-style not Cucumber.
+
+## Scoring discipline
+
+- Prefer GitHub `main` + authenticated `gh` (Mac when available; quote `?` for zsh). Do not score Approved set from stale Mac Documents SoT alone.
+- Docs-only tip commits and Draft inventory must not lift aspects.
+- Always separate tip CI from product CI landmark `65a46c8`.
+- Memory note: R-0056 overall 82.2 (Δ0) with blockers SAME — next movement needs operated OBS, Approved workflow SDDs (DES-0007), or DES-0008 IMPL/TEST.
 
 ## Parked / waived (not active punch list)
 
