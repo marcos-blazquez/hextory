@@ -1,6 +1,6 @@
 # Next focus (sticky)
 
-Last pulse: **R-0058** (2026-09-20 11:20 America/Santiago) — overall **82.2** (Δ0 vs R-0057); score **FLAT**; blockers **SAME**.
+Last pulse: **R-0059** (2026-09-20 12:18 America/Santiago) — overall **82.2** (Δ0 vs R-0058); score **FLAT**; blockers **SAME**.
 
 ## Active blockers (punch list)
 
@@ -13,8 +13,8 @@ Last pulse: **R-0058** (2026-09-20 11:20 America/Santiago) — overall **82.2** 
 
 ## Evidence landmarks
 
-- Main tip (before R-0058 land): `99f0fc7` (merge PR #63 / R-0057)
-- Product tip: `65a46c8` (unchanged; ahead_by 56 vs main are maturity/docs/templates/smoke)
+- Main tip (before R-0059 land): `f739ac6` (merge PR #64 / R-0058)
+- Product tip: `65a46c8` (unchanged; ahead_by 58 vs main are maturity/docs/templates/smoke)
 - DES Approved: 0001, 0002, 0004, 0005, 0006, **0008**; Draft: 0003, 0007, 0009, 9999
 - AWS-SMOKE-001 + AWS-SMOKE-002 **SUCCEEDED** (held); NG1: CI must not `sam deploy`
 - Pytest CI: **108 passed / 4 skipped** (3.11/3.12); design-gates OK (9 docs; 10 manifest keys)
@@ -42,7 +42,7 @@ Last pulse: **R-0058** (2026-09-20 11:20 America/Santiago) — overall **82.2** 
 - Prefer GitHub `main` + authenticated `gh` (Mac when available; quote `?` for zsh). Do not score Approved set from stale Mac Documents SoT alone.
 - Docs-only tip commits and Draft inventory must not lift aspects.
 - Always separate tip CI from product CI landmark `65a46c8`.
-- Memory note: R-0058 overall 82.2 (Δ0) with blockers SAME — next movement needs operated OBS, Approved workflow SDDs (DES-0007), or DES-0008 IMPL/TEST.
+- Memory note: R-0059 overall 82.2 (Δ0) with blockers SAME — next movement needs operated OBS, Approved workflow SDDs (DES-0007), or DES-0008 IMPL/TEST.
 
 ## Parked / waived (not active punch list)
 
