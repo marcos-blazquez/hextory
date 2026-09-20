@@ -4,34 +4,34 @@
 |---|---|
 | **Doc ID** | DES-0008 |
 | **Title** | Environment and in-flow variables (`{{var}}` bind + resolve) |
-| **Status** | Draft |
-| **Authors** | Cursor Cloud Agent (draft) |
-| **Reviewers (human)** | TBD — Marcos Blazquez (dual review not completed in this agent turn) |
-| **Reviewers (agent)** | TBD — Clark Bot (dual review not completed in this agent turn) |
+| **Status** | **Approved** |
+| **Authors** | Marcos Blazquez (direction) + Clark Bot |
+| **Reviewers (human)** | Marcos Blazquez (2026-09-19 — Approve / Go, relayed by Bruce) |
+| **Reviewers (agent)** | Clark Bot (2026-09-19 — checklist pass; see review record) |
 | **Created** | 2026-09-19 |
-| **Last updated** | 2026-09-19 |
+| **Last updated** | 2026-09-19 (dual Approve) |
 | **Related REQs** | REQ-0010 (hexagonal ports); REQ-0012 (traveler); REQ-0013 (gateway/interceptors); proposed **REQ-0020** (env + in-flow variable bind/resolve) |
 | **Supersedes** | none |
 | **Depends on** | [DES-0001](0001-hextory-vision.md) (**Approved**), [DES-0002](0002-factory-engine.md) (**Approved**); conceptual alignment with [DES-0003](0003-workflow-studio.md) flow-variable analogy (**Draft**, ideation — no UI here) |
-| **Implementation** | **Not authorized** while Status is Draft — port/runtime resolve only after dual Approve + §13 green |
+| **Implementation** | **Authorized** for the first env/in-flow variables slice per §9 / §13 and the end-of-doc slice list — `VariableResolverPort` + pure bind helpers + `payload["vars"]` seed + TEST-VAR-*; authoring UI remains a non-goal |
 
 ---
 
 ## 0. Document posture
 
-This SDD is a **thin Draft** for a **public kernel** contract: Environment-scoped variables and in-flow variables that bind into node fields via `{{var}}` and resolve into the traveler / run envelope at runtime.
+This SDD (now **Approved**) is the design gate for a **public kernel** contract: Environment-scoped variables and in-flow variables that bind into node fields via `{{var}}` and resolve into the traveler / run envelope at runtime.
 
-Authoring clients (canvas inspectors, CLI, tests) may **stub** resolve until an Approved implementation exists. Runtime resolution must remain a **public** ports & traveler contract — consumers must not invent private traveler bags that only one product understands.
-
-**Why Draft (not Approved):** dual human + agent review is mandatory. This agent turn authors the Draft and port sketch only. **Do not treat this document as an implementation gate.**
+Authoring clients (canvas inspectors, CLI, tests) may **stub** resolve until the Authorized implementation lands. Runtime resolution must remain a **public** ports & traveler contract — consumers must not invent private traveler bags that only one product understands.
 
 **Hard rules (must survive into any future build):**
 
 1. Reuse DES-0002 DigitalTraveler (`hextory.digital_traveler@0.1`), Gatekeeper, RequestGateway / interceptor stack — **do not fork Gatekeeper** or invent a parallel run envelope.
-2. Prefer **extending existing `payload` / RequestContext patterns** over new required core traveler fields (no schema id bump in first slice unless dual review requires it).
+2. Prefer **extending existing `payload` / RequestContext patterns** over new required core traveler fields (no schema id bump in first slice; Q-VAR-1 accepted interim).
 3. Public kernel stays **consumer-agnostic**: no private sibling product names in this SDD or its tests.
 4. Adapters implement the same port semantics; no deploy-target fork of bind/resolve rules.
 5. Secrets must not be authored as plaintext canvas defaults (align with DES-0003 analogy map); redact in logs/metrics.
+
+**Dual review complete (2026-09-19 America/Santiago).** Marcos Blazquez + Clark Bot **Approve**. §13 is green; first-slice implementation is authorized under the constraints below.
 
 ---
 
@@ -53,24 +53,24 @@ Without a **public** resolve contract:
 - **G2:** Freeze bind syntax `{{var}}` plus escape and undefined rules for the public kernel.
 - **G3:** Specify how resolved values attach to a run via existing traveler `payload` + gateway `RequestContext` (run envelope) **without** forking Gatekeeper or bumping traveler core required fields in first slice.
 - **G4 (REQ-0010):** Sketch a small outbound port — **`VariableResolverPort`** — that adapters and authoring clients implement (or stub).
-- **G5:** Leave Status **Draft**; dual review later. Authoring may stub resolve until Approved impl.
+- **G5:** Authoring clients may stub resolve until the Authorized impl is wired; runtime and stubs share the same bind grammar.
 
 ### 1.3 Success definition
 
-- Dual review Approves (or requests changes) without re-litigating DES-0002 traveler core or Gatekeeper.
-- After Approval, agents can land `VariableResolverPort` + pure bind helpers + TEST-VAR-* without private consumer schemas.
+- Dual review Approves without re-litigating DES-0002 traveler core or Gatekeeper (**done 2026-09-19**).
+- Agents can land `VariableResolverPort` + pure bind helpers + TEST-VAR-* without private consumer schemas.
 - Authoring clients can keep stubbing until the port is wired; runtime and stubs share the same bind grammar.
 
 ### 1.4 Scope
 
-**In scope:**
+**In scope (this Approved SDD):**
 
 - Env vs in-flow semantics, bind grammar, precedence, attachment to run envelope / traveler payload.
 - `VariableResolverPort` sketch and adapter responsibilities.
 - Design decisions, acceptance criteria, TEST ID plan, gate criteria.
 - Traceability to REQ-0010 / REQ-0012 / REQ-0013 / proposed REQ-0020.
 
-**Out of scope:** see Explicit non-goals (§8). No implementation while Draft. No authoring UI.
+**Out of scope:** see Explicit non-goals (§8). First-slice port/runtime resolve is authorized while Status is **Approved** and §13 is green; authoring UI remains deferred.
 
 ---
 
@@ -122,10 +122,10 @@ Hexagonal / ports & adapters (DES-0002-A). This SDD owns the **variable bind/res
 | **DES-0008-B** | Bind syntax: `{{identifier}}` where `identifier` = `[A-Za-z_][A-Za-z0-9_]*` | `${var}`; Jinja; JSONPath | Small, autocomplete-friendly, no template engine in core |
 | **DES-0008-C** | Escape: a backslash before `{{` yields literal `{{` (`\{{` → `{{`); unmatched `}}` left as-is | Doubling `{{{{`; HTML entities | One escape rule; readable in docs |
 | **DES-0008-D** | Undefined `{{name}}` → **fail closed** (structured resolve error; do not enter node with raw token) | Leave unsubstituted; empty string | Factory quality: silent wrong values are worse than a clear fail |
-| **DES-0008-E** | Attach resolved maps via existing patterns: seed `RequestContext.metadata["vars"]` at gateway; snapshot effective map under traveler **`payload["vars"]`** (additive object). No new required DigitalTraveler core field; no Gatekeeper fork | New top-level traveler field; private `extensions.<vendor>` bags; fork Gatekeeper | Honors published `@0.1` extension/payload rules; consumer-agnostic public key |
+| **DES-0008-E** | Attach resolved maps via existing patterns: seed `RequestContext.metadata["vars"]` at gateway; snapshot effective map under traveler **`payload["vars"]`** (additive object). No new required DigitalTraveler core field; no Gatekeeper fork | New top-level traveler field; private `extensions.<vendor>` bags; fork Gatekeeper | Honors published `@0.1` extension/payload rules; consumer-agnostic public key; **Q-VAR-1 accepted 2026-09-19** |
 | **DES-0008-F** | Port name = **`VariableResolverPort`** | `RunContextPort` (broader); inline helpers only | Capability-focused like `MetricsPort`; RunContext remains the envelope *shape*, not the port name |
 | **DES-0008-G** | Precedence (highest wins): **in-flow** > **Environment** > (optional adapter defaults). Same name in both scopes: in-flow wins | Env wins; error on collision | In-flow is run-local intent; env is baseline |
-| **DES-0008-H** | Implementation deferred until Approved; authoring MAY stub the port | Soft-allow Draft runtime | Hard rule: Draft ≠ production resolve path |
+| **DES-0008-H** | First-slice impl authorized after dual Approve; authoring MAY stub the port until wired | Soft-allow Draft runtime | Hard rule: only Approved SDDs authorize production resolve path |
 
 ---
 
@@ -142,7 +142,7 @@ Hexagonal / ports & adapters (DES-0002-A). This SDD owns the **variable bind/res
 | RequestContext.metadata["vars"] | effective map mirror for interceptors / pre-traveler phase | lives for the request; copied into traveler payload on create |
 | ResolveError | code, missing names[], template snippet (redacted) | raised/returned on undefined bind |
 
-No traveler **core schema** change in first slice. Additive use of `payload["vars"]` is allowed under `@0.1` (work inputs bag already exists). Optional follow-up: note the reserved key in [`docs/contracts/digital-traveler-0.1.md`](../contracts/digital-traveler-0.1.md) after Approval (**Q-VAR-1**).
+No traveler **core schema** change in first slice. Additive use of `payload["vars"]` is allowed under `@0.1` (work inputs bag already exists). Follow-up: note the reserved key in [`docs/contracts/digital-traveler-0.1.md`](../contracts/digital-traveler-0.1.md) (**Q-VAR-1 accepted**).
 
 ### 3.2 Data flow
 
@@ -160,7 +160,7 @@ RunRequest(sdd_id, workflow_id, payload, env_profile?)
   → Node may write in-flow updates → merge into payload["vars"] (in-flow wins)
 ```
 
-**Ordinary payload keys** (non-`vars`) remain free for department work data. Bind resolution applies to **node field templates** (and any explicit resolve call sites), not to every nested string inside `payload` by default (**Q-VAR-2** interim: fields only).
+**Ordinary payload keys** (non-`vars`) remain free for department work data. Bind resolution applies to **node field templates** (and any explicit resolve call sites), not to every nested string inside `payload` by default (**Q-VAR-2 accepted**: string fields only in first slice).
 
 ### 3.3 Persistence & retention
 
@@ -180,7 +180,7 @@ Same checkpointer ports as DES-0002 / adapter SDDs. `payload["vars"]` persists w
 
 | Interface | Protocol | Auth | Contract summary |
 |---|---|---|---|
-| Local CLI | CLI | n/a (local) | Optional `--env-profile` / payload `vars` overrides after Approval |
+| Local CLI | CLI | n/a (local) | Optional `--env-profile` / payload `vars` overrides in Authorized impl |
 | On-prem / AWS HTTP | HTTP JSON | per adapter SDD | Same semantic body: optional env profile id; payload may include `vars` |
 | In-process (tests) | Python API | n/a | Fake `VariableResolverPort` with fixed maps |
 
@@ -205,7 +205,7 @@ Reuse DES-0002 run lifecycle events. Optional soft signal (post-Approval): audit
 
 ### 5.1 Core (pure) logic
 
-Allowed in `src/` after Approval:
+Allowed in `src/` (Authorized first slice):
 
 ```text
 # Port sketch (illustrative — not implementation)
@@ -240,7 +240,7 @@ class VariableResolverPort(Protocol):
 
 - Pure bind helpers (regex / scanner) with no I/O.
 - Optional thin gateway hook: copy `metadata["vars"]` → `payload["vars"]` on traveler create.
-- Default no-op / identity stub **only** for tests that do not exercise binds; production wiring after Approval must use a real resolver when templates are present.
+- Default no-op / identity stub **only** for tests that do not exercise binds; production wiring must use a real resolver when templates are present.
 
 Forbidden in `src/`:
 
@@ -252,7 +252,7 @@ Forbidden in `src/`:
 |---|---|
 | Local CLI | File/JSON env profile or inline `--var`; inject `VariableResolverPort` |
 | On-prem / AWS | Load env profile from config store / parameter source; same port |
-| Authoring clients | May **stub** `resolve_template` (echo or static map) until Approved impl; must use the same `{{var}}` grammar |
+| Authoring clients | May **stub** `resolve_template` (echo or static map) until Authorized impl is wired; must use the same `{{var}}` grammar |
 | Fakes in `tests/` | Scripted maps + undefined-name cases |
 
 ### 5.3 Algorithms & policies
@@ -263,7 +263,7 @@ Forbidden in `src/`:
 | Escape | `\{{` → literal `{{`; resolver consumes one backslash |
 | Undefined | Fail closed with structured error listing missing names |
 | Precedence | in-flow > Environment > defaults |
-| Non-string templates | First slice: only resolve `str` field values; nested object walk deferred (**Q-VAR-2**) |
+| Non-string templates | First slice: only resolve `str` field values; nested object walk deferred (**Q-VAR-2 accepted**) |
 | Collision | Same key in env and flow: flow wins (no error) |
 | Empty string value | Allowed (defined); distinct from undefined |
 | Gatekeeper | Never consulted for var presence; Approved SDD still required to run workflows |
@@ -279,7 +279,7 @@ Forbidden in `src/`:
 $ hextory run --sdd DES-0002 --workflow starter_factory \
     --env-profile staging \
     --payload '{"vars":{"flow_greeting":"hi"},"prompt":"Say {{flow_greeting}} to {{region}}"}'
-# After Approval: region from Environment, flow_greeting from in-flow;
+# Authorized resolve: region from Environment, flow_greeting from in-flow;
 # unresolved {{missing}} → structured failure before assembly work
 ```
 
@@ -289,10 +289,10 @@ $ hextory run --sdd DES-0002 --workflow starter_factory \
 
 | ID | Assumption / dependency | Risk if wrong | Mitigation |
 |---|---|---|---|
-| A-1 | Additive `payload["vars"]` is acceptable under `@0.1` without schema bump | Reviewers require top-level field | Q-VAR-1; amend contract note or open `@0.2` only if dual review demands |
+| A-1 | Additive `payload["vars"]` is acceptable under `@0.1` without schema bump | Reviewers require top-level field | **Q-VAR-1 accepted** — additive note under `@0.1`, no id bump |
 | A-2 | DES-0002 interceptor order can host env merge without new gate stage | Ordering fights idempotency | Merge vars after idempotency replay load; document in impl slice |
-| A-3 | Authoring stubs will not ship divergent grammars | Split-brain `{{var}}` | Freeze grammar in this SDD; shared test vectors post-Approval |
-| A-4 | Dual review before any resolve implementation merge | Agents implement from Draft | Gatekeeper + CONTRIBUTING + §13 |
+| A-3 | Authoring stubs will not ship divergent grammars | Split-brain `{{var}}` | Freeze grammar in this SDD; shared test vectors in Authorized impl |
+| A-4 | Dual review before any resolve implementation merge | Agents implement from Draft | Gatekeeper + CONTRIBUTING + §13 (**done 2026-09-19**) |
 
 ---
 
@@ -312,7 +312,7 @@ $ hextory run --sdd DES-0002 --workflow starter_factory \
 
 ## 9. Acceptance criteria for agent implementation
 
-Concrete only after Status is **Approved** and §13 is green.
+Concrete, testable criteria. Agents may implement **only after** gate criteria (§13) are green (Status **Approved** — **done**).
 
 | ID | Criterion | Verification method |
 |---|---|---|
@@ -334,7 +334,7 @@ Concrete only after Status is **Approved** and §13 is green.
 | Missing env profile id | Adapter load | Fail closed (recommended) | Supply profile |
 | Secret leakage in logs | Review / tests | Redact; treat as defect | Fix adapter logging |
 | Gate deny (workflow SDD) | Gatekeeper | Structured denial | Unrelated to vars |
-| Draft DES-0008 impl attempt | Process / review | Reject until Approved | Dual review |
+| Impl without Approved SDD / §13 green | Process / review | Reject | Dual review + status hygiene |
 
 **Rework policy:** Variable resolve failures are **pre-node / request** failures, not Quality FAIL→assembly rework, unless a workflow SDD explicitly maps them. Default max rework (3) unchanged for quality loops.
 
@@ -346,24 +346,25 @@ Reviewers must check each item. Architecture-critical items require **human** si
 
 | # | Check | Human | Agent | Critical? |
 |---|---|---|---|---|
-| 1 | Goals and non-goals are clear and consistent | ☐ | ☐ | Yes |
-| 2 | Architecture fits hexagonal / factory rules; no Gatekeeper fork | ☐ | ☐ | Yes |
-| 3 | Interfaces and failure modes are specified | ☐ | ☐ | Yes |
-| 4 | Acceptance criteria are testable | ☐ | ☐ | Yes |
-| 5 | Traceability IDs are complete and unique | ☐ | ☐ | Yes |
-| 6 | Gate criteria are unambiguous | ☐ | ☐ | Yes |
-| 7 | Security / privacy / compliance touched? (secrets, redaction) | ☐ | ☐ | Yes |
-| 8 | Glossary terms used consistently | ☐ | ☐ | No |
-| 9 | Visuals / diagrams present or explicitly deferred | ☐ | ☐ | No |
-| 10 | No implementation leakage that bypasses this SDD; no private product names | ☐ | ☐ | Yes |
-| 11 | Port name `VariableResolverPort` and `payload["vars"]` attachment acceptable | ☐ | ☐ | Yes |
+| 1 | Goals and non-goals are clear and consistent | ☑ | ☑ | Yes |
+| 2 | Architecture fits hexagonal / factory rules; no Gatekeeper fork | ☑ | ☑ | Yes |
+| 3 | Interfaces and failure modes are specified | ☑ | ☑ | Yes |
+| 4 | Acceptance criteria are testable | ☑ | ☑ | Yes |
+| 5 | Traceability IDs are complete and unique | ☑ | ☑ | Yes |
+| 6 | Gate criteria are unambiguous | ☑ | ☑ | Yes |
+| 7 | Security / privacy / compliance touched? (secrets, redaction) | ☑ | ☑ | Yes |
+| 8 | Glossary terms used consistently | ☑ | ☑ | No |
+| 9 | Visuals / diagrams present or explicitly deferred | ☑ | ☑ | No |
+| 10 | No implementation leakage that bypasses this SDD; no private product names | ☑ | ☑ | Yes |
+| 11 | Port name `VariableResolverPort` and `payload["vars"]` attachment acceptable | ☑ | ☑ | Yes |
+| 12 | Q-VAR-1 / Q-VAR-2 interims acceptable (additive `@0.1` note; string fields only) | ☑ | ☑ | Yes |
 
 **Sign-off**
 
 | Role | Name | Date | Decision |
 |---|---|---|---|
-| Human reviewer | | | Approve / Changes requested |
-| Agent reviewer | | | Approve / Changes requested |
+| Human reviewer | Marcos Blazquez | 2026-09-19 America/Santiago | **Approve** (Go, relayed by Bruce) |
+| Agent reviewer | Clark Bot | 2026-09-19 America/Santiago | **Approve** |
 
 ---
 
@@ -384,18 +385,18 @@ IDs must remain stable once Approved. New work gets new IDs; do not reuse.
 
 All of the following must be true:
 
-- [ ] Status is **Approved** (both human and agent reviews recorded).
-- [ ] All **Critical** checklist items signed off by a human.
-- [ ] Every `REQ-*` maps to at least one `DES-*` and planned `TEST-*`.
-- [ ] Non-goals and failure/rework policy are non-empty and specific.
-- [ ] Acceptance criteria are binary/testable (no vague “should be good”).
-- [ ] No open blocking questions in §15 (or each has an approved interim decision).
-- [ ] Maturity / process owners acknowledge this SDD in the workflow tracker (when tooling exists).
-- [ ] `config/sdd_status.json` lists `"DES-0008": "Approved"` matching the Status cell.
+- [x] Status is **Approved** (both human and agent reviews recorded).
+- [x] All **Critical** checklist items signed off by a human.
+- [x] Every `REQ-*` maps to at least one `DES-*` and planned `TEST-*`.
+- [x] Non-goals and failure/rework policy are non-empty and specific.
+- [x] Acceptance criteria are binary/testable (no vague “should be good”).
+- [x] No open **blocking** questions in §15 (or each has an approved interim decision) — **Q-VAR-1/2 accepted as approved interims** (Marcos + Clark, 2026-09-19); soft Q-VAR-3/4 remain open.
+- [x] Maturity / process owners acknowledge this SDD in the workflow tracker (when tooling exists).
+- [x] `config/sdd_status.json` lists `"DES-0008": "Approved"` matching the Status cell.
 
 **Only when every box is checked may agents generate implementation for this port/runtime path.**
 
-**Current state:** Status is **Draft** — §13 is **not** green. No implementation authorized. Authoring stubs remain allowed.
+**Current state:** Status is **Approved** — §13 is **green**. First-slice `VariableResolverPort` implementation is authorized. Authoring stubs remain allowed until the port is wired.
 
 ---
 
@@ -420,9 +421,9 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 
 | ID | Question | Owner | Due | Resolution |
 |---|---|---|---|---|
-| **Q-VAR-1** | Document `payload["vars"]` in `digital-traveler-0.1.md` after Approval, or wait for `@0.2`? | Dual review | Before Approval | Open — proposed interim: additive note under `@0.1`, no id bump |
-| **Q-VAR-2** | Resolve nested objects / arrays inside fields in first slice? | Dual review | Before Approval | Open — proposed interim: string fields only |
-| **Q-VAR-3** | Allow dotted names (`{{a.b}}`) later? | Dual review | Post-MVP | Open — first slice: flat identifiers only |
+| **Q-VAR-1** | Document `payload["vars"]` in `digital-traveler-0.1.md` after Approval, or wait for `@0.2`? | Dual review | Before Approval (blocking unless interim accepted) | **Accepted 2026-09-19** — additive note under `@0.1`, no id bump (Marcos + Clark dual Approve) |
+| **Q-VAR-2** | Resolve nested objects / arrays inside fields in first slice? | Dual review | Before Approval (or accept interim) | **Accepted 2026-09-19** — string fields only in first slice; nested walk deferred (Marcos + Clark dual Approve) |
+| **Q-VAR-3** | Allow dotted names (`{{a.b}}`) later? | Dual review | Post-MVP | Soft — first slice: flat identifiers only |
 | Q-VAR-4 | Should missing env profile be deny vs empty map when id omitted vs id present? | Implementer | During first impl slice | Soft — omit id → empty env; present-but-missing → fail closed |
 
 ---
@@ -432,6 +433,7 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 | Date | Author | Change |
 |---|---|---|
 | 2026-09-19 | Cursor Cloud Agent | Initial **Draft**: Env + in-flow vars, `{{var}}` grammar, `VariableResolverPort` sketch, `payload["vars"]` attachment; dual review pending; no Approval claimed |
+| 2026-09-19 | Marcos Blazquez + Clark Bot | Dual review → **Approved**; Q-VAR-1/2 interims accepted; §13 green; first env/vars slice authorized (impl follow-up) |
 
 ---
 
@@ -455,7 +457,7 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 | Testing layer | `tests/unit/` + `tests/behavior/` (DES-0002-E) |
 | Traceability | Link TEST-VAR-* to REQ-0020 / REQ-0010 / DES-0008-* |
 
-### Planned TEST IDs (post-Approval)
+### Planned TEST IDs (Authorized first slice)
 
 | TEST ID | Intent |
 |---|---|
@@ -467,18 +469,18 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 | TEST-VAR-06 | Gatekeeper still denies non-Approved workflow SDDs |
 | TEST-VAR-07 | Behavior module uses Given/When/Then structure |
 
-### First implementation slice (authorized only after Approval)
+### First implementation slice (authorized after Approval)
 
-§13 is **not** green yet. After dual Approve, a follow-up PR may:
+§13 is green. Follow-up implementation (separate from this Approval docs package) may:
 
 1. Add `src/ports/variable_resolver.py` (`VariableResolverPort` + pure helpers / default impl).
 2. Wire gateway seed of `payload["vars"]` + node-field resolve call sites as needed.
 3. Add TEST-VAR-01…07.
-4. Optionally amend `docs/contracts/digital-traveler-0.1.md` with the reserved `payload["vars"]` note (Q-VAR-1).
+4. Amend `docs/contracts/digital-traveler-0.1.md` with the reserved `payload["vars"]` note (Q-VAR-1 accepted).
 5. Do **not** implement authoring UI; do **not** fork Gatekeeper; do **not** introduce private traveler bags.
 
 ---
 
 ## Review records
 
-**None yet.** Dual review (Marcos Blazquez + Clark Bot) is required before Status may move to **Approved**. This Draft intentionally does not add a fake agent-review file under `docs/design/reviews/`.
+Dual Approval recorded: human Approve (Marcos Blazquez, Go relayed by Bruce 2026-09-19 America/Santiago) + agent Approve ([DES-0008-agent-review-20260919.md](reviews/DES-0008-agent-review-20260919.md)).
