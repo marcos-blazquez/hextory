@@ -1,6 +1,6 @@
 # Next focus (sticky)
 
-Last pulse: **R-0067** (2026-09-21 08:30 America/Santiago) — overall **82.2** (Δ0 vs R-0066); score **FLAT**; blockers **SAME**. First weekday fire after weekend gap.
+Last pulse: **R-0068** (2026-09-21 09:39 America/Santiago) — overall **82.2** (Δ0 vs R-0067); score **FLAT**; blockers **SAME**.
 
 ## Active blockers (punch list)
 
@@ -13,11 +13,11 @@ Last pulse: **R-0067** (2026-09-21 08:30 America/Santiago) — overall **82.2** 
 
 ## Evidence landmarks
 
-- Main tip (before R-0067 land): `5dc2be1` (merge PR #72 / R-0066)
-- Product tip: `65a46c8` (unchanged; ahead_by 74 vs main are maturity/docs/templates/smoke)
+- Main tip (before R-0068 land): `442bb2a` (merge PR #73 / R-0067)
+- Product tip: `65a46c8` (unchanged; ahead_by maturity/docs/templates/smoke vs product)
 - DES Approved: 0001, 0002, 0004, 0005, 0006, **0008**; Draft: 0003, 0007, 0009, 9999
 - AWS-SMOKE-001 + AWS-SMOKE-002 **SUCCEEDED** (held); NG1: CI must not `sam deploy`
-- Pytest: **108 passed / 4 skipped** (box local + prior CI 3.11/3.12); design-gates OK (9 docs; 10 manifest keys)
+- Pytest: **108 passed / 4 skipped** (box local); design-gates OK (9 docs; 10 manifest keys)
 - Ruleset: required checks design-gates + pytest; approvals=0 waived/parked; strict up-to-date false
 
 ## Ordered next actions
@@ -42,7 +42,7 @@ Last pulse: **R-0067** (2026-09-21 08:30 America/Santiago) — overall **82.2** 
 - Prefer GitHub `main` + authenticated `gh` (Mac when available; quote `?` for zsh). When Mac/`gh` offline, use SSH fetch + box local gates/pytest. Do not score Approved set from stale Mac Documents SoT alone.
 - Docs-only tip commits and Draft inventory must not lift aspects.
 - Always separate tip CI from product CI landmark `65a46c8`.
-- Memory note: R-0067 overall 82.2 (Δ0) with blockers SAME — next movement needs operated OBS, Approved workflow SDDs (DES-0007), or DES-0008 IMPL/TEST.
+- Memory note: R-0068 overall 82.2 (Δ0) with blockers SAME — next movement needs operated OBS, Approved workflow SDDs (DES-0007), or DES-0008 IMPL/TEST.
 
 ## Parked / waived (not active punch list)
 
