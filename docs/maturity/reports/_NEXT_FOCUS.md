@@ -1,6 +1,6 @@
 # Next focus (sticky)
 
-Last pulse: **R-0066** (2026-09-20 19:20 America/Santiago) — overall **82.2** (Δ0 vs R-0065); score **FLAT**; blockers **SAME**. Last Sunday weekend fire (hour ≥19).
+Last pulse: **R-0067** (2026-09-21 08:30 America/Santiago) — overall **82.2** (Δ0 vs R-0066); score **FLAT**; blockers **SAME**. First weekday fire after weekend gap.
 
 ## Active blockers (punch list)
 
@@ -13,11 +13,11 @@ Last pulse: **R-0066** (2026-09-20 19:20 America/Santiago) — overall **82.2** 
 
 ## Evidence landmarks
 
-- Main tip (before R-0066 land): `0f8f7d5` (merge PR #71 / R-0065)
-- Product tip: `65a46c8` (unchanged; ahead_by 72 vs main are maturity/docs/templates/smoke)
+- Main tip (before R-0067 land): `5dc2be1` (merge PR #72 / R-0066)
+- Product tip: `65a46c8` (unchanged; ahead_by 74 vs main are maturity/docs/templates/smoke)
 - DES Approved: 0001, 0002, 0004, 0005, 0006, **0008**; Draft: 0003, 0007, 0009, 9999
 - AWS-SMOKE-001 + AWS-SMOKE-002 **SUCCEEDED** (held); NG1: CI must not `sam deploy`
-- Pytest CI: **108 passed / 4 skipped** (3.11/3.12); design-gates OK (9 docs; 10 manifest keys)
+- Pytest: **108 passed / 4 skipped** (box local + prior CI 3.11/3.12); design-gates OK (9 docs; 10 manifest keys)
 - Ruleset: required checks design-gates + pytest; approvals=0 waived/parked; strict up-to-date false
 
 ## Ordered next actions
@@ -29,7 +29,7 @@ Last pulse: **R-0066** (2026-09-20 19:20 America/Santiago) — overall **82.2** 
 5. Optional: CoC/security for aspect 10 residual.
 6. Keep DES-0003 Draft ideation only — no product UI during pulse; out-of-tree consumers stay out of public kernel score.
 7. Continue scheduled pulses until overall ≥ 90; do not invent score lifts without new evidence.
-8. When convenient: refresh Mac Documents SoT working tree from GitHub `main`.
+8. When convenient: refresh Mac Documents SoT working tree from GitHub `main`; restore `gh` auth for Actions lookups.
 
 ## Capability lenses
 
@@ -39,10 +39,10 @@ Last pulse: **R-0066** (2026-09-20 19:20 America/Santiago) — overall **82.2** 
 
 ## Scoring discipline
 
-- Prefer GitHub `main` + authenticated `gh` (Mac when available; quote `?` for zsh). Do not score Approved set from stale Mac Documents SoT alone.
+- Prefer GitHub `main` + authenticated `gh` (Mac when available; quote `?` for zsh). When Mac/`gh` offline, use SSH fetch + box local gates/pytest. Do not score Approved set from stale Mac Documents SoT alone.
 - Docs-only tip commits and Draft inventory must not lift aspects.
 - Always separate tip CI from product CI landmark `65a46c8`.
-- Memory note: R-0066 overall 82.2 (Δ0) with blockers SAME — next movement needs operated OBS, Approved workflow SDDs (DES-0007), or DES-0008 IMPL/TEST.
+- Memory note: R-0067 overall 82.2 (Δ0) with blockers SAME — next movement needs operated OBS, Approved workflow SDDs (DES-0007), or DES-0008 IMPL/TEST.
 
 ## Parked / waived (not active punch list)
 
