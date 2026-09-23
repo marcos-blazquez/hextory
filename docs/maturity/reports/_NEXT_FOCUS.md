@@ -1,6 +1,6 @@
 # Next focus (sticky)
 
-Last pulse: **R-0071** (2026-09-23 14:42 America/Santiago) — overall **82.2** (Δ0 vs R-0070); score **FLAT**; blockers **SAME**. Scheduled weekday pulse after R-0070 land (#76).
+Last pulse: **R-0072** (2026-09-23 15:41 America/Santiago) — overall **82.2** (Δ0 vs R-0071); score **FLAT**; blockers **SAME**. Scheduled weekday pulse after R-0071 land (#77).
 
 ## Active blockers (punch list)
 
@@ -13,11 +13,11 @@ Last pulse: **R-0071** (2026-09-23 14:42 America/Santiago) — overall **82.2** 
 
 ## Evidence landmarks
 
-- Main tip (before R-0071 land): `220813c` (R-0070 land / PR #76)
+- Main tip (before R-0072 land): `214c38b` (R-0071 land / PR #77)
 - Product tip: `65a46c8` (unchanged; ahead_by maturity/docs/templates/smoke vs product)
 - DES Approved: 0001, 0002, 0004, 0005, 0006, **0008**; Draft: 0003, 0007, 0009, 9999
 - AWS-SMOKE-001 + AWS-SMOKE-002 **SUCCEEDED** (held); NG1: CI must not `sam deploy`
-- Pytest landmark: **115 passed / 1 skipped** (held from prior product tip); tip CI Success on `220813c` (design-gates + pytest 3.11/3.12); design-gates OK (9 docs; 10 manifest keys)
+- Pytest landmark: **115 passed / 1 skipped** (held from prior product tip); tip CI Success on `214c38b` (design-gates + pytest 3.11/3.12); design-gates OK (9 docs; 10 manifest keys)
 - Ruleset: required checks design-gates + pytest; approvals=0 waived/parked; strict up-to-date false
 
 ## Ordered next actions
@@ -43,7 +43,7 @@ Last pulse: **R-0071** (2026-09-23 14:42 America/Santiago) — overall **82.2** 
 - Docs-only tip commits and Draft inventory must not lift aspects.
 - Always separate tip CI from product CI landmark `65a46c8`.
 - Pytest skip-count changes without product commits are not aspect lifts.
-- Memory note: R-0071 overall 82.2 (Δ0) with blockers SAME — next movement needs operated OBS, Approved workflow SDDs (DES-0007), or DES-0008 IMPL/TEST.
+- Memory note: R-0072 overall 82.2 (Δ0) with blockers SAME — next movement needs operated OBS, Approved workflow SDDs (DES-0007), or DES-0008 IMPL/TEST.
 
 ## Parked / waived (not active punch list)
 
