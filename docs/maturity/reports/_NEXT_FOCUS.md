@@ -1,6 +1,6 @@
 # Next focus (sticky)
 
-Last pulse: **R-0077** (2026-09-24 08:20 America/Santiago) — overall **82.2** (Δ0 vs R-0076); score **FLAT**; blockers **SAME**. Scheduled weekday pulse after R-0076 land (#82).
+Last pulse: **R-0078** (2026-09-24 09:13 America/Santiago) — overall **82.2** (Δ0 vs R-0077); score **FLAT**; blockers **SAME**. Scheduled weekday pulse after R-0077 land (#83).
 
 ## Active blockers (punch list)
 
@@ -13,11 +13,11 @@ Last pulse: **R-0077** (2026-09-24 08:20 America/Santiago) — overall **82.2** 
 
 ## Evidence landmarks
 
-- Main tip (before R-0077 land): `c480529` (R-0076 land / PR #82)
+- Main tip (before R-0078 land): `a7f7624` (R-0077 land / PR #83)
 - Product tip: `65a46c8` (unchanged; ahead_by maturity/docs/templates/smoke vs product)
 - DES Approved: 0001, 0002, 0004, 0005, 0006, **0008**; Draft: 0003, 0007, 0009, 9999
 - AWS-SMOKE-001 + AWS-SMOKE-002 **SUCCEEDED** (held); NG1: CI must not `sam deploy`
-- Pytest landmark: **115 passed / 1 skipped** (held from prior product tip); tip CI Success on `c480529` (design-gates + pytest 3.11/3.12); design-gates OK (9 docs; 10 manifest keys); box-local this pulse: pytest module not installed (not a landmark change)
+- Pytest landmark: **115 passed / 1 skipped** (held from prior product tip); tip CI Success on `a7f7624` (design-gates + pytest 3.11/3.12); design-gates OK (9 docs; 10 manifest keys); box-local this pulse: pytest module not installed (not a landmark change)
 - Ruleset: required checks design-gates + pytest; approvals=0 waived/parked; strict up-to-date false
 
 ## Ordered next actions
@@ -43,7 +43,7 @@ Last pulse: **R-0077** (2026-09-24 08:20 America/Santiago) — overall **82.2** 
 - Docs-only tip commits and Draft inventory must not lift aspects.
 - Always separate tip CI from product CI landmark `65a46c8`.
 - Pytest skip-count changes without product commits are not aspect lifts.
-- Memory note: R-0077 overall 82.2 (Δ0) with blockers SAME — next movement needs operated OBS, Approved workflow SDDs (DES-0007), or DES-0008 IMPL/TEST.
+- Memory note: R-0078 overall 82.2 (Δ0) with blockers SAME — next movement needs operated OBS, Approved workflow SDDs (DES-0007), or DES-0008 IMPL/TEST.
 
 ## Parked / waived (not active punch list)
 
