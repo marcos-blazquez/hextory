@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| **Date** | 2026-09-25 11:21 America/Santiago |
+| **Date** | 2026-09-25 12:14 America/Santiago |
 | **Stage** | Operational dark factory (candidate) — DES-0006 OBS + DES-0005 AWS first slices; AWS-SMOKE-001 + **AWS-SMOKE-002** (full SAM+HTTP) SUCCEEDED; issue/PR templates landed; DES-0008 **Approved**; Draft DES-0007/0009 on tip; approvals≥1 expectation waived |
-| **Latest pulse** | [R-0093](reports/R-0093-20260925-1121.md) |
+| **Latest pulse** | [R-0094](reports/R-0094-20260925-1214.md) |
 | **Scorers** | Clark Bot (maturity pulse); prior: Marcos Blazquez + New Bot |
 | **Method** | Per [ASPECTS.md](ASPECTS.md); each aspect 0–100; overall = mean |
 
@@ -15,13 +15,13 @@
 | 1 | Vision clarity | **78** | DES-0001/0002/0004/0005/0006/**0008** **Approved**; AWS + observability + env/vars direction explicit; DES-0003 + DES-0007 + DES-0009 bare Draft. |
 | 2 | Design-doc coverage | **78** | TEMPLATE + **six** Approved SDDs (vision/engine/on-prem/AWS/OBS/vars); Draft Studio + **Draft DES-0007** workflow + **Draft DES-0009** run-bind (not Approved — workflow coverage gap held). |
 | 3 | Review rigor (dual human+agent) | **72** | **Six** dual Approvals; PR #16/#18/#28/#29 under Approved DES; DES-0007/0009 dual review TBD. Dual SDD Approve is the review-rigor signal; `required_approving_review_count: 0` is **paused/waived** (2026-09-19 solo-author interim) — not an active gap. |
-| 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **86** | DES-0004/0005/0006 live IMPL + TEST-ONP/TEST-AWS/TEST-OBS; traveler@0.1; AWS-SMOKE-001 + AWS-SMOKE-002 evidence; DES-0008 Authorized but no VariableResolverPort/TEST-VAR-* yet; tip CI Success 3.11/3.12 on `37cc8c0` (R-0092/#98; Actions run 36139719565); pytest landmark **115 passed / 1 skipped** held (docs-only tip — not a lift). |
+| 4 | Traceability (REQ↔DES↔IMPL↔TEST) | **86** | DES-0004/0005/0006 live IMPL + TEST-ONP/TEST-AWS/TEST-OBS; traveler@0.1; AWS-SMOKE-001 + AWS-SMOKE-002 evidence; DES-0008 Authorized but no VariableResolverPort/TEST-VAR-* yet; tip CI Success 3.11/3.12 on `a6ef21d` (R-0093/#99; Actions run 36147210867); pytest landmark **115 passed / 1 skipped** held (docs-only tip — not a lift). |
 | 5 | Architecture purity (hexagonal isolation) | **88** | Pure `src/` + ports; LangGraph/Echo/OpenAI/Prometheus/boto adapter-only; open GraphRegistry; `adapters/{local,onprem,aws}`. |
 | 6 | Determinism, testability & readable core | **88** | `tests/{unit,behavior,adapters}`; GWT BDD-style not Cucumber; CI bans cucumber; OBS+AWS parity; **115 passed / 1 skipped** (box local; same product tip — not a lift). |
-| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip `37cc8c0` (R-0092 / #98); product tip `65a46c8`. Approvals=0 / not strict up-to-date are **paused/waived** for solo-author interim (2026-09-19) — do not re-list as blockers. |
+| 7 | Automation of design gates (CI/process) | **85** | Gatekeeper + Q-GATE-1 + `ci_design_gates.py` + ruleset **requires** design-gates + pytest on PR→main; tip `a6ef21d` (R-0093 / #99); product tip `65a46c8`. Approvals=0 / not strict up-to-date are **paused/waived** for solo-author interim (2026-09-19) — do not re-list as blockers. |
 | 8 | Factory observability (traces, quality loops) | **74** | MetricsPort + on-prem GET `/metrics` + local dump + Grafana JSON + TEST-OBS + gateway counters. First-slice only — not production-grade ops (85+); AWS-SMOKE metrics still deferred. |
 | 9 | Multi-target deploy readiness | **86** | Local CLI + on-prem FastAPI/JWT/Postgres/Compose + **AWS** Lambda/DynamoDB/moto + LocalStack Compose + **AWS-SMOKE-001** + **AWS-SMOKE-002 SUCCEEDED** (live SAM stack + HTTP API → Lambda → DynamoDB us-east-2); CI must not deploy (NG1); manual opt-in only. |
-| 10 | Public project readiness | **87** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #98; **issue/PR templates** with design-gate checklist. |
+| 10 | Public project readiness | **87** | Public GitHub + MIT + README + CONTRIBUTING; **v0.1.0**; ruleset active; traveler contract; PRs through #99; **issue/PR templates** with design-gate checklist. |
 
 ### Overall maturity
 
@@ -31,7 +31,7 @@
 | **Overall maturity** | **82.2** |
 | Band | **70–89 — Operational dark factory (candidate)** |
 | Meets ≥90? | **NO** |
-| Delta vs R-0092 | **0.0** (82.2 -> 82.2) — score FLAT; blockers SAME (OBS first-slice + Draft workflow coverage) |
+| Delta vs R-0093 | **0.0** (82.2 -> 82.2) — score FLAT; blockers SAME (OBS first-slice + Draft workflow coverage) |
 
 ## Next actions
 
@@ -52,6 +52,7 @@
 
 | Date | Author | Change |
 |---|---|---|
+| 2026-09-25 12:14 | Clark Bot | Pulse R-0094: overall **82.2** (Δ0 vs R-0093); tip `a6ef21d` / PR #99 baseline; blockers SAME; scheduled weekday after R-0093 |
 | 2026-09-25 11:21 | Clark Bot | Pulse R-0093: overall **82.2** (Δ0 vs R-0092); tip `37cc8c0` / PR #98 baseline; blockers SAME; scheduled weekday after R-0092 |
 | 2026-09-25 10:10 | Clark Bot | Pulse R-0092: overall **82.2** (Δ0 vs R-0091); tip `06116cb` / PR #97 baseline; blockers SAME; scheduled weekday after R-0091 |
 | 2026-09-25 09:18 | Clark Bot | Pulse R-0091: overall **82.2** (Δ0 vs R-0090); tip `6092a61` / PR #96 baseline; blockers SAME; scheduled weekday after R-0090 |
