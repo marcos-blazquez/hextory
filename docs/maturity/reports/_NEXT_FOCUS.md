@@ -1,6 +1,6 @@
 # Next focus (sticky)
 
-Last pulse: **R-0099** (2026-09-25 17:18 America/Santiago) — overall **82.2** (Δ0 vs R-0098); score **FLAT**; blockers **SAME**. Scheduled weekday pulse after R-0098 land (#104).
+Last pulse: **R-0100** (2026-09-25 18:15 America/Santiago) — overall **82.2** (Δ0 vs R-0099); score **FLAT**; blockers **SAME**. Scheduled weekday pulse after R-0099 land (#105).
 
 ## Active blockers (punch list)
 
@@ -13,11 +13,11 @@ Last pulse: **R-0099** (2026-09-25 17:18 America/Santiago) — overall **82.2** 
 
 ## Evidence landmarks
 
-- Main tip (before R-0099 land): `4dc2ed0` (R-0098 land / PR #104)
+- Main tip (before R-0100 land): `7a0f56c` (R-0099 land / PR #105)
 - Product tip: `65a46c8` (unchanged; ahead_by maturity/docs/templates/smoke vs product)
 - DES Approved: 0001, 0002, 0004, 0005, 0006, **0008**; Draft: 0003, 0007, 0009, 9999
 - AWS-SMOKE-001 + AWS-SMOKE-002 **SUCCEEDED** (held); NG1: CI must not `sam deploy`
-- Pytest landmark: **115 passed / 1 skipped** (box reconfirm this pulse with prior-pulse `.venv`); tip CI Success on `4dc2ed0` (design-gates + pytest 3.11/3.12; Actions run 36178362659); design-gates OK (9 docs; 10 manifest keys); box-local this pulse: `gh` unauthed (SSH fetch/push + MCP used)
+- Pytest landmark: **115 passed / 1 skipped** (box reconfirm this pulse with fresh `.venv` + langgraph/onprem/aws extras); tip CI Success on `7a0f56c` (design-gates + pytest 3.11/3.12; Actions run 36185382550); design-gates OK (9 docs; 10 manifest keys); box-local this pulse: SSH missing / HTTPS clone + MCP used
 - Ruleset: required checks design-gates + pytest; approvals=0 waived/parked; strict up-to-date false
 
 ## Ordered next actions
@@ -43,7 +43,7 @@ Last pulse: **R-0099** (2026-09-25 17:18 America/Santiago) — overall **82.2** 
 - Docs-only tip commits and Draft inventory must not lift aspects.
 - Always separate tip CI from product CI landmark `65a46c8`.
 - Pytest skip-count changes without product commits are not aspect lifts.
-- Memory note: R-0099 overall 82.2 (Δ0) with blockers SAME — next movement needs operated OBS, Approved workflow SDDs (DES-0007), or DES-0008 IMPL/TEST.
+- Memory note: R-0100 overall 82.2 (Δ0) with blockers SAME — next movement needs operated OBS, Approved workflow SDDs (DES-0007), or DES-0008 IMPL/TEST.
 - notify_marcos=false for score/blocker delta vs prior (FLAT / SAME).
 
 ## Parked / waived (not active punch list)
