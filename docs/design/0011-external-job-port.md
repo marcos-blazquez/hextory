@@ -9,7 +9,7 @@
 | **Reviewers (human)** | TBD — Marcos Blazquez |
 | **Reviewers (agent)** | TBD — Clark Bot |
 | **Created** | 2026-09-28 |
-| **Last updated** | 2026-09-28 |
+| **Last updated** | 2026-09-28 (consumer-agreed amendments r2) |
 | **Related REQs** | REQ-0010 (hexagonal ports); REQ-0012 (traveler); REQ-0014 (quality outcomes / rework); REQ-0015 (TDD + BDD-style testing); proposed **REQ-0023** (external job execution from stations) |
 | **Supersedes** | none |
 | **Depends on** | [DES-0001](0001-hextory-vision.md) (**Approved**), [DES-0002](0002-factory-engine.md) (**Approved**); related: [DES-0006](0006-factory-observability.md) (**Approved**) for metrics, [DES-0008](0008-env-and-flow-variables.md) (**Approved**) for secret-bearing variables |
@@ -49,6 +49,7 @@ Without a shared port, each station that calls an external system will re-invent
 - **G4:** Mandatory **log redaction / masking** of secrets and declared sensitive values before logs leave the port boundary.
 - **G5:** **Idempotent** start keyed by traveler + station + attempt.
 - **G6 (REQ-0014):** Deterministic mapping from job status to station outcome (success / failure / error) and on into DES-0002 routing (PASS / FAIL→rework / escalate).
+- **G8:** Per-station configuration with documented defaults: `mode` (`await` | `start_only`), `cancel_on_timeout` (default `true`), `deadline_s` (default 1800s), and a single log-tail length `log_tail_lines` (default 200).
 - **G7 (REQ-0015):** A local **fake adapter** (`FakeExternalJobs`) with scriptable timelines so every behavior is testable offline.
 
 ### 1.3 Success definition
@@ -108,12 +109,14 @@ Hexagonal / ports & adapters (DES-0002-A). Core owns the protocol, value types, 
 |---|---|---|---|
 | **DES-0011-A** | Four-operation port: `start`, `poll`, `fetch_logs`, `cancel` | Single blocking `run()`; callback/webhook port | Polling works for every provider and for resume-after-restart; webhooks can feed `poll` later |
 | **DES-0011-B** | Closed `JobState` enum: `queued`, `running`, `succeeded`, `failed`, `cancelled`, `timed_out`; terminal = last four | Free-form provider strings | Stable routing and metrics; adapters map provider states in |
-| **DES-0011-C** | Timeouts enforced by the **kernel driver** (queue timeout, run timeout, overall deadline); on expiry the driver calls `cancel` and reports `timed_out` even if the provider disagrees | Trust provider timeouts only | Bounded waits regardless of provider; consistent semantics |
+| **DES-0011-C** | Timeouts enforced by the **kernel driver** (queue timeout, run timeout, overall deadline); on expiry the driver stops waiting and reports `timed_out` even if the provider disagrees; it calls `cancel` by default (see DES-0011-J) | Trust provider timeouts only | Bounded waits regardless of provider; consistent semantics |
 | **DES-0011-D** | Redaction is **mandatory and centralized**: every string in `JobLogs`, `JobError.message`, journey/traveler notes passes `Redactor` before crossing the port boundary; secret values are supplied as refs and resolved only inside the adapter | Per-adapter masking | One tested choke point; adapters cannot forget |
 | **DES-0011-E** | Idempotency key = `sha256(traveler_id, station, attempt)` by default (caller may override); `start` with a seen key returns the existing handle | Provider-native dedupe only | Safe retries / resume; works with fake and all providers |
 | **DES-0011-F** | Outcome mapping: `succeeded` → **success** (PASS); `failed` → **failure** (FAIL → DES-0002-H rework policy); `cancelled` / `timed_out` / adapter or transport error / unknown → **error** (escalate; no rework) | Treat timeouts as FAIL (rework) | A job's *verdict* is rework-worthy; infrastructure faults are not — avoids burning rework budget on outages |
-| **DES-0011-G** | `fetch_logs(mode)` with `none`, `tail(N)` (N ≤ configurable cap, default 200 lines), `full` → returns an **artifact ref** (URI + digest), never an inline full body | Always inline full logs | Keeps traveler/events small; full logs stay in provider/artifact storage |
+| **DES-0011-G** | `fetch_logs(mode)` with `none`, `tail(N)`, `full`; **one** N per station (`log_tail_lines`, default 200, hard cap 2000) is used both by `fetch_logs` tail mode and by the masked failure tail attached to the traveler (Q-EXJ-3) → returns an **artifact ref** (URI + digest), never an inline full body | Always inline full logs | Keeps traveler/events small; full logs stay in provider/artifact storage |
 | **DES-0011-H** | Handle is opaque, serializable, and stored on the traveler as an `ArtifactRef(kind="external_job", uri=<handle>)` so a resumed run re-polls instead of restarting | Keep handle in memory | Resume after restart (DES-0002 checkpointers) without schema change |
+| **DES-0011-J** | Per-station `cancel_on_timeout: bool = true`. `true` (default): on timeout the driver calls `cancel`, outcome **error** / `timed_out`. `false`: the driver stops waiting, outcome is still **error** / `timed_out`, the job is **not** cancelled, and the handle stays on the traveler as an `ArtifactRef` so operators can track it | Always cancel; never cancel | Default avoids orphaned spend; opt-out keeps jobs that must finish anyway (e.g. expensive or non-idempotent work) observable |
+| **DES-0011-K** | Per-station `mode`: `await` (default — start, poll to terminal, map outcome) or `start_only` (fire-and-continue — start, record handle as `ArtifactRef`, no polling, outcome **success** once `start` is accepted; a `start` error is **error**) | Separate port for fire-and-forget | Same port, idempotency and redaction; downstream stations or operators can follow the handle |
 | **DES-0011-I** | Test-first with `FakeExternalJobs` + a shared contract suite; no provider adapter in this SDD | Ship a first real provider now | Provider-agnostic kernel; real adapters get their own SDD |
 
 ---
@@ -124,7 +127,7 @@ Hexagonal / ports & adapters (DES-0002-A). Core owns the protocol, value types, 
 
 | Entity | Key fields | Notes |
 |---|---|---|
-| `JobSpec` | `kind` (opaque string), `inputs` (dict of non-secret values), `secret_refs` (names only), `idempotency_key`, `queue_timeout_s`, `run_timeout_s`, `deadline_s`, `log_mode`, `labels` (low-cardinality) | Serializable; contains **no secret values** |
+| `JobSpec` | `kind` (opaque string), `inputs` (dict of non-secret values), `secret_refs` (names only), `idempotency_key`, `queue_timeout_s`, `run_timeout_s`, `deadline_s`, `log_mode`, `labels` (low-cardinality) — per-station settings in §5.4 | Serializable; contains **no secret values** |
 | `JobHandle` | `adapter` (id), `job_id` (opaque), `idempotency_key` | Serializable; safe to persist and log |
 | `JobStatus` | `state: JobState`, `started_at?`, `finished_at?`, `exit_code?`, `detail` (redacted), `provider_state` (redacted, informational) | Returned by `poll` / `cancel` |
 | `JobLogs` | `mode`, `lines[]` (redacted, tail only), `artifact?: ArtifactRef`, `truncated: bool` | `full` → artifact only |
@@ -157,7 +160,7 @@ station → JobSpec → run_external_job
 
 ### 3.4 Persistence & retention
 
-Only the handle (as an `ArtifactRef`) and a redacted outcome note are persisted on the traveler via existing checkpointers. Tail lines are **not** persisted on the traveler by default (Q-EXJ-3); full logs remain wherever the provider/artifact store keeps them.
+Only the handle (as an `ArtifactRef`) and a redacted outcome note are persisted on the traveler via existing checkpointers. On `failed`, the masked tail (same `log_tail_lines` N as `fetch_logs`) is attached as `DefectReport.details` (Q-EXJ-3, proposed); otherwise tail lines are not persisted on the traveler; full logs remain wherever the provider/artifact store keeps them.
 
 ---
 
@@ -200,7 +203,8 @@ Traveler `routing_history` note on the calling station: `external_job state=<sta
 ### 5.1 Core (pure) logic
 
 - `run_external_job(port, spec, *, clock, sleeper, redactor, metrics, poll_interval_s=2, backoff=1.5, max_interval_s=30) -> StationOutcome`.
-- Timeouts: queue timeout counts while `queued`; run timeout counts from first `running`; overall `deadline_s` counts from `start`. First to expire wins → `cancel` → `timed_out`.
+- Timeouts: queue timeout counts while `queued`; run timeout counts from first `running`; overall `deadline_s` counts from `start`. First to expire wins → stop waiting → `cancel` **only if** `cancel_on_timeout` is `true` → `timed_out` (error). With `cancel_on_timeout=false` the handle `ArtifactRef` is kept on the traveler with note `timed_out; job left running (cancel_on_timeout=false)`.
+- `start_only` mode: `start` → record handle `ArtifactRef` → outcome **success**; `poll`, timeouts and `fetch_logs` are skipped; `start` `JobError` → **error**.
 - Transient `JobError(retryable=True)` from `poll` is retried within the deadline (bounded, Q-EXJ-4); non-retryable → **error** outcome immediately.
 - `Redactor`: masks (a) every resolved secret value registered for the job (exact and URL-encoded / base64 forms), (b) built-in patterns (bearer tokens, `password=`/`token=`/`secret=` pairs, private-key blocks), replacing with `***`. Applied to log lines, error messages, status detail, and routing notes.
 
@@ -222,6 +226,21 @@ Traveler `routing_history` note on the calling station: `external_job state=<sta
 | `JobError` (non-retryable, or retryable past deadline) | error | escalate |
 | Unknown / unmapped provider state | error | escalate |
 
+**`start_only` mode:** start accepted → **success** (PASS) with handle recorded; start rejected (`JobError`) → **error** (escalate).
+
+### 5.4 Per-station configuration and defaults
+
+| Setting | Type | Default | Notes |
+|---|---|---|---|
+| `mode` | `await` \| `start_only` | `await` | `start_only` = fire-and-continue (DES-0011-K) |
+| `cancel_on_timeout` | bool | `true` | `false` leaves the job running and keeps the handle on the traveler (DES-0011-J) |
+| `deadline_s` | seconds | **1800** (30 min) | Overall budget from `start`; configurable per station; the default is never below 1800s; kernel hard max 86400s (24h) |
+| `queue_timeout_s` | seconds | 600 | Clamped to `deadline_s` |
+| `run_timeout_s` | seconds | unset (= `deadline_s`) | Clamped to `deadline_s` |
+| `log_tail_lines` (N) | int | **200** | Single N for `fetch_logs` `tail(N)` and the masked failure tail; hard cap 2000 |
+| `log_mode` | `none` \| `tail` \| `full` | `tail` | `full` returns an `ArtifactRef` only |
+| poll interval / backoff | seconds | 2s start, ×1.5, cap 30s | Q-EXJ-4 |
+
 ---
 
 ## 6. UI (if any)
@@ -241,7 +260,7 @@ Then the outcome is success and no log line contains the secret
 
 | ID | Assumption / dependency | Risk if wrong | Mitigation |
 |---|---|---|---|
-| A-1 | Most providers expose start / status / logs / cancel or equivalents | Some provider cannot cancel | `cancel` may return non-terminal; driver still reports `timed_out` and records `cancel_unconfirmed` |
+| A-1 | Most providers expose start / status / logs / cancel or equivalents | Some provider cannot cancel | With `cancel_on_timeout=true`, `cancel` may return non-terminal; driver still reports `timed_out` and records `cancel_unconfirmed` |
 | A-2 | Synchronous polling inside a station is acceptable for first slice | Long jobs hold a worker | Resume via persisted handle (DES-0011-H); async/park-and-resume in Q-EXJ-1 |
 | A-3 | Secret values are known to the adapter at start time | Redactor misses unknown secrets | Built-in patterns + contract test with seeded secrets |
 | A-4 | `ArtifactRef` suffices to persist handles without schema change | Need richer fields | Q-EXJ-2 |
@@ -271,7 +290,7 @@ Concrete only after Status is **Approved** and §13 is green.
 | AC-EXJ-02 | State machine: only allowed transitions; terminal states absorbing | TEST-EXJ-02 |
 | AC-EXJ-03 | `succeeded` → success/PASS; `failed` → failure/FAIL (rework policy applies) | TEST-EXJ-03 |
 | AC-EXJ-04 | `cancelled`, `timed_out`, non-retryable `JobError`, unknown state → error/escalate with `rework_count` unchanged | TEST-EXJ-04 |
-| AC-EXJ-05 | Queue timeout, run timeout, and deadline each produce `timed_out` and a `cancel` call, with zero real sleeping | TEST-EXJ-05 |
+| AC-EXJ-05 | Queue timeout, run timeout, and deadline each produce `timed_out` (error) with zero real sleeping; `cancel` is called under the default `cancel_on_timeout=true` | TEST-EXJ-05 |
 | AC-EXJ-06 | Same idempotency key → same handle, one underlying job; resume re-polls the persisted handle | TEST-EXJ-06 |
 | AC-EXJ-07 | `fetch_logs`: `none` empty; `tail(N)` ≤ N lines and capped; `full` returns `ArtifactRef` only | TEST-EXJ-07 |
 | AC-EXJ-08 | Seeded secrets (plain, URL-encoded, base64) and built-in patterns never appear in logs, errors, status detail, routing notes, or metric labels | TEST-EXJ-08 |
@@ -280,6 +299,10 @@ Concrete only after Status is **Approved** and §13 is green.
 | AC-EXJ-11 | Metrics facts emitted with only `workflow_id` / `status` labels | TEST-EXJ-11 |
 | AC-EXJ-12 | Shared contract suite passes for `FakeExternalJobs` and is parametrizable for future adapters | TEST-EXJ-12 |
 | AC-EXJ-13 | Behavior tests use Given/When/Then narrative in ordinary pytest | TEST-EXJ-13 |
+| AC-EXJ-14 | `cancel_on_timeout=true` (default): timeout → `cancel` called once; outcome error / `timed_out` | TEST-EXJ-14 |
+| AC-EXJ-15 | `cancel_on_timeout=false`: timeout → no `cancel` call; outcome error / `timed_out`; handle `ArtifactRef` remains on the traveler; fake job still running | TEST-EXJ-15 |
+| AC-EXJ-16 | `start_only`: accepted start → success with handle `ArtifactRef` and zero `poll` calls; rejected start → error | TEST-EXJ-16 |
+| AC-EXJ-17 | Defaults applied when unset: `deadline_s`=1800, `log_tail_lines`=200; the failure tail on the traveler uses the same N as `fetch_logs` | TEST-EXJ-17 |
 
 ---
 
@@ -288,7 +311,7 @@ Concrete only after Status is **Approved** and §13 is green.
 | Failure mode | Detection | Immediate action | Rework loop |
 |---|---|---|---|
 | Job verdict failed | `poll` → `failed` | Station FAIL | DES-0002-H rework (max_rework) |
-| Job hangs in queue / running | Kernel timeouts | `cancel`; `timed_out` → escalate | None |
+| Job hangs in queue / running | Kernel timeouts | Stop waiting; `cancel` if `cancel_on_timeout` (default) else keep handle; `timed_out` → escalate | None |
 | Provider outage / auth error | `JobError` | Retry if retryable within deadline; else escalate | None |
 | Cancel not honored | `cancel` returns non-terminal | Report `timed_out` + `cancel_unconfirmed` note | None |
 | Secret leak attempt in logs | Redactor | Mask before crossing boundary | TEST-EXJ-08 guards |
@@ -312,6 +335,7 @@ Concrete only after Status is **Approved** and §13 is green.
 | 9 | Visuals / diagrams present or explicitly deferred | ☐ | ☐ | No |
 | 10 | No implementation leakage; provider-agnostic; no private product names | ☐ | ☐ | Yes |
 | 11 | Outcome mapping (timeouts/cancel = error, not rework) acceptable | ☐ | ☐ | Yes |
+| 12 | Station defaults (§5.4), `cancel_on_timeout`, and `start_only` semantics acceptable | ☐ | ☐ | Yes |
 
 **Sign-off**
 
@@ -326,7 +350,7 @@ Concrete only after Status is **Approved** and §13 is green.
 
 | REQ ID | Description | DES IDs | TEST IDs | IMPL notes (post-approval) |
 |---|---|---|---|---|
-| **REQ-0023** (proposed) | External job execution from stations | DES-0011-A…I | TEST-EXJ-01…13 | |
+| **REQ-0023** (proposed) | External job execution from stations | DES-0011-A…K | TEST-EXJ-01…17 | |
 | REQ-0010 | Hexagonal ports | DES-0011-A/I | TEST-EXJ-01/12, TEST-0010 | port in `src/ports` |
 | REQ-0012 | Traveler unchanged | DES-0011-H | TEST-EXJ-06 | handle as `ArtifactRef` |
 | REQ-0014 | Quality outcomes / rework | DES-0011-F | TEST-EXJ-03/04 | outcome policy |
@@ -368,10 +392,10 @@ IDs must remain stable once Approved. New work gets new IDs; do not reuse.
 
 | ID | Question | Owner | Due | Resolution |
 |---|---|---|---|---|
-| **Q-EXJ-1** | Synchronous poll-in-station for first slice, or park the traveler (non-terminal "waiting" status) and resume on a later tick? | Marcos | Before Approval (blocking unless interim accepted) | Open — proposed interim: synchronous with persisted handle for resume; parking deferred (would need a new traveler status) |
-| **Q-EXJ-2** | Persist the handle as `ArtifactRef(kind="external_job")` (no schema change) vs a first-class traveler field? | Marcos | Before Approval (or accept interim) | Open — proposed interim: `ArtifactRef` |
-| **Q-EXJ-3** | Should redacted tail lines be attached to the traveler (e.g. on failure only) or only returned to the station? | Dual review | Before Approval (or accept interim) | Open — proposed interim: attach ≤ 50 redacted tail lines on `failed` only, as a DefectReport detail |
-| Q-EXJ-4 | Default poll interval / backoff / retry budget for retryable errors? | Implementer | During first impl slice | Soft — 2s start, ×1.5, cap 30s; retries only within deadline |
+| **Q-EXJ-1** | Synchronous poll-in-station for first slice, or park the traveler (non-terminal "waiting" status) and resume on a later tick? | Marcos | Before Approval (blocking unless interim accepted) | **Proposed, pending human Approve:** poll in place (synchronous) for the first slice, with the persisted handle enabling resume; parking the traveler is a later option (would need a new traveler status) |
+| **Q-EXJ-2** | Persist the handle as `ArtifactRef(kind="external_job")` (no schema change) vs a first-class traveler field? | Marcos | Before Approval (or accept interim) | **Proposed, pending human Approve:** handle stored as `ArtifactRef(kind="external_job")`; no schema change |
+| **Q-EXJ-3** | Should redacted tail lines be attached to the traveler (e.g. on failure only) or only returned to the station? | Dual review | Before Approval (or accept interim) | **Proposed, pending human Approve:** yes — attach the masked tail on `failed`, as `DefectReport.details`, using the same `log_tail_lines` N as `fetch_logs` (default 200) |
+| Q-EXJ-4 | Default poll interval / backoff / retry budget for retryable errors? | Implementer | During first impl slice | Soft — 2s start, ×1.5, cap 30s; retries only within deadline (see §5.4) |
 | Q-EXJ-5 | Should `failed` with a provider "infrastructure" reason be reclassified as **error**? Needs a provider-neutral hint field | Dual review | Future provider SDD | Soft — interim: `failed` is always failure |
 | Q-EXJ-6 | Where do station-level job specs come from — department code only, or bindable via DES-0008 `{{var}}`? | Maintainers | Follow-up | Soft — interim: department code; string inputs may use DES-0008 bind |
 
@@ -382,6 +406,7 @@ IDs must remain stable once Approved. New work gets new IDs; do not reuse.
 | Date | Author | Change |
 |---|---|---|
 | 2026-09-28 | Marcos Blazquez (direction) + Clark Bot | Initial **Draft**: provider-agnostic `ExternalJobPort` (start/poll/fetch_logs/cancel), status vocabulary, kernel timeouts, mandatory redaction, idempotency, outcome mapping, fake adapter + contract suite; no implementation |
+| 2026-09-28 | Marcos Blazquez + Clark Bot | r2 consumer-agreed amendments: `cancel_on_timeout` (default true) with keep-handle branch (DES-0011-J); `start_only` fire-and-continue mode (DES-0011-K); §5.4 station defaults (`deadline_s` 1800s, single `log_tail_lines` N=200 shared with failure tail); Q-EXJ-1/2/3 marked Proposed, pending human Approve; TEST-EXJ-14…17 / AC-EXJ-14…17 |
 
 ---
 
@@ -412,7 +437,7 @@ IDs must remain stable once Approved. New work gets new IDs; do not reuse.
 | TEST-EXJ-02 | unit | **Given** each `JobState` **When** transitions are applied **Then** only §3.2 transitions are allowed and terminal states are absorbing |
 | TEST-EXJ-03 | behavior | **Given** a fake job scripted to `succeeded` / `failed` **When** a station runs it **Then** outcome is success→PASS / failure→FAIL and rework policy applies |
 | TEST-EXJ-04 | behavior | **Given** jobs ending `cancelled` / `timed_out` / non-retryable error / unknown state **When** run **Then** outcome is error→escalated and `rework_count` is unchanged |
-| TEST-EXJ-05 | unit | **Given** a job stuck `queued` (then another stuck `running`, then a deadline breach) and a fake clock **When** the driver runs **Then** `cancel` is called once, state is `timed_out`, and the sleeper recorded waits without real time passing |
+| TEST-EXJ-05 | unit | **Given** a job stuck `queued` (then another stuck `running`, then a deadline breach) and a fake clock **When** the driver runs **Then** state is `timed_out` (error) for each, and the sleeper recorded waits without real time passing |
 | TEST-EXJ-06 | unit | **Given** a started job **When** `start` is called again with the same key, and when a run resumes from a checkpointed traveler **Then** the same handle is returned and the fake reports one underlying job |
 | TEST-EXJ-07 | unit | **Given** a 1,000-line log **When** `fetch_logs` is called with `none` / `tail(10)` / `tail(10_000)` / `full` **Then** empty / 10 lines / capped lines + `truncated` / `ArtifactRef` only |
 | TEST-EXJ-08 | unit + behavior | **Given** a secret seeded into logs, error messages, and status detail (plain, URL-encoded, base64) plus a bearer token pattern **When** the job runs and fails **Then** none appear in `JobLogs`, `StationOutcome.reason`, routing notes, or metric labels |
@@ -421,6 +446,10 @@ IDs must remain stable once Approved. New work gets new IDs; do not reuse.
 | TEST-EXJ-11 | unit | **Given** `InMemoryMetrics` **When** jobs finish in each state **Then** `hextory_external_jobs_total{status}` and duration are recorded with only allowed labels |
 | TEST-EXJ-12 | contracts | **Given** the contract suite parametrized with `FakeExternalJobs` **When** run **Then** all port contract cases (§4.1) pass |
 | TEST-EXJ-13 | behavior | **Given** DES-0011 behavior modules **When** inspected **Then** each test carries Given/When/Then narrative |
+| TEST-EXJ-14 | behavior | **Given** a station with default `cancel_on_timeout=true` and a fake job stuck `running` **When** the deadline passes **Then** `cancel` is called exactly once, the fake job ends `cancelled`, and the outcome is error / `timed_out` → escalated |
+| TEST-EXJ-15 | behavior | **Given** a station with `cancel_on_timeout=false` and a fake job stuck `running` **When** the deadline passes **Then** `cancel` is never called, the fake job is still `running`, the outcome is error / `timed_out`, and the traveler keeps an `ArtifactRef(kind="external_job")` for the handle |
+| TEST-EXJ-16 | behavior | **Given** a station in `start_only` mode **When** `start` is accepted **Then** the outcome is success (PASS), the handle `ArtifactRef` is on the traveler, and `poll` / `fetch_logs` were called zero times; **When** `start` raises `JobError` **Then** the outcome is error |
+| TEST-EXJ-17 | unit | **Given** a station with no timeout/tail settings **When** config is resolved and a job fails **Then** `deadline_s`=1800, `log_tail_lines`=200, and the traveler failure tail has ≤ 200 masked lines — the same N `fetch_logs` tail used |
 
 ### First implementation slice (authorized only after Approval)
 
@@ -428,7 +457,7 @@ IDs must remain stable once Approved. New work gets new IDs; do not reuse.
 
 1. Add `src/ports/external_job.py`, `Sleeper`, `src/policies/redaction.py`, `src/policies/external_job.py`.
 2. Add `adapters/local/fake_external_jobs.py` and the contract suite.
-3. Add TEST-EXJ-01…13.
+3. Add TEST-EXJ-01…17.
 4. Do **not** add any concrete provider adapter, webhook ingestion, or traveler schema change.
 
 ---
