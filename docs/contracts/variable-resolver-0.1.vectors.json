@@ -1,0 +1,377 @@
+{
+  "schema": "hextory.variable_resolver@0.1",
+  "description": "Shared test vectors for DES-0008 bind/resolve (A-3). Each request is a resolve_request document; expected is the exact response document a conforming resolver must produce. Vectors with request_schema_valid=false carry requests the schema itself rejects; a resolver receiving one anyway must still fail closed with the expected error.",
+  "vectors": [
+    {
+      "id": "VEC-01",
+      "description": "plain substitution",
+      "request": {
+        "flow": {
+          "flow_greeting": "hi"
+        },
+        "env": {
+          "region": "eu-west"
+        },
+        "fields": {
+          "prompt": "Say {{flow_greeting}} to {{region}}"
+        }
+      },
+      "expected": {
+        "schema": "hextory.variable_resolver@0.1",
+        "ok": true,
+        "fields": {
+          "prompt": "Say hi to eu-west"
+        },
+        "vars": {
+          "flow_greeting": "hi",
+          "region": "eu-west"
+        }
+      },
+      "request_schema_valid": true
+    },
+    {
+      "id": "VEC-02",
+      "description": "escape: \\{{ yields literal {{, stray }} kept",
+      "request": {
+        "fields": {
+          "t": "literal \\{{name}} and stray }}"
+        }
+      },
+      "expected": {
+        "schema": "hextory.variable_resolver@0.1",
+        "ok": true,
+        "fields": {
+          "t": "literal {{name}} and stray }}"
+        },
+        "vars": {}
+      },
+      "request_schema_valid": true
+    },
+    {
+      "id": "VEC-03",
+      "description": "precedence flow > env > defaults",
+      "request": {
+        "defaults": {
+          "region": "d",
+          "x": "dx"
+        },
+        "env": {
+          "region": "e"
+        },
+        "flow": {
+          "region": "f"
+        },
+        "fields": {
+          "t": "{{region}}/{{x}}"
+        }
+      },
+      "expected": {
+        "schema": "hextory.variable_resolver@0.1",
+        "ok": true,
+        "fields": {
+          "t": "f/dx"
+        },
+        "vars": {
+          "region": "f",
+          "x": "dx"
+        }
+      },
+      "request_schema_valid": true
+    },
+    {
+      "id": "VEC-04",
+      "description": "empty string is defined",
+      "request": {
+        "flow": {
+          "blank": ""
+        },
+        "fields": {
+          "t": "[{{blank}}]"
+        }
+      },
+      "expected": {
+        "schema": "hextory.variable_resolver@0.1",
+        "ok": true,
+        "fields": {
+          "t": "[]"
+        },
+        "vars": {
+          "blank": ""
+        }
+      },
+      "request_schema_valid": true
+    },
+    {
+      "id": "VEC-05",
+      "description": "non-string values render as canonical compact JSON",
+      "request": {
+        "flow": {
+          "n": 3,
+          "ok": true,
+          "none": null,
+          "obj": {
+            "b": 1,
+            "a": [
+              1,
+              2
+            ]
+          }
+        },
+        "fields": {
+          "t": "{{n}}|{{ok}}|{{none}}|{{obj}}"
+        }
+      },
+      "expected": {
+        "schema": "hextory.variable_resolver@0.1",
+        "ok": true,
+        "fields": {
+          "t": "3|true|null|{\"a\":[1,2],\"b\":1}"
+        },
+        "vars": {
+          "n": 3,
+          "none": null,
+          "obj": {
+            "b": 1,
+            "a": [
+              1,
+              2
+            ]
+          },
+          "ok": true
+        }
+      },
+      "request_schema_valid": true
+    },
+    {
+      "id": "VEC-06",
+      "description": "non-string fields pass through unresolved",
+      "request": {
+        "flow": {
+          "v": "ok"
+        },
+        "fields": {
+          "s": "{{v}}",
+          "nested": {
+            "t": "{{nope}}"
+          },
+          "n": 1
+        }
+      },
+      "expected": {
+        "schema": "hextory.variable_resolver@0.1",
+        "ok": true,
+        "fields": {
+          "s": "ok",
+          "nested": {
+            "t": "{{nope}}"
+          },
+          "n": 1
+        },
+        "vars": {
+          "v": "ok"
+        }
+      },
+      "request_schema_valid": true
+    },
+    {
+      "id": "VEC-07",
+      "description": "undefined names fail closed; sorted, aggregated across fields",
+      "request": {
+        "flow": {
+          "known": "k"
+        },
+        "fields": {
+          "url": "{{base}}/x",
+          "prompt": "hi {{who}} {{known}}"
+        }
+      },
+      "expected": {
+        "schema": "hextory.variable_resolver@0.1",
+        "ok": false,
+        "error": {
+          "code": "undefined_variable",
+          "message": "undefined_variable: missing=[base, who] fields=[prompt, url]",
+          "missing_names": [
+            "base",
+            "who"
+          ],
+          "invalid_names": [],
+          "invalid_binds": [],
+          "fields": [
+            "prompt",
+            "url"
+          ],
+          "snippet": "prompt: hi {{who}} {{known}}"
+        }
+      },
+      "request_schema_valid": true
+    },
+    {
+      "id": "VEC-08",
+      "description": "path bind is not flat-identifier grammar in @0.1",
+      "request": {
+        "flow": {
+          "node": "x"
+        },
+        "fields": {
+          "t": "{{node.output.text}}"
+        }
+      },
+      "expected": {
+        "schema": "hextory.variable_resolver@0.1",
+        "ok": false,
+        "error": {
+          "code": "invalid_bind",
+          "message": "invalid_bind: invalid_binds=[{{node.output.text}}] fields=[t]",
+          "missing_names": [],
+          "invalid_names": [],
+          "invalid_binds": [
+            "{{node.output.text}}"
+          ],
+          "fields": [
+            "t"
+          ],
+          "snippet": "t: {{node.output.text}}"
+        }
+      },
+      "request_schema_valid": true
+    },
+    {
+      "id": "VEC-09",
+      "description": "unclosed opener fails closed",
+      "request": {
+        "fields": {
+          "t": "open {{ never"
+        }
+      },
+      "expected": {
+        "schema": "hextory.variable_resolver@0.1",
+        "ok": false,
+        "error": {
+          "code": "invalid_bind",
+          "message": "invalid_bind: invalid_binds=[{{ never] fields=[t]",
+          "missing_names": [],
+          "invalid_names": [],
+          "invalid_binds": [
+            "{{ never"
+          ],
+          "fields": [
+            "t"
+          ],
+          "snippet": "t: open {{ never"
+        }
+      },
+      "request_schema_valid": true
+    },
+    {
+      "id": "VEC-10",
+      "description": "invalid defined name",
+      "request": {
+        "flow": {
+          "node.output": "x"
+        },
+        "fields": {}
+      },
+      "expected": {
+        "schema": "hextory.variable_resolver@0.1",
+        "ok": false,
+        "error": {
+          "code": "invalid_variable_name",
+          "message": "invalid_variable_name: invalid_names=[node.output]",
+          "missing_names": [],
+          "invalid_names": [
+            "node.output"
+          ],
+          "invalid_binds": [],
+          "fields": [],
+          "snippet": ""
+        }
+      },
+      "request_schema_valid": false
+    },
+    {
+      "id": "VEC-11",
+      "description": "secret resolves into field, redacted in snapshot",
+      "request": {
+        "env": {
+          "api_token": "tok-123",
+          "region": "eu"
+        },
+        "secret_names": [
+          "api_token"
+        ],
+        "fields": {
+          "auth": "Bearer {{api_token}}"
+        }
+      },
+      "expected": {
+        "schema": "hextory.variable_resolver@0.1",
+        "ok": true,
+        "fields": {
+          "auth": "Bearer tok-123"
+        },
+        "vars": {
+          "api_token": "***",
+          "region": "eu"
+        }
+      },
+      "request_schema_valid": true
+    },
+    {
+      "id": "VEC-12",
+      "description": "secret text redacted in error snippet",
+      "request": {
+        "env": {
+          "api_token": "tok-123"
+        },
+        "secret_names": [
+          "api_token"
+        ],
+        "fields": {
+          "note": "key=tok-123 {{missing}}"
+        }
+      },
+      "expected": {
+        "schema": "hextory.variable_resolver@0.1",
+        "ok": false,
+        "error": {
+          "code": "undefined_variable",
+          "message": "undefined_variable: missing=[missing] fields=[note]",
+          "missing_names": [
+            "missing"
+          ],
+          "invalid_names": [],
+          "invalid_binds": [],
+          "fields": [
+            "note"
+          ],
+          "snippet": "note: key=*** {{missing}}"
+        }
+      },
+      "request_schema_valid": true
+    },
+    {
+      "id": "VEC-13",
+      "description": "unknown env profile fails closed (no source configured)",
+      "request": {
+        "env_profile": "prod",
+        "fields": {}
+      },
+      "expected": {
+        "schema": "hextory.variable_resolver@0.1",
+        "ok": false,
+        "error": {
+          "code": "env_profile_not_found",
+          "message": "env_profile_not_found: env_profile=prod",
+          "missing_names": [],
+          "invalid_names": [],
+          "invalid_binds": [],
+          "fields": [],
+          "snippet": "",
+          "env_profile": "prod"
+        }
+      },
+      "request_schema_valid": true
+    }
+  ]
+}

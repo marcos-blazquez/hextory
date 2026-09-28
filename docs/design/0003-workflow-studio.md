@@ -56,13 +56,13 @@ Hextory needs the **same class of experience**, remapped to dark-factory semanti
 | Test / Trigger | Dry-run / simulate against fakes; real `run` only if Gatekeeper allows |
 | Execution log | DigitalTraveler `routing_history`, quality reports, audit |
 | Subflow | Nested / reusable subgraph registered in the open-ended registry |
-| Studio is managed SaaS | **Managed Studio product** (hosting, auth, versioning, collaboration) — exact deploy home TBD |
+| Studio is managed SaaS | **Hosted Studio product** (hosting, auth, versioning, collaboration) — exact deploy home TBD |
 
 The analogy is **product UX and lifecycle**, not a copy of Twilio’s telephony widgets or Twilio’s cloud.
 
 ### 1.3 Goals
 
-- **G1 (REQ-UI-01):** Specify a managed Studio experience for visualize / create / edit / version workflow graphs.
+- **G1 (REQ-UI-01):** Specify a hosted Studio experience for visualize / create / edit / version workflow graphs.
 - **G2 (REQ-UI-02):** Keep Studio subordinate to DES-0001/0002: no run without Approved SDD; core remains authority.
 - **G3 (REQ-UI-03):** Define “fully managed” meaning for Hextory (auth, hosting, collaboration, publish pipeline) without locking AWS vs on-prem Studio hosting yet.
 - **G4 (REQ-UI-04):** Map canvas actions to workflow definition + Draft SDD artifacts suitable for dual review.
@@ -150,7 +150,7 @@ Studio is a **client + managed control plane** over the engine. It never bypasse
 
 | Entity | Key fields | Lifecycle |
 |---|---|---|
-| StudioProject | `project_id`, name, members | Created in managed Studio |
+| StudioProject | `project_id`, name, members | Created in hosted Studio |
 | WorkflowDraft | `workflow_id`, graph JSON, `sdd_id`, version, status | editable → submitted for review |
 | WorkflowRelease | immutable graph snapshot + `sdd_id` Approved | runnable via Gatekeeper |
 | CanvasLayout | positions, groups (presentation only) | may diverge from pure graph semantics |

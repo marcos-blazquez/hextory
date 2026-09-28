@@ -119,7 +119,7 @@ Hexagonal / ports & adapters. This SDD owns the **consumer-facing run bind** of 
 | **DES-0009-B** | HTTP ops stay: `POST /runs`, `GET /runs/{traveler_id}`, `POST /runs/{traveler_id}/resume` (parity on-prem ↔ AWS) | New `/execute` path; Studio-private RPC | Already shipped in DES-0004 / DES-0005 adapters |
 | **DES-0009-C** | Consumer path: **resolve binds → then `RequestGateway.run` / `POST /runs`** with `payload` including `vars` | Resolve only inside gateway after accept; skip resolve | Matches “vars already resolved” Studio start-run; still compatible with gateway-side seed from DES-0008 |
 | **DES-0009-D** | Status map (HTTP): **401** = adapter auth only; **403** = structured gateway denial (`RunResult.denied`); **404** = unknown traveler; **200** = accepted/completed result body (or status lookup). Auth never returns gate-shaped traveler denial | Fold auth into 403; invent 422 for gate | Verified in `adapters/onprem/app.py` + `adapters/aws/handlers.py` |
-| **DES-0009-E** | Auth principal is **adapter-local** (JWT bearer stub today); core RequestGateway stays identity-agnostic | Core Cognito / hosted IdP in `src/` | Keeps hexagonal core; IdP products are non-goals here |
+| **DES-0009-E** | Auth principal is **adapter-local** (JWT bearer stub today); core RequestGateway stays identity-agnostic | Core hosted IdP SDK in `src/` | Keeps hexagonal core; IdP products are non-goals here |
 | **DES-0009-F** | Implementation deferred until Approved | Soft-allow Draft consumer wiring as “shipped contract” | Hard rule: Draft ≠ production posture for new bind code |
 
 ---
@@ -226,7 +226,7 @@ Reuse DES-0002 lifecycle facts (`run.accepted`, `run.denied`, …). No new requi
 
 Forbidden in `src/`:
 
-- Consumer Studio UI, Cognito/IdP SDKs, private execute APIs that skip RequestGateway.
+- Consumer Studio UI, hosted IdP SDKs, private execute APIs that skip RequestGateway.
 - Gatekeeper forks / soft-allow Draft workflow runs.
 
 ### 5.2 Adapters
@@ -277,14 +277,14 @@ $ # Draft / missing sdd_id → 403 traveler denial body
 | A-1 | On-prem + AWS HTTP status maps stay the public reference | Drift invents a third map | Cite adapter files; TEST-RUN-* parity |
 | A-2 | DES-0008 `payload["vars"]` additive attachment is stable | Consumer invents private bags | Depend on Approved DES-0008; no private names |
 | A-3 | Dual review before any new bind/impl claimed from this SDD | Agents ship Draft as done | §13 + CONTRIBUTING |
-| A-4 | Auth remains adapter-local for first consumer slice | Pressure to put Cognito in core | NG2; DES-0009-E |
+| A-4 | Auth remains adapter-local for first consumer slice | Pressure to put a hosted IdP in core | NG2; DES-0009-E |
 
 ---
 
 ## 8. Explicit non-goals
 
 - **NG1:** No Studio UI, canvas, publish UX, or web app implementation (DES-0003 remains separate).
-- **NG2:** No Cognito / hosted identity-provider product design in core or this SDD.
+- **NG2:** No hosted identity-provider product design in core or this SDD.
 - **NG3:** No metrics scrape / Prometheus `/metrics` / Grafana work (DES-0006 owns that).
 - **NG4:** No Gatekeeper fork / soft-allow; no parallel `FactoryRunPort` inbound authority.
 - **NG5:** No private sibling product names in this public doc or its tests.
@@ -458,4 +458,4 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 1. Add consumer-facing docs / examples that call resolve → `POST /runs` / `RequestGateway.run`.
 2. Add TEST-RUN-01…07 (mostly adapter/behavior parity; avoid duplicating DES-0008 VAR tests).
 3. Optionally clarify gateway merge when client already supplied `payload["vars"]` (Q-RUN-1).
-4. Do **not** implement Studio UI; do **not** add Cognito to core; do **not** fork Gatekeeper; do **not** invent `FactoryRunPort`.
+4. Do **not** implement Studio UI; do **not** add a hosted IdP to core; do **not** fork Gatekeeper; do **not** invent `FactoryRunPort`.
