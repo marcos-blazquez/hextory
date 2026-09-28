@@ -18,6 +18,8 @@ dependencies = [
 dev = [
   "pytest>=8.0",
   "httpx>=0.27",
+  # DES-0008: validate docs/contracts/*.schema.json in tests.
+  "jsonschema>=4.18",
 ]
 # Optional LangGraph runner (adapters/local/langgraph_runtime.py). Core stays pure.
 # Install for parity tests / CLI --runtime langgraph:

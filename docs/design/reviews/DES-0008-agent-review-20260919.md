@@ -5,7 +5,7 @@
 | **Doc** | DES-0008 Environment and in-flow variables (`{{var}}` bind + resolve) |
 | **Reviewer** | Clark Bot |
 | **Date** | 2026-09-19 America/Santiago |
-| **Human counterpart** | Marcos Blazquez (Approve / Go — relayed by Bruce 2026-09-19) |
+| **Human counterpart** | Marcos Blazquez (Approve / Go — 2026-09-19) |
 | **Verdict** | **Approve** |
 
 ## Findings

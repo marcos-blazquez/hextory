@@ -8,11 +8,13 @@ from adapters.local.file_checkpointer import DEFAULT_STORE_DIRNAME, FileCheckpoi
 from adapters.local.file_idempotency import FileIdempotencyStore
 from adapters.local.memory_checkpointer import MemoryCheckpointer
 from adapters.local.sdd_status_reader import LocalSddStatusReader
+from adapters.local.variable_source import InMemoryEnvironmentSource
 
 __all__ = [
     "DEFAULT_STORE_DIRNAME",
     "FileCheckpointer",
     "FileIdempotencyStore",
+    "InMemoryEnvironmentSource",
     "LocalSddStatusReader",
     "MemoryCheckpointer",
 ]

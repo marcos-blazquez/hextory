@@ -15,10 +15,18 @@ from src.ports.metrics import (
     SafeMetrics,
 )
 from src.ports.sdd_status import SddStatus, SddStatusReader
+from src.ports.variable_resolver import (
+    EnvironmentSource,
+    KernelVariableResolver,
+    ResolveError,
+    SecretValue,
+    VariableResolverPort,
+)
 
 __all__ = [
     "Checkpointer",
     "Clock",
+    "EnvironmentSource",
     "FROZEN_METRIC_NAMES",
     "FakeLlm",
     "GateDecision",
@@ -28,14 +36,18 @@ __all__ = [
     "IdempotencyStore",
     "InMemoryIdempotencyStore",
     "InMemoryMetrics",
+    "KernelVariableResolver",
     "LlmPort",
     "MetricsPort",
     "NoOpMetrics",
     "NullLlm",
+    "ResolveError",
     "SafeMetrics",
     "ScriptedLlm",
+    "SecretValue",
     "SddStatus",
     "SddStatusReader",
     "SystemClock",
     "UuidGenerator",
+    "VariableResolverPort",
 ]

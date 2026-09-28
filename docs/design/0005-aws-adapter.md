@@ -417,7 +417,7 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 |---|---|---|
 | 2026-09-17 | Marcos Blazquez (direction) + Clark Bot | Initial Draft: AWS third-target adapter; LocalStack/moto-first; DynamoDB primary; API GW HTTP API + Lambda; no real-account deploy; no implementation |
 | 2026-09-17 | Marcos Blazquez + Clark Bot | Dual review → **Approved**; Q-AWS-1/2/3 interims accepted; §13 green; first AWS slice authorized (impl follow-up; no real-account deploy) |
-| 2026-09-17 | Marcos + Steel (green-light) + Clark Bot | **Amendment:** authorized manual `hextory-*` smoke (us-east-2) in scope for multi-target evidence; CI must not deploy; Q-AWS-6 accepted for bounded smoke only |
+| 2026-09-17 | Marcos Blazquez (green-light) + Clark Bot | **Amendment:** authorized manual `hextory-*` smoke (us-east-2) in scope for multi-target evidence; CI must not deploy; Q-AWS-6 accepted for bounded smoke only |
 
 ---
 

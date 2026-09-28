@@ -50,6 +50,17 @@ Consumers that depend on `hextory.digital_traveler@0.1`:
 - **MAY** wrap the public types with adapter DTOs and extension bags for UI / persistence needs.
 - **MUST NOT** land Studio / React / `adapters/web` code in this public repo until an Approved build SDD authorizes it (DES-0003 remains Draft ideation).
 
+## Reserved payload keys (DES-0008)
+
+Additive under `@0.1` (Q-VAR-1 accepted; no schema id bump):
+
+| Key | Rule |
+|---|---|
+| `payload["vars"]` | Effective variable map snapshot (in-flow > Environment > defaults). Secret-backed values are stored as the redaction marker `***`, never raw. Callers may also supply in-flow vars here on run request. |
+| `payload["_resolve_error"]` | Present only when a run fails `{{var}}` resolution; shape = `$defs/resolve_error` in [`variable-resolver-0.1.schema.json`](variable-resolver-0.1.schema.json). |
+
+See [DES-0008](../design/0008-env-and-flow-variables.md) and [variable-resolver-0.1.md](variable-resolver-0.1.md).
+
 ## Versioning
 
 | Change type | Action |

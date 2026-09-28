@@ -6,14 +6,14 @@
 | **Title** | Environment and in-flow variables (`{{var}}` bind + resolve) |
 | **Status** | **Approved** |
 | **Authors** | Marcos Blazquez (direction) + Clark Bot |
-| **Reviewers (human)** | Marcos Blazquez (2026-09-19 — Approve / Go, relayed by Bruce) |
+| **Reviewers (human)** | Marcos Blazquez (2026-09-19 — Approve / Go) |
 | **Reviewers (agent)** | Clark Bot (2026-09-19 — checklist pass; see review record) |
 | **Created** | 2026-09-19 |
-| **Last updated** | 2026-09-19 (dual Approve) |
+| **Last updated** | 2026-09-28 (first slice implemented; traceability filled) |
 | **Related REQs** | REQ-0010 (hexagonal ports); REQ-0012 (traveler); REQ-0013 (gateway/interceptors); proposed **REQ-0020** (env + in-flow variable bind/resolve) |
 | **Supersedes** | none |
 | **Depends on** | [DES-0001](0001-hextory-vision.md) (**Approved**), [DES-0002](0002-factory-engine.md) (**Approved**); conceptual alignment with [DES-0003](0003-workflow-studio.md) flow-variable analogy (**Draft**, ideation — no UI here) |
-| **Implementation** | **Authorized** for the first env/in-flow variables slice per §9 / §13 and the end-of-doc slice list — `VariableResolverPort` + pure bind helpers + `payload["vars"]` seed + TEST-VAR-*; authoring UI remains a non-goal |
+| **Implementation** | **Authorized** for the first env/in-flow variables slice per §9 / §13 and the end-of-doc slice list — `VariableResolverPort` + pure bind helpers + `payload["vars"]` seed + TEST-VAR-*; authoring UI remains a non-goal. First slice **in tree** (`src/ports/variable_resolver.py`, `adapters/local/variable_source.py`, `docs/contracts/variable-resolver-0.1.schema.json`) |
 
 ---
 
@@ -363,7 +363,7 @@ Reviewers must check each item. Architecture-critical items require **human** si
 
 | Role | Name | Date | Decision |
 |---|---|---|---|
-| Human reviewer | Marcos Blazquez | 2026-09-19 America/Santiago | **Approve** (Go, relayed by Bruce) |
+| Human reviewer | Marcos Blazquez | 2026-09-19 America/Santiago | **Approve** (Go) |
 | Agent reviewer | Clark Bot | 2026-09-19 America/Santiago | **Approve** |
 
 ---
@@ -372,10 +372,10 @@ Reviewers must check each item. Architecture-critical items require **human** si
 
 | REQ ID | Description | DES IDs | TEST IDs | IMPL notes (post-approval) |
 |---|---|---|---|---|
-| REQ-0020 (proposed) | Env + in-flow variables; `{{var}}` bind/resolve | DES-0008-A…H | TEST-VAR-01…07 | |
-| REQ-0010 | Hexagonal ports | DES-0008-F | TEST-VAR-01, TEST-0010 | |
-| REQ-0012 | DigitalTraveler; no core fork | DES-0008-E | TEST-VAR-05 | additive `payload["vars"]` |
-| REQ-0013 | Gateway + interceptors | DES-0008-E | TEST-VAR-06 | metadata seed; Gatekeeper unchanged |
+| REQ-0020 (proposed) | Env + in-flow variables; `{{var}}` bind/resolve | DES-0008-A…H | TEST-VAR-01…11 | `src/ports/variable_resolver.py` (`VariableResolverPort`, `KernelVariableResolver`, `ResolveError`, `SecretValue`); `adapters/local/variable_source.py`; contract `docs/contracts/variable-resolver-0.1.schema.json` + vectors |
+| REQ-0010 | Hexagonal ports | DES-0008-F | TEST-VAR-01, TEST-0010 | Port + pure helpers in `src/ports`; Environment source in `adapters/local` |
+| REQ-0012 | DigitalTraveler; no core fork | DES-0008-E | TEST-VAR-05, TEST-VAR-08 | additive `payload["vars"]` (redacted snapshot) + `payload["_resolve_error"]` on failure; no core field |
+| REQ-0013 | Gateway + interceptors | DES-0008-E | TEST-VAR-06, TEST-VAR-03 | `RequestGateway.run(env_profile=…)` resolves after the interceptor chain, before any node; Gatekeeper unchanged |
 
 IDs must remain stable once Approved. New work gets new IDs; do not reuse.
 
@@ -434,6 +434,7 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 |---|---|---|
 | 2026-09-19 | Cursor Cloud Agent | Initial **Draft**: Env + in-flow vars, `{{var}}` grammar, `VariableResolverPort` sketch, `payload["vars"]` attachment; dual review pending; no Approval claimed |
 | 2026-09-19 | Marcos Blazquez + Clark Bot | Dual review → **Approved**; Q-VAR-1/2 interims accepted; §13 green; first env/vars slice authorized (impl follow-up) |
+| 2026-09-28 | Grok Bot (implementer) | First slice implemented under this Approval: port, local Environment source, gateway resolve, JSON Schema + vectors; TEST-VAR-08…11 added; §12 IMPL notes filled. Implementation choices: see “First-slice implementation notes”. No design decision changed |
 
 ---
 
@@ -468,6 +469,10 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 | TEST-VAR-05 | Accepted traveler has `payload["vars"]` snapshot |
 | TEST-VAR-06 | Gatekeeper still denies non-Approved workflow SDDs |
 | TEST-VAR-07 | Behavior module uses Given/When/Then structure |
+| TEST-VAR-08 | Secret-backed values: substituted into resolved fields only; redacted in `payload["vars"]`, errors, snippets, routing notes (§3.3) — *added at implementation* |
+| TEST-VAR-09 | Local Environment source: omitted profile → empty; unknown profile → fail closed (Q-VAR-4) — *added at implementation* |
+| TEST-VAR-10 | Language-neutral JSON Schema + shared vectors match the kernel (A-3) — *added at implementation* |
+| TEST-VAR-11 | Defined-name checking: invalid names / non-identifier binds fail closed; string fields only (DES-0008-B, Q-VAR-2/3) — *added at implementation* |
 
 ### First implementation slice (authorized after Approval)
 
@@ -479,8 +484,20 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 4. Amend `docs/contracts/digital-traveler-0.1.md` with the reserved `payload["vars"]` note (Q-VAR-1 accepted).
 5. Do **not** implement authoring UI; do **not** fork Gatekeeper; do **not** introduce private traveler bags.
 
+### First-slice implementation notes (2026-09-28)
+
+Interpretations taken where this SDD is silent; none changes a DES decision:
+
+1. **Station inputs** = top-level string values of the run payload, excluding the reserved `vars` bag and `_`-prefixed gateway keys (Q-VAR-2). They are resolved once at run accept, after the interceptor chain (idempotency replay and Gatekeeper unchanged) and before the first node.
+2. **Non-identifier `{{`** (e.g. `{{ x }}`, `{{a.b}}`, an unclosed `{{`) fails closed as `invalid_bind` rather than passing through raw (extends DES-0008-D; flat names only per Q-VAR-3). Literal braces use the `\{{` escape.
+3. **Defined names** in any scope must match the identifier grammar → `invalid_variable_name`.
+4. **Non-string values** bound into a template render as canonical compact JSON (`3`, `true`, `null`, sorted-key objects).
+5. **Secrets**: adapters mark values as secret; the raw value appears only in the resolved station input. `payload["vars"]`, `RequestContext.metadata["vars"]`, error snippets and routing notes carry `***`.
+6. **Failure shape**: traveler status `denied`, gateway routing note `variable resolve failed: …`, structured error under `payload["_resolve_error"]`; counted in `runs_terminal`, never in `gate_denials`. Name lists are sorted for determinism.
+7. **Q-VAR-4**: omitted profile → empty Environment; named but unknown (or no Environment source wired) → `env_profile_not_found`.
+
 ---
 
 ## Review records
 
-Dual Approval recorded: human Approve (Marcos Blazquez, Go relayed by Bruce 2026-09-19 America/Santiago) + agent Approve ([DES-0008-agent-review-20260919.md](reviews/DES-0008-agent-review-20260919.md)).
+Dual Approval recorded: human Approve (Marcos Blazquez, Go, 2026-09-19 America/Santiago) + agent Approve ([DES-0008-agent-review-20260919.md](reviews/DES-0008-agent-review-20260919.md)).

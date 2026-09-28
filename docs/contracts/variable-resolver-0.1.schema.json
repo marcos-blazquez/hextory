@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/marcos-blazquez/hextory/main/docs/contracts/variable-resolver-0.1.schema.json",
+  "title": "hextory.variable_resolver@0.1",
+  "description": "Language-neutral input/output contract for VariableResolverPort (DES-0008 first slice). A document is exactly one of: resolve_request, resolve_success, resolve_failure. Grammar: {{identifier}} with identifier = [A-Za-z_][A-Za-z0-9_]*; '\\{{' yields a literal '{{'; unmatched '}}' is left as-is; any other unescaped '{{' fails closed (invalid_bind). Precedence: flow > env > defaults. Only top-level string fields resolve; other values pass through unchanged.",
+  "oneOf": [
+    { "$ref": "#/$defs/resolve_request" },
+    { "$ref": "#/$defs/resolve_success" },
+    { "$ref": "#/$defs/resolve_failure" }
+  ],
+  "$defs": {
+    "schema_id": {
+      "const": "hextory.variable_resolver@0.1"
+    },
+    "identifier": {
+      "description": "DES-0008-B variable name. Flat names only in @0.1 (no dotted / path binds).",
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "vars_map": {
+      "description": "Variable name -> JSON-compatible value. Non-string values render into templates as canonical compact JSON (sorted keys, no spaces).",
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/identifier" },
+      "additionalProperties": true
+    },
+    "fields": {
+      "description": "Station input fields (node field templates). Only top-level string values are resolved; the reserved key 'vars' and '_'-prefixed keys are not station inputs when resolving a traveler payload.",
+      "type": "object",
+      "additionalProperties": true
+    },
+    "resolve_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fields"],
+      "properties": {
+        "schema": { "$ref": "#/$defs/schema_id" },
+        "env_profile": {
+          "description": "Environment profile id loaded by the adapter. Omitted/null -> empty Environment; present but unknown -> env_profile_not_found (fail closed).",
+          "type": ["string", "null"]
+        },
+        "env": { "$ref": "#/$defs/vars_map" },
+        "flow": { "$ref": "#/$defs/vars_map" },
+        "defaults": { "$ref": "#/$defs/vars_map" },
+        "secret_names": {
+          "description": "Names whose values are secret-backed. Their raw values may appear only in resolved fields; snapshots and errors show the redaction marker.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/identifier" },
+          "uniqueItems": true
+        },
+        "fields": { "$ref": "#/$defs/fields" }
+      }
+    },
+    "resolve_success": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ok", "fields", "vars"],
+      "properties": {
+        "schema": { "$ref": "#/$defs/schema_id" },
+        "ok": { "const": true },
+        "fields": { "$ref": "#/$defs/fields" },
+        "vars": {
+          "description": "Effective-map snapshot as stored under traveler payload[\"vars\"] (DES-0008-E). Secret values are replaced by the redaction marker.",
+          "$ref": "#/$defs/vars_map"
+        }
+      }
+    },
+    "resolve_failure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ok", "error"],
+      "properties": {
+        "schema": { "$ref": "#/$defs/schema_id" },
+        "ok": { "const": false },
+        "error": { "$ref": "#/$defs/resolve_error" }
+      }
+    },
+    "redaction_marker": {
+      "const": "***"
+    },
+    "resolve_error": {
+      "description": "Deterministic structured failure (DES-0008-D). Name lists are sorted and de-duplicated; invalid_binds keep first-occurrence order. Never contains raw secret values.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "message",
+        "missing_names",
+        "invalid_names",
+        "invalid_binds",
+        "fields",
+        "snippet"
+      ],
+      "properties": {
+        "code": {
+          "enum": [
+            "undefined_variable",
+            "invalid_bind",
+            "invalid_variable_name",
+            "env_profile_not_found"
+          ]
+        },
+        "message": { "type": "string" },
+        "missing_names": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/identifier" },
+          "uniqueItems": true
+        },
+        "invalid_names": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "invalid_binds": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 64 },
+          "uniqueItems": true
+        },
+        "fields": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "snippet": {
+          "description": "Redacted excerpt of the first failing template, prefixed by '<field>: ' when produced from fields.",
+          "type": "string"
+        },
+        "env_profile": { "type": "string" }
+      }
+    }
+  }
+}

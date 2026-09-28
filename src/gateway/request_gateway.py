@@ -22,6 +22,17 @@ from src.ports.gatekeeper import Gatekeeper
 from src.ports.graph_runner import GraphRunner
 from src.ports.id_generator import IdGenerator, UuidGenerator
 from src.ports.idempotency import IdempotencyStore, InMemoryIdempotencyStore
+from src.ports.variable_resolver import (
+    ERROR_ENV_PROFILE_NOT_FOUND,
+    RESOLVE_ERROR_PAYLOAD_KEY,
+    VARS_METADATA_KEY,
+    VARS_PAYLOAD_KEY,
+    EnvironmentSource,
+    ResolveError,
+    VariableResolverPort,
+    snapshot_vars,
+    station_input_fields,
+)
 from src.ports.metrics import (
     METRIC_GATE_DENIALS,
     METRIC_QUALITY_FAIL,
@@ -55,6 +66,8 @@ class RequestGateway:
         runner: Optional[GraphRunner] = None,
         idempotency_store: Optional[IdempotencyStore] = None,
         metrics: Optional[MetricsPort] = None,
+        variable_resolver: Optional[VariableResolverPort] = None,
+        environment_source: Optional[EnvironmentSource] = None,
     ) -> None:
         self._gatekeeper = gatekeeper
         self._registry = registry
@@ -84,6 +97,46 @@ class RequestGateway:
         self._runner: GraphRunner = runner if runner is not None else PureGraphRunner()
         # DES-0006: best-effort metrics (never fail the business run).
         self._metrics: MetricsPort = SafeMetrics(metrics or NoOpMetrics())
+        # DES-0008: optional `{{var}}` resolve of station inputs at run accept.
+        self._resolver = variable_resolver
+        self._env_source = environment_source
+
+    def _resolve_vars(
+        self, ctx: RequestContext, env_profile: Optional[str]
+    ) -> Optional[ResolveError]:
+        """Merge scopes + resolve station inputs into ``ctx.payload`` (DES-0008-E).
+
+        Runs after the interceptor chain (so idempotent replay and Gatekeeper are
+        unchanged) and before any node. On failure ``ctx.payload`` keeps the
+        unresolved templates plus a redacted ``vars`` snapshot when available.
+        """
+        if self._resolver is None:
+            if env_profile is not None:
+                # A named profile we cannot load must not be silently ignored.
+                return ResolveError(ERROR_ENV_PROFILE_NOT_FOUND, env_profile=env_profile)
+            return None
+        try:
+            if self._env_source is not None:
+                env = self._env_source.load(env_profile)
+            elif env_profile is not None:
+                raise ResolveError(ERROR_ENV_PROFILE_NOT_FOUND, env_profile=env_profile)
+            else:
+                env = {}
+            raw_flow = ctx.payload.get(VARS_PAYLOAD_KEY) or {}
+            flow = raw_flow if isinstance(raw_flow, dict) else {}
+            effective = self._resolver.effective_vars(env=env, flow=flow)
+        except ResolveError as err:
+            return err
+        snapshot = snapshot_vars(effective)
+        ctx.metadata[VARS_METADATA_KEY] = snapshot
+        fields = station_input_fields(ctx.payload)
+        try:
+            resolved = self._resolver.resolve_fields(fields, effective)
+        except ResolveError as err:
+            ctx.payload = {**ctx.payload, VARS_PAYLOAD_KEY: snapshot}
+            return err
+        ctx.payload = {**ctx.payload, **resolved, VARS_PAYLOAD_KEY: snapshot}
+        return None
 
     def _remember_idempotency(self, key: Optional[str], traveler_id: str) -> None:
         if key:
@@ -155,6 +208,7 @@ class RequestGateway:
         payload: Optional[dict[str, Any]] = None,
         idempotency_key: Optional[str] = None,
         max_rework: Optional[int] = None,
+        env_profile: Optional[str] = None,
     ) -> RunResult:
         ctx = RequestContext(
             workflow_id=workflow_id,
@@ -246,6 +300,42 @@ class RequestGateway:
 
         definition = self._registry.get(workflow_id)
         assert definition is not None
+
+        # DES-0008: resolve `{{var}}` station inputs; undefined → fail closed
+        # before any node runs. Not a gate denial (no gate_denials metric).
+        resolve_error = self._resolve_vars(ctx, env_profile)
+        if resolve_error is not None:
+            reason = f"variable resolve failed: {resolve_error}"
+            traveler = DigitalTraveler(
+                traveler_id=traveler_id,
+                workflow_id=workflow_id,
+                sdd_id=sdd_id or "",
+                status=TravelerStatus.DENIED,
+                payload={
+                    **ctx.payload,
+                    RESOLVE_ERROR_PAYLOAD_KEY: resolve_error.to_dict(),
+                },
+                idempotency_key=idempotency_key,
+                max_rework=max_rework or DEFAULT_MAX_REWORK,
+                created_at=now,
+                updated_at=now,
+            )
+            traveler.append_routing(
+                node_id="gateway",
+                decision=RoutingDecision.DENY,
+                notes=reason,
+                at=now,
+            )
+            self._persist(traveler)
+            self._remember_idempotency(idempotency_key, traveler.traveler_id)
+            self._inc(
+                METRIC_RUNS_TERMINAL,
+                labels={
+                    "workflow_id": workflow_id,
+                    "status": TravelerStatus.DENIED.value,
+                },
+            )
+            return RunResult(traveler=traveler, denied=True, reason=reason)
 
         traveler = DigitalTraveler(
             traveler_id=traveler_id,
