@@ -9,7 +9,7 @@
 | **Reviewers (human)** | TBD — Marcos Blazquez |
 | **Reviewers (agent)** | TBD — Clark Bot |
 | **Created** | 2026-09-28 |
-| **Last updated** | 2026-09-28 |
+| **Last updated** | 2026-09-28 (r2: proposed defaults for blocking questions) |
 | **Related REQs** | REQ-0010 (hexagonal ports); REQ-0012 (traveler); REQ-0013 (gateway / gatekeeper signals); REQ-0018 (factory metrics — DES-0006); proposed **REQ-0022** (operated observability: scrape, alerting, journey tracking) |
 | **Supersedes** | none — **extends** [DES-0006](0006-factory-observability.md) |
 | **Depends on** | [DES-0001](0001-hextory-vision.md) (**Approved**), [DES-0002](0002-factory-engine.md) (**Approved**), [DES-0004](0004-onprem-adapter.md) (**Approved**), [DES-0005](0005-aws-adapter.md) (**Approved**), [DES-0006](0006-factory-observability.md) (**Approved**) |
@@ -416,11 +416,11 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 
 | ID | Question | Owner | Due | Resolution |
 |---|---|---|---|---|
-| **Q-OOB-1** | Is fetching a pinned `promtool` binary in CI acceptable, or must rule tests run without an external binary (pure-Python evaluator for a PromQL subset)? | Marcos | Before Approval (blocking unless interim accepted) | Open — proposed interim: pinned + checksummed `promtool` in a separate `alert-rules` CI job; pytest lint always runs |
-| **Q-OOB-2** | Correlation id as reserved `payload["_correlation_id"]` (no schema bump) vs a first-class traveler field in a future `@0.2`? | Marcos | Before Approval (or accept interim) | Open — proposed interim: reserved payload key now; revisit with next traveler contract revision |
+| **Q-OOB-1** | Is fetching a pinned `promtool` binary in CI acceptable, or must rule tests run without an external binary (pure-Python evaluator for a PromQL subset)? | Marcos | Before Approval (blocking unless interim accepted) | **Proposed, pending human Approve:** yes — pinned + checksummed `promtool` in a separate `alert-rules` CI job; pytest lint always runs |
+| **Q-OOB-2** | Correlation id as reserved `payload["_correlation_id"]` (no schema bump) vs a first-class traveler field in a future `@0.2`? | Marcos | Before Approval (or accept interim) | **Proposed, pending human Approve:** reserved `payload["_correlation_id"]` now; promote to a first-class traveler field in `@0.2` |
 | Q-OOB-3 | Add an optional per-step observer hook to `GraphRunner` for *live* station events, or keep post-run derivation from `routing_history`? | Dual review | During first impl slice | Soft — interim: post-run derivation (DES-0010-F) |
 | Q-OOB-4 | Stuck detection across restarts / replicas: add a checkpointer scan ("sweeper") needing a list-non-terminal capability on the checkpointer port? | Maintainers | Follow-up SDD / slice | Soft — interim: in-process `InflightCollector` only |
-| **Q-OOB-5** | Default alert thresholds and windows (gate-failure 50%/10m, quality-fail 30%/15m, stuck 15m, error 5%/10m, scrape 2m) — acceptable defaults, and should they be overridable via a values file? | Marcos | Before Approval (or accept interim) | Open — proposed interim: accept defaults; thresholds live only in rule YAML |
+| **Q-OOB-5** | Default alert thresholds and windows (gate-failure 50%/10m, quality-fail 30%/15m, stuck 15m, error 5%/10m, scrape 2m) — acceptable defaults, and should they be overridable via a values file? | Marcos | Before Approval (or accept interim) | **Proposed, pending human Approve:** thresholds as drafted in §5.3; thresholds live only in rule YAML |
 | Q-OOB-6 | Expose `/runs/{id}/journey` on the AWS HTTP API in this slice, or on-prem + local only? | Dual review | During first impl slice | Soft — interim: on-prem + local; AWS journey via CloudWatch Logs query |
 | Q-OOB-7 | Scrape auth for `/metrics` beyond the Compose network (carries DES-0006 Q-OBS-6)? | Ops / Marcos | Before production hardening | Soft — interim: open on Compose network |
 | Q-OOB-8 | Ship CloudWatch alarms mirroring the Prometheus rules in `template.yaml` (parameter-gated, default off), or leave AWS alerting to operators? | Marcos | During AWS sub-slice | Soft — interim: leave to operators; document EMF metric names |
@@ -432,6 +432,7 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 | Date | Author | Change |
 |---|---|---|
 | 2026-09-28 | Marcos Blazquez (direction) + Clark Bot | Initial **Draft**: operated observability extending DES-0006 — scrape config + Compose profile, alert rules as code with rule unit tests, correlation id + journey timeline, new instruments, AWS EMF metrics wiring; dual review pending; no implementation |
+| 2026-09-28 | Marcos Blazquez + Clark Bot | r2: Q-OOB-1 (pinned `promtool` in CI), Q-OOB-2 (reserved payload key now, first-class field in `@0.2`), Q-OOB-5 (thresholds as drafted) marked **Proposed, pending human Approve** |
 
 ---
 
