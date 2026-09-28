@@ -4,24 +4,24 @@
 |---|---|
 | **Doc ID** | DES-0007 |
 | **Title** | Linear quality gate workflow (`linear_quality_gate`) |
-| **Status** | Draft |
-| **Authors** | Cursor Cloud Agent (draft) |
-| **Reviewers (human)** | TBD — Marcos Blazquez (dual review not completed in this agent turn) |
-| **Reviewers (agent)** | TBD — Clark Bot (dual review not completed in this agent turn) |
+| **Status** | **Approved** |
+| **Authors** | Cursor Cloud Agent (draft) + Clark Bot (review revisions) |
+| **Reviewers (human)** | Marcos Blazquez (2026-09-28 — Approve) |
+| **Reviewers (agent)** | Clark Bot (2026-09-28 — checklist pass; see review record) |
 | **Created** | 2026-09-19 |
-| **Last updated** | 2026-09-19 |
+| **Last updated** | 2026-09-28 (dual Approve) |
 | **Related REQs** | REQ-0011 (open-ended registry); REQ-0012 (traveler); REQ-0013 (gateway/gatekeeper); REQ-0014 (quality outcomes); proposed **REQ-0019** (second concrete workflow beyond starter) |
 | **Supersedes** | none |
 | **Depends on** | [DES-0001](0001-hextory-vision.md) (**Approved**), [DES-0002](0002-factory-engine.md) (**Approved**) |
-| **Implementation** | **Not authorized** while Status is Draft — register/run only after dual Approve + §13 green |
+| **Implementation** | **Authorized** for the first `linear_quality_gate` slice per §9 / §13 and the end-of-doc slice list — registry definition + wiring + TEST-LQG-*; no traveler schema change |
 
 ---
 
 ## 0. Document posture
 
-This SDD is a **thin Draft** for a second concrete factory workflow beyond the in-tree `starter_factory` topology (assembly → quality → packaging with rework). Maturity pulses repeatedly flag **thin Approved *workflow* SDD coverage**: DES-0001/0002/0004/0005/0006 are platform/adapter/obs SDDs; they do not dual-review a second runnable workflow graph.
+This SDD (now **Approved**) is the design gate for a second concrete factory workflow beyond the in-tree `starter_factory` topology (assembly → quality → packaging with rework). Maturity pulses repeatedly flag **thin Approved *workflow* SDD coverage**: DES-0001/0002/0004/0005/0006 are platform/adapter/obs SDDs; they do not dual-review a second runnable workflow graph.
 
-**Why Draft (not Approved):** dual human + agent review is mandatory (DES-0001 / design-doc-review). This agent turn can author the Draft and record agent checklist intent, but cannot substitute Marcos Blazquez + Clark Bot dual Approve. **Do not treat this document as an implementation gate.**
+**Dual review complete (2026-09-28 America/Santiago).** Marcos Blazquez + Clark Bot **Approve**. §13 is green; the first implementation slice is authorized under the hard rules below. Q-LQG-1/2 proposed interims are accepted as approved interims.
 
 **Hard rules (must survive into any future build):**
 
@@ -57,7 +57,7 @@ Without a second workflow SDD, aspect **2** (design-doc coverage) stays capped o
 
 - Dual review Approves (or requests changes) without re-litigating DES-0002 ports.
 - After Approval, agents can register `linear_quality_gate` and prove PASS→shipped and FAIL→escalated with ordinary pytest (no Cucumber).
-- Maturity pulses can cite a second workflow SDD (Draft now; Approved after dual review).
+- Maturity pulses can cite a second **Approved** workflow SDD (dual Approve 2026-09-28).
 
 ### 1.4 Scope
 
@@ -67,7 +67,7 @@ Without a second workflow SDD, aspect **2** (design-doc coverage) stays capped o
 - Design decisions, acceptance criteria, TEST ID plan, gate criteria.
 - Traceability to REQ-0011 / proposed REQ-0019.
 
-**Out of scope:** see Explicit non-goals (§8). No implementation while Draft.
+**Out of scope:** see Explicit non-goals (§8). First-slice implementation is authorized while Status is **Approved** and §13 is green.
 
 ---
 
@@ -215,9 +215,10 @@ $ hextory run --sdd DES-0007 --workflow linear_quality_gate --force-quality FAIL
 
 | ID | Assumption / dependency | Risk if wrong | Mitigation |
 |---|---|---|---|
-| A-1 | DES-0002 GraphRunner can express escalate-without-rework edges | Runner assumes rework always | Confirm/extend runner policy in impl slice; keep test first |
+| A-1 | DES-0002 GraphRunner can express escalate-without-rework edges | Runner assumes rework always | Confirmed at review: `run_quality` escalates when `rework_count >= max_rework`, and a graph with no `rework` edge stops at `escalated`. **Known gap:** `RequestGateway.run` coerces `max_rework=0` to the default via `max_rework or DEFAULT_MAX_REWORK`; the impl slice must seed `max_rework=0` for this workflow without that coercion (e.g. `is None` check or a workflow-level policy value) — test first (TEST-LQG-04) |
 | A-2 | Reusing assembly as “intake” is acceptable naming | Confusion with starter | Document alias in registry metadata / node notes |
-| A-3 | Dual review will occur before any code merge for this workflow | Agents implement from Draft | Gatekeeper + CONTRIBUTING + PR template block Draft impl |
+| A-3 | Dual review will occur before any code merge for this workflow | Agents implement from Draft | Gatekeeper + CONTRIBUTING + PR template block Draft impl (**done 2026-09-28**) |
+| A-4 | Runs of `linear_quality_gate` cite `sdd_id=DES-0007` | Today the Gatekeeper checks only the request's `sdd_id`, not that it matches `WorkflowDefinition.sdd_id`, so a caller could cite another Approved SDD | Pre-existing DES-0002 behavior, not introduced here; tracked as soft Q-LQG-4 (workflow↔SDD binding check) — out of scope for this slice |
 
 ---
 
@@ -235,7 +236,7 @@ $ hextory run --sdd DES-0007 --workflow linear_quality_gate --force-quality FAIL
 
 ## 9. Acceptance criteria for agent implementation
 
-Concrete only after Status is **Approved** and §13 is green.
+Concrete and binary. Status is **Approved** and §13 is green (2026-09-28).
 
 | ID | Criterion | Verification method |
 |---|---|---|
@@ -267,23 +268,23 @@ Reviewers must check each item. Architecture-critical items require **human** si
 
 | # | Check | Human | Agent | Critical? |
 |---|---|---|---|---|
-| 1 | Goals and non-goals are clear and consistent | ☐ | ☐ | Yes |
-| 2 | Architecture fits hexagonal / factory rules | ☐ | ☐ | Yes |
-| 3 | Interfaces and failure modes are specified | ☐ | ☐ | Yes |
-| 4 | Acceptance criteria are testable | ☐ | ☐ | Yes |
-| 5 | Traceability IDs are complete and unique | ☐ | ☐ | Yes |
-| 6 | Gate criteria are unambiguous | ☐ | ☐ | Yes |
-| 7 | Security / privacy / compliance touched? | ☐ | ☐ | If yes → Yes |
-| 8 | Glossary terms used consistently | ☐ | ☐ | No |
-| 9 | Visuals / diagrams present or explicitly deferred | ☐ | ☐ | No |
-| 10 | No implementation leakage that bypasses this SDD | ☐ | ☐ | Yes |
+| 1 | Goals and non-goals are clear and consistent | ☑ | ☑ | Yes |
+| 2 | Architecture fits hexagonal / factory rules | ☑ | ☑ | Yes |
+| 3 | Interfaces and failure modes are specified | ☑ | ☑ | Yes |
+| 4 | Acceptance criteria are testable | ☑ | ☑ | Yes |
+| 5 | Traceability IDs are complete and unique | ☑ | ☑ | Yes |
+| 6 | Gate criteria are unambiguous | ☑ | ☑ | Yes |
+| 7 | Security / privacy / compliance touched? | ☑ | ☑ | If yes → Yes |
+| 8 | Glossary terms used consistently | ☑ | ☑ | No |
+| 9 | Visuals / diagrams present or explicitly deferred | ☑ | ☑ | No |
+| 10 | No implementation leakage that bypasses this SDD | ☑ | ☑ | Yes |
 
 **Sign-off**
 
 | Role | Name | Date | Decision |
 |---|---|---|---|
-| Human reviewer | | | Approve / Changes requested |
-| Agent reviewer | | | Approve / Changes requested |
+| Human reviewer | Marcos Blazquez | 2026-09-28 America/Santiago | **Approve** |
+| Agent reviewer | Clark Bot | 2026-09-28 America/Santiago | **Approve** |
 
 ---
 
@@ -305,18 +306,18 @@ IDs must remain stable once Approved. New work gets new IDs; do not reuse.
 
 All of the following must be true:
 
-- [ ] Status is **Approved** (both human and agent reviews recorded).
-- [ ] All **Critical** checklist items signed off by a human.
-- [ ] Every `REQ-*` maps to at least one `DES-*` and planned `TEST-*`.
-- [ ] Non-goals and failure/rework policy are non-empty and specific.
-- [ ] Acceptance criteria are binary/testable (no vague “should be good”).
-- [ ] No open blocking questions in §15 (or each has an approved interim decision).
-- [ ] Maturity / process owners acknowledge this SDD in the workflow tracker (when tooling exists).
-- [ ] `config/sdd_status.json` lists `"DES-0007": "Approved"` matching the Status cell.
+- [x] Status is **Approved** (both human and agent reviews recorded).
+- [x] All **Critical** checklist items signed off by a human.
+- [x] Every `REQ-*` maps to at least one `DES-*` and planned `TEST-*`.
+- [x] Non-goals and failure/rework policy are non-empty and specific.
+- [x] Acceptance criteria are binary/testable (no vague “should be good”).
+- [x] No open blocking questions in §15 (or each has an approved interim decision) — **Q-LQG-1/2 accepted as approved interims** (Marcos + Clark, 2026-09-28); soft Q-LQG-3/4 remain open.
+- [x] Maturity / process owners acknowledge this SDD in the workflow tracker (when tooling exists) — README / CONTRIBUTING / `config/sdd_status.json` updated.
+- [x] `config/sdd_status.json` lists `"DES-0007": "Approved"` matching the Status cell.
 
 **Only when every box is checked may agents generate implementation for this workflow.**
 
-**Current state:** Status is **Draft** — §13 is **not** green. No implementation authorized.
+**Current state:** Status is **Approved** — §13 is **green**. First-slice `linear_quality_gate` implementation is authorized (separate follow-up PR).
 
 ---
 
@@ -337,9 +338,10 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 
 | ID | Question | Owner | Due | Resolution |
 |---|---|---|---|---|
-| **Q-LQG-1** | Confirm intake = reuse `assembly` node id vs introduce `intake` alias id | Dual review | Before Approval | Open — proposed interim: reuse `assembly` callable with entry notes “intake” |
-| **Q-LQG-2** | Should FAIL attach the same DefectReport shape as starter? | Dual review | Before Approval | Open — proposed interim: yes, reuse QualityReport / DefectReport |
+| **Q-LQG-1** | Confirm intake = reuse `assembly` node id vs introduce `intake` alias id | Dual review | Before Approval | **Resolved (approved interim, 2026-09-28):** reuse `assembly` callable/node id with entry notes “intake” |
+| **Q-LQG-2** | Should FAIL attach the same DefectReport shape as starter? | Dual review | Before Approval | **Resolved (approved interim, 2026-09-28):** yes, reuse QualityReport / DefectReport |
 | Q-LQG-3 | Register automatically in local CLI default registry after Approval? | Implementer | During first impl slice | Soft — yes for discoverability |
+| Q-LQG-4 | Should the gateway deny runs whose `sdd_id` differs from `WorkflowDefinition.sdd_id` (workflow↔SDD binding)? | Maintainers | Future SDD / DES-0002 amendment | Soft, non-blocking — pre-existing engine behavior; not part of this slice |
 
 ---
 
@@ -348,6 +350,7 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 | Date | Author | Change |
 |---|---|---|
 | 2026-09-19 | Cursor Cloud Agent | Initial **Draft**: second workflow SDD (`linear_quality_gate`); dual review pending; no Approval claimed |
+| 2026-09-28 | Marcos Blazquez + Clark Bot | Dual review → **Approved**; Q-LQG-1/2 interims accepted; A-1 known gap (`max_rework=0` coercion) and A-4 / Q-LQG-4 (workflow↔SDD binding, soft) recorded; §13 green; first `linear_quality_gate` slice authorized (impl follow-up) |
 
 ---
 
@@ -366,7 +369,7 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 
 | Item | Guidance |
 |---|---|
-| TDD | Failing test before production registration/runner wiring |
+| TDD | Failing test before production registration/runner wiring (incl. the `max_rework=0` seed — A-1) |
 | BDD-style | Readable Given/When/Then in ordinary pytest — **not Cucumber** |
 | Testing layer | `tests/unit/` + `tests/behavior/` (DES-0002-E) |
 | Traceability | Link TEST-LQG-* to REQ-0011 / REQ-0019 / DES-0007-* |
@@ -383,7 +386,7 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 
 ### First implementation slice (authorized only after Approval)
 
-§13 is **not** green yet. After dual Approve, a follow-up PR may:
+§13 is green. Follow-up implementation (separate from this Approval docs package) may:
 
 1. Add `src/graphs/linear_quality_gate.py` (or equivalent) + registry wiring.
 2. Add TEST-LQG-01…05.
@@ -394,4 +397,4 @@ Prefer project glossary terms from [0001-hextory-vision.md](0001-hextory-vision.
 
 ## Review records
 
-**None yet.** Dual review (Marcos Blazquez + Clark Bot) is required before Status may move to **Approved**. This Draft intentionally does not add a fake agent-review file under `docs/design/reviews/`.
+Dual Approval recorded: human Approve (Marcos Blazquez, 2026-09-28 America/Santiago) + agent Approve ([DES-0007-agent-review-20260928.md](reviews/DES-0007-agent-review-20260928.md)).

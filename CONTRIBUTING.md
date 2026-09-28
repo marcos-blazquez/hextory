@@ -58,7 +58,7 @@ Python **3.11+**. See [`README.md`](README.md) for layout and CLI notes.
 | [DES-0004](docs/design/0004-onprem-adapter.md) | Approved | On-prem adapter (`adapters/onprem`) — first slice in tree; AWS/Studio still out of scope |
 | [DES-0005](docs/design/0005-aws-adapter.md) | Approved | AWS adapter (`adapters/aws`) — LocalStack/moto first; authorized `hextory-*` smoke opt-in |
 | [DES-0006](docs/design/0006-factory-observability.md) | Approved | Factory observability — metrics + `/metrics`; first slice authorized (impl follow-up) |
-| [DES-0007](docs/design/0007-linear-quality-gate.md) | Draft | Second workflow SDD (`linear_quality_gate`) — **no implementation until Approved** |
+| [DES-0007](docs/design/0007-linear-quality-gate.md) | Approved | Second workflow SDD (`linear_quality_gate`) — first slice authorized (impl follow-up) |
 | [DES-0008](docs/design/0008-env-and-flow-variables.md) | Approved | Env + in-flow vars (`{{var}}` / `VariableResolverPort`) — first slice authorized (impl follow-up) |
 | [DES-0009](docs/design/0009-request-gateway-run-bind.md) | Draft | RequestGateway run bind (consumer starts live runs) — **no implementation until Approved** |
 
