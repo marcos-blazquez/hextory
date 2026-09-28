@@ -61,6 +61,7 @@ Python **3.11+**. See [`README.md`](README.md) for layout and CLI notes.
 | [DES-0007](docs/design/0007-linear-quality-gate.md) | Approved | Second workflow SDD (`linear_quality_gate`) — first slice authorized (impl follow-up) |
 | [DES-0008](docs/design/0008-env-and-flow-variables.md) | Approved | Env + in-flow vars (`{{var}}` / `VariableResolverPort`) — first slice authorized (impl follow-up) |
 | [DES-0009](docs/design/0009-request-gateway-run-bind.md) | Draft | RequestGateway run bind (consumer starts live runs) — **no implementation until Approved** |
+| [DES-0011](docs/design/0011-external-job-port.md) | Draft | `ExternalJobPort` (provider-agnostic external jobs: start/poll/logs/cancel) — **no implementation until Approved** |
 
 GitHub issue and PR templates under [`.github/`](.github/) ask for related **DES-####** and gate status when relevant.
 

@@ -249,6 +249,7 @@ Code-only contributions that bypass an Approved SDD will be rejected once public
 | [Linear quality gate SDD (0007)](docs/design/0007-linear-quality-gate.md) | Second concrete workflow (`linear_quality_gate`) — **Approved** (2026-09-28); first slice authorized |
 | [Env + flow variables SDD (0008)](docs/design/0008-env-and-flow-variables.md) | Environment + in-flow vars (`{{var}}` / `VariableResolverPort`) — **Approved**; first slice authorized (impl follow-up) |
 | [RequestGateway run bind SDD (0009)](docs/design/0009-request-gateway-run-bind.md) | Consumer starts live factory runs (resolve → `POST /runs`) — **Draft**; dual review pending |
+| [ExternalJobPort SDD (0011)](docs/design/0011-external-job-port.md) | Provider-agnostic external jobs (start / poll / fetch_logs / cancel, timeouts, redaction, fake adapter) — **Draft**; dual review pending |
 | [On-prem operator notes](adapters/onprem/README.md) | Compose smoke, JWT/DSN env, curl examples |
 | [AWS operator notes](adapters/aws/README.md) | moto / LocalStack smoke, JWT env, uneployed SAM stub |
 | [Factory engine intent](docs/architecture/factory-engine-intent.md) | Historical intent; gate is DES-0002 **Approved** |
